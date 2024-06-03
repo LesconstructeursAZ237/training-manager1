@@ -1,9 +1,22 @@
 <?php
 
+/**
+ * PHP Skeleton app
+ * Minimum structure for native PHP web apps development
+ * 
+ * @copyright Copyright (c) Silevester D. (https://github.com/SilverD3)
+ * @link      https://github.com/devacademia/php-skeleton-ap PHP Skeleton App
+ * @since     v1.0 (2024)
+ */
+
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'paths.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'functions.php';
 
 /**
  * Classes autoloader
+ * 
+ * This autoloader helps you dynamicallement import classes from namespaces
+ * if you follow the folder structure
  */
 class AutoLoader
 {
@@ -16,16 +29,16 @@ class AutoLoader
                 switch ($fqnParts[1]) {
                     case 'Model':
                         $this->__autoLoadModel($className);
-                        break; 
+                        break;
                     case 'Controller':
                         $this->__autoLoadController($className);
-                        break; 
+                        break;
                     case 'Service':
                         $this->__autoLoadService($className);
-                        break; 
+                        break;
                     case 'View':
                         $this->__autoLoadView($className);
-                        break; 
+                        break;
                     default:
                         $this->__autoloadClass($className);
                         break;
@@ -48,7 +61,7 @@ class AutoLoader
             $fqnParts = explode('\\', $className);
             $filePath = implode(DS, $fqnParts) . '.php';
         }
-        
+
         if (file_exists($filePath)) {
             require_once $filePath;
         } else {
@@ -61,7 +74,7 @@ class AutoLoader
         $fqnParts = explode('\\', $className);
 
         unset($fqnParts[0]);
-        
+
         $filePath = CORE_PATH . implode(DS, $fqnParts) . '.php';
 
         if (file_exists($filePath)) {
@@ -69,7 +82,7 @@ class AutoLoader
         } else {
             throw new \Exception(sprintf('Could not load Core class "%s".', $className));
         }
-    }    
+    }
 
     public function __autoLoadModel($className)
     {
