@@ -14,7 +14,9 @@ define('CONFIG', ROOT . DS . 'config' . DS);
 
 define('CORE_PATH', ROOT . DS . 'Core' . DS);
 
-define('MODEL_PATH', APP . 'Model' . DS);
+define('IMG_PATH', ROOT . DS . 'Core' . DS.'Classes'. DS);
+
+define('MODEL_PATH', APP . 'Entity' . DS);
 
 define('CONTROLLER_PATH', APP . 'Controller' . DS);
 

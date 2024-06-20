@@ -27,7 +27,7 @@ class AutoLoader
 
             if ($fqnParts[0] === 'App') {
                 switch ($fqnParts[1]) {
-                    case 'Model':
+                    case 'Entity':
                         $this->__autoLoadModel($className);
                         break;
                     case 'Controller':

@@ -9,7 +9,7 @@
  * @since     v1.0 (2024)
  */
 
-require_once CONTROLLER_PATH . 'PagesController.php';
+ require_once dirname(dirname(dirname(__DIR__))) . DS . DS . 'autoload.php';
 
 use App\Controller\PagesController;
 

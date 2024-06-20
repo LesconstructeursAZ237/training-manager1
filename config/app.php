@@ -18,8 +18,8 @@ return [
     'DataSource' => [
         'host' => 'localhost',
         'username' => 'root',
-        'password' => 'silevester',
-        'database' => 'leave_manager',
+        'password' => '',
+        'database' => 'ifpli_bd_projet',
     ],
 
     'Session' => [

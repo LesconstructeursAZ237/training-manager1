@@ -30,7 +30,7 @@ class ConnectionManager
 
     private $_connection_error;
 
-    private $_connection;
+    private $_pdo;
 
     public function __construct()
     {
@@ -44,8 +44,8 @@ class ConnectionManager
             $dsn = "mysql:host=$this->host;dbname=$this->database;charset=utf8mb4";
 
             try {
-                $this->_connection = new PDO($dsn, $this->username, $this->password);
-                $this->_connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                $this->_pdo = new PDO($dsn, $this->username, $this->password);
+                $this->_pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             } catch (\PDOException $e) {
                 $this->_connection_error = $e->getMessage();
             }
@@ -57,7 +57,7 @@ class ConnectionManager
      */
     public function getConnection()
     {
-        return $this->_connection;
+        return $this->_pdo;
     }
 
     /**
@@ -97,6 +97,6 @@ class ConnectionManager
 
     public function closeConnection(): void
     {
-        $this->_connection = null;
+        $this->_pdo = null;
     }
 }
