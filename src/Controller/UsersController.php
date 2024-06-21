@@ -1,9 +1,9 @@
 <?php
-
-
 declare(strict_types=1);
 
 namespace App\Controller;
+
+use App\Entity\SessionManager;
 
 require_once dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'autoload.php';
 
@@ -11,6 +11,7 @@ use App\Service\UsersServices;
 
 class UsersController
 {
+
 
     function index()
     {
@@ -37,44 +38,33 @@ class UsersController
 
             $name = stripslashes(strip_tags(trim($name1)));
             $firstName = stripslashes(strip_tags(trim($firstName1)));
-            $mail= stripslashes(strip_tags(trim($mail1)));
+            $mail = stripslashes(strip_tags(trim($mail1)));
             $phone_number = stripslashes(strip_tags(trim($phone_number1)));
-           // $birth_date = stripslashes(strip_tags(trim($birth_date1)));
-            $photo_user= stripslashes(strip_tags(trim($photo_user1 )));
-            $pwd = $mail;   
+            $photo_user = stripslashes(strip_tags(trim($photo_user1)));
+            $pwd = $mail;
             $utilisateur = new UsersServices();
             $utilisateur1 = $utilisateur->registrationUser($name, $firstName, $mail, $phone_number, $birth_date1, $photo_user, $pwd);
+
             switch ($utilisateur1) {
-              /*   case 0:
-                    $_SESSION['message'] = 'L\'utilisateur existe déja.';
-                    // Écrire et fermer la session
-                    session_write_close();
-                    echo'<script> alert("cet utilisateur exicte deja");</script>';
-                    break; */
                 case 1:
-                    echo'<script> alert("enregistrement reuisssir");</script>';
-                    exit; 
+                    echo '<script> alert("enregistrement reuisssir");</script>';
+                    exit;
                 case 2:
-                    echo'<script> alert("echec matricul");</script>';
+                    echo '<script> alert("echec matricul");</script>';
                     exit;
                 case 20:
-                        echo'<script> alert("cet utilisateur exicte deja");</script>';
+                    echo '<script> alert("cet utilisateur exicte deja");</script>';
                     exit;
                 case 21:
-                        echo'<script> alert("echec enregistrement premier champs");</script>';
-                        exit;
+                    echo '<script> alert("echec enregistrement premier champs");</script>';
+                    exit;
                 case 22:
-                        echo'<script> alert("echec recuperation id");</script>';
-                        exit;
+                    echo '<script> alert("echec recuperation id");</script>';
+                    exit;
                 //autres cas
                 default:
                     echo "echec";
             }
-
-            /*  public function signUp()  {
-                 $GLOBALS["message"] = "It's working";
-             }
-             } */
         }
 
     }
@@ -84,19 +74,84 @@ class UsersController
         if (isset($_POST['signin'])) {
             //print_r($_POST); die();
 
-              $email1 = ($_POST['mail']);
-             $password1 = ($_POST['password']);
+            $email1 = ($_POST['mail']);
+            $password1 = ($_POST['password']);
 
-             $email = stripslashes(strip_tags(trim($email1)));
-             $password = stripslashes(strip_tags(trim($password1)));
-              /*  public function signUp()  {
-                  $GLOBALS["message"] = "It's working";
-              } */
-              } 
+            $email = stripslashes(strip_tags(trim($email1)));
+            $password = stripslashes(strip_tags(trim($password1)));
+            $conectUser = new UsersServices();
+            $ressult99 = $conectUser->signInUser($email, $password);
+
+            if (count($ressult99) == 1) {
+                $test1 = $ressult99[0];
+
+                switch ($ressult99[0]) {
+                    case 0:
+                        /*echo '<script> alert("user not found");</script>'; */
+                        header('location: signin.php');
+                        $SE1 = new SessionManager();
+                        $SE1->set('not_f_user', 'user not found');
+                        $_SESSION['not_f_user'] = $SE1->get('not_f_user');
+
+                        exit;
+                    case 10:
+                        //echo '<script> alert("mot de passe invalide");</script>';
+                        header('location: signin.php');
+                        $SE1 = new SessionManager();
+                        $SE1->set('not_f_user', 'mot de passe invalide');
+                        $_SESSION['not_f_user'] = $SE1->get('not_f_user');
+                        exit;
+                    case 1:
+                        //echo '<script> alert("student");</script>';
+                        header('location: signin.php');
+                        $SE1 = new SessionManager();
+                        $SE1->set('not_f_user', 'student');
+                        $_SESSION['not_f_user'] = $SE1->get('not_f_user');
+                        exit;
+                    case 4:
+                        //echo '<script> alert("visiteur");</script>';
+                        header('location: signin.php');
+                        $SE1 = new SessionManager();
+                        $SE1->set('not_f_user', 'visiteur');
+                        $_SESSION['not_f_user'] = $SE1->get('not_f_user');
+                        exit;
+
+                    default:
+                        //echo '<script> alert("echec de connexion");</script>';
+                        header('location: signin.php');
+                        $SE1 = new SessionManager();
+                        $SE1->set('not_f_user', 'echec de connexion');
+                        $_SESSION['not_f_user'] = $SE1->get('not_f_user');
+                        exit;
+                }
+            } else if
+            (count($ressult99) == 3) {
+                echo '<script>
+                         
+                alert("director"); 
+               </script>';
+                header('location: director.php');
+                $SE1 = new SessionManager();
+                $SE1->set('nom', $ressult99[0]);
+                $SE1->set('mail', $ressult99[1]);
+                $SE1->set('telephone', $ressult99[2]);
+                $_SESSION['nom'] = $SE1->get('nom');
+                $_SESSION['mail'] = $SE1->get('mail');
+                $_SESSION['telephone'] = $SE1->get('telephone');
+            } else {
+                //echo '<script> alert("echec de connexion");</script>';
+                header('location: signin.php');
+                $SE1 = new SessionManager();
+                $SE1->set('not_f_user', 'echec de connexion');
+                $_SESSION['not_f_user'] = $SE1->get('not_f_user');
+            }
+
         }
     }
-
-
+}
+/*  public function signUp()  {
+    $GLOBALS["message"] = "It's working";
+} */
 
 
 

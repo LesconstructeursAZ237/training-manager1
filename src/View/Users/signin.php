@@ -1,12 +1,18 @@
-<?php
+<?php session_start(); 
+
 
 require_once dirname(dirname(dirname(__DIR__))) . DIRECTORY_SEPARATOR . 'autoload.php';
 
 use App\Controller\UsersController;
-
 (new UsersController())->signin();
 
+$error_message = isset($_SESSION['not_f_user']) ? $_SESSION['not_f_user'] : '';
+//print_r($error_message); die();
+unset($_SESSION['not_f_user']);
+
 ?>
+
+
 
 
 <!DOCTYPE html>
@@ -36,6 +42,8 @@ use App\Controller\UsersController;
         <div id="slider" class=" bg-white p-4 relative">
             
              <!-- image d'arriere plan -->
+            
+             
 
             <img src=" ./../../../assets/img/equipefootball2.jpg" alt="Image 1"
                 class="w-full h-full object-contain hidden">
@@ -59,6 +67,8 @@ use App\Controller\UsersController;
                     id="log_in_form" method="post">
 
                     <div class=" p-1 bg-white overflow-auto rounded-lg  m-auto">
+                    <span class="text-red-400" id="error_user"></span>
+                    
                         <h1
                             class="mt-8 sm:text-xs md:text-base lg:text-lg xl:text-xl  2xl:text-2xl  m-auto capitalize  text-blue-500 font-bold">
                             formulaire de connexion au compte</h1><br>
@@ -90,9 +100,20 @@ use App\Controller\UsersController;
         </div>
 
     </div>
-    <?php require ("./../elements/footerLogin.php"); ?>
-
+    <?php require ("./../elements/footerLogin.php"); ?>>
 
 </body>
-
 </html>
+
+    <script>
+    // Vérifier si le message d'erreur existe
+    var errorMessage = "<?php echo $error_message; ?>";
+    if (errorMessage) {
+        // Utiliser JavaScript pour écrire dans la balise avec l'ID "error_user"
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('error_user').innerText = errorMessage;
+        });
+    }
+    </script>
+
+

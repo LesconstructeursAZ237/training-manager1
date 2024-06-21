@@ -10,7 +10,7 @@ class User {
     private $_phone_number;
     private $_birth_date;
     private $_photo_user;
-    private $_password;
+    private $_passwords;
     private $_registration_number;
     private $_status;
     private $_create_by;
@@ -22,7 +22,7 @@ class User {
     private $_role_id;
 
     // Constructeur
-    public function __construct($_name = null, $_first_name = null, $_mail = null, $_phone_number = null, $_birth_date = null,   $_photo_user = null,  $_password = null,
+    public function __construct($_name = null, $_first_name = null, $_mail = null, $_phone_number = null, $_birth_date = null,   $_photo_user = null,  $_passwords = null,
     $_registration_number = null, $_status = null, $_create_by = null, $_create_date = null, $_modified_by = null, $_modified_date = null, $_deleted = null, 
     $_pdo = null, $_id = null, $_role_id = 1) {
 
@@ -47,8 +47,8 @@ class User {
     if ($_photo_user !== null) {
         $this->_photo_user = $_photo_user;
     }
-    if ($_password !== null) {
-        $this->_password = $_password;
+    if ($_passwords !== null) {
+        $this->_passwords = $_passwords;
     }
     if ($_registration_number !== null) {
         $this->_registration_number = $_registration_number;
@@ -101,8 +101,8 @@ class User {
     public function getPhoto_user() {
         return $this->_photo_user;
     }
-    public function getPassword() {
-        return $this->_password;
+    public function getPasswords() {
+        return $this->_passwords;
     }
     public function getRegistration_number() {
         return $this->_registration_number;
@@ -155,7 +155,7 @@ class User {
         $this->_photo_user = $_photo_user;
     }
     public function setPassword($_password) {
-        $this->_password = $_password;
+        $this->_passwords = $_password;
     }
     public function setRegistration_number($_registration_number) {
         $this->_registration_number = $_registration_number;

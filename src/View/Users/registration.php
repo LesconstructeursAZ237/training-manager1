@@ -24,7 +24,7 @@ use App\Controller\UsersController;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>page de connexion</title>
+    <title>page d'ajout des nouveaux utilisateurs</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@^2.0/dist/tailwind.min.css" rel="stylesheet">
     <script src="./../../../assets/js/nav.js" defer></script>
     <style>

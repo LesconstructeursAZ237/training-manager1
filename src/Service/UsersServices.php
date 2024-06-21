@@ -46,8 +46,8 @@ class UsersServices
         //print_r($firstName);  die();
 
         $user1 = new User($name, $firstName, $mail, $phone_number, $birth_date, $photo_user, $pwd);
-        $name1 = $user1->getMail();
-        $firstName1 = $user1->getPhone_number();
+        $name1 = $user1->getName();
+        $firstName1 = $user1->getFirst_name();
         $mail1 = $user1->getMail();
         $phone_number1 = $user1->getPhone_number();
         $birth_date1 = $user1->getbirth_date();
@@ -95,19 +95,18 @@ class UsersServices
                 $select_request2->bindParam(':phone', $phone_number1);
 
                 $value_id = $select_request2->execute();
-              // Récupérer le nombre de lignes renvoyées par la requête
+                // Récupérer le nombre de lignes renvoyées par la requête
                 $rowCount1 = $select_request2->rowCount();
-                    if($rowCount1 > 0)
-                    {
-                        $result3 = $select_request2->fetchAll();
-                        foreach($result3 as $row3){
+                if ($rowCount1 > 0) {
+                    $result3 = $select_request2->fetchAll();
+                    foreach ($result3 as $row3) {
                         $val0 = $row3['id'];
                         //$val1 = substr($val0, -4);
 
-                        }
                     }
+                }
                 if ($rowCount1 > 0) {
-                    $final_value_id = strval($val0 );// convertir en chaine de carracte
+                    $final_value_id = strval($val0);// convertir en chaine de carracte
 
                     $L = strlen($final_value_id);
                     global $L1;
@@ -137,28 +136,9 @@ class UsersServices
                     $actual_year2 = substr($actual_year1, -2); // extraire les 2 derniere chiffres de l'annee en cours
                     $registration_number10 = 'IFPLI' . '-' . $actual_year2 . '-' . $L1; // concatenation pour obtenir le matricule
 
-              /*       // find and existing registration number
-                                    $request3 = "SELECT mail, phone_number FROM users WHERE registration_number= :REG1";
-                $select_request3 = $this->_pdo->prepare($request3);
-
-                $select_request3->bindParam(':REG1', $registration_number10);
-                $result3 = $select_request3->execute();
-
-                // Récupérer le nombre de lignes renvoyées par la requête
-                $rowCount1 = $select_request3->rowCount();
-                if($rowCount1 > 0){
-                    $result3 = $select_request3->fetchAll();
-                    foreach($result3 as $row3){
-                        $val0 = $row3['registration_number'];
-                        $val1 = substr($val0, -4);
-
-
-                    }
-                } */
-
                     $saveRegistNumber = $this->_pdo->prepare("UPDATE Users 
                                           SET registration_number = :REG 
-                                          WHERE mail = :mail AND phone_number = :phone");
+                                          WHERE mail = :mail AND phone_number = :phone"); // requete pour enregistrer le matricule
 
                     $saveRegistNumber->bindParam(':REG', $registration_number10);
                     $saveRegistNumber->bindParam(':mail', $mail1);
@@ -207,37 +187,84 @@ class UsersServices
         }
     }
 
-
-
-    public function SignInUser(string $mail, string $passwords)
+    public function SignInUser(string $mail, string $passwords): array
     {
-        if ($this->_pdo) {
-            try {
 
-                // Instancier la classe SignIn
-                $user1 = new User($mail, $passwords, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');
-                $mail1 = $user1->getMail();
-                $phone_number1 = $user1->getPassword();
+        $user1 = new User('', '', $mail, '', '', '', $passwords);
+        $mail1 = $user1->getMail();
+        $intput_pass = $user1->getPasswords();
 
-                $request1 = "SELECT mail, phone_number FROM users WHERE mail = :mail AND phone_number = :phone";
-                $select_request1 = $this->_pdo->prepare($request1); // Préparer la requête
+        $request1 = "SELECT * FROM users WHERE mail = :mail";
 
-                // Utiliser les méthodes getMail() et getPhone_number() de la classe User
-                $select_request1->bindParam(':mail', $mail1, \PDO::PARAM_STR);
-                $select_request1->bindParam(':phone', $phone_number1, \PDO::PARAM_STR);
+        $select_request4 = $this->_pdo->prepare($request1); // Préparer la requête
 
-                $select_request1->execute();
-                // Récupérer le nombre de lignes renvoyées par la requête
-                $rowCount = $select_request1->rowCount();
-                $GLOBALS['resultat'] = $rowCount;
-            } catch (\PDOException $e) {
-                $GLOBALS['resultat'] = 0;
+        $select_request4->bindParam(':mail', $mail1, \PDO::PARAM_STR);
+        //print_r($mail1, $intput_pass); die();
+        $select_request4->execute();
+
+        $rowCount = $select_request4->rowCount();
+        if ($rowCount > 0) {
+            
+            $result3 = $select_request4->fetchAll();
+            foreach ($result3 as $row3) {
+                $output_pass = $row3['passwords'];// save passwords
+                $rol_id = $row3['role_id'];
+                $nom_session = $row3['first_name'];
+                $mail_session = $row3['mail'];
+                $phone_session = $row3['phone_number'];
             }
-        } else {
-            $GLOBALS['resultat'] = 0;
-        }
+            if (password_verify($intput_pass, $output_pass)) {
+                $tab1 = array($nom_session, $mail_session, $phone_session);
+                //'Mot de passe valide !';
+                switch ($rol_id) {
+                    case 1:
+                        return array(1);//student
+                
+                    case 2:
+                        return $tab1;//secretaire
+                    case 3:
+                        return $tab1;
+                    case 4:
+                        return array(4);                        
+                       
+                    //autres cas
+                    default:
 
-        $GLOBALS['resultat'];
+                    return array(4);// visiteur
+                        
+                }
+            } 
+            else
+            {
+                return array(10);//'Mot de passe invalide.';
+            }
+        } 
+        else 
+        {
+            return array(0); // user not found
+        }
     }
+    
+    
 }
-//(new UsersServices())->registrationUser('fabrice','0255', 'uh', '852');
+
+/*       // find and existing registration number
+                        $request3 = "SELECT mail, phone_number FROM users WHERE registration_number= :REG1";
+    $select_request3 = $this->_pdo->prepare($request3);
+
+    $select_request3->bindParam(':REG1', $registration_number10);
+    $result3 = $select_request3->execute();
+
+    // Récupérer le nombre de lignes renvoyées par la requête
+    $rowCount1 = $select_request3->rowCount();
+    if($rowCount1 > 0){
+        $result3 = $select_request3->fetchAll();
+        foreach($result3 as $row3){
+            $val0 = $row3['registration_number'];
+            $val1 = substr($val0, -4);
+
+
+        }
+    } */
+//(new UsersServices())->signInUser('mailfabrice','pass0255');
+
