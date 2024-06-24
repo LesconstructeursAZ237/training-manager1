@@ -1,14 +1,5 @@
 <?php
 
-/**
- * PHP Skeleton app
- * Minimum structure for native PHP web apps development
- * 
- * @copyright Copyright (c) Silevester D. (https://github.com/SilverD3)
- * @link      https://github.com/devacademia/php-skeleton-ap PHP Skeleton App
- * @since     v1.0 (2024)
- */
-
 declare(strict_types=1);
 
 namespace App\Service;
@@ -209,12 +200,15 @@ class UsersServices
             foreach ($result3 as $row3) {
                 $output_pass = $row3['passwords'];// save passwords
                 $rol_id = $row3['role_id'];
+                $prenom_session = $row3['last_name'];
                 $nom_session = $row3['first_name'];
                 $mail_session = $row3['mail'];
                 $phone_session = $row3['phone_number'];
+                $role_session = $row3['role_id'];
+                
             }
             if (password_verify($intput_pass, $output_pass)) {
-                $tab1 = array($nom_session, $mail_session, $phone_session);
+                $tab1 = array($nom_session, $prenom_session, $mail_session, $phone_session, $role_session);
                 //'Mot de passe valide !';
                 switch ($rol_id) {
                     case 1:

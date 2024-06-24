@@ -1,12 +1,13 @@
 <?php session_start();
-if (!isset($_SESSION['nom']) AND !isset($_SESSION['mail']) AND !isset($_SESSION['telephone']))  {
+if (!isset($_SESSION['nom']) AND !isset($_SESSION['prenom']) AND !isset($_SESSION['mail']) AND !isset($_SESSION['telephone']) AND !isset($_SESSION['role_id']) ) {
     
-    header('Location: index.php');
-    exit;
+    header('Location: index.php'); 
 }
 $user1 = $_SESSION['nom'];
-$user2 = $_SESSION['mail'];
-$user3 = $_SESSION['telephone'];
+$user2 = $_SESSION['prenom'];
+$user3 = $_SESSION['mail'];
+$user4 = $_SESSION['telephone'];
+$user4 = $_SESSION['role_id'];
 
 ?>
 
@@ -17,13 +18,15 @@ $user3 = $_SESSION['telephone'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title> Page director </title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@^2.0/dist/tailwind.min.css" rel="stylesheet">
+    
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
     <script src="./../../../assets/js/nav.js" defer></script>
 </head>
 <body>
     <!-- star header -->
     <nav class="fixed w-full z-10 top-0 start-0 mb-1 opac" >
-<?php //echo$_SESSION['prenom'].'<br>';echo$_GLOBALS['prenom'].'<br>';?>
 
         <div class="p-4 flex justify-between flex-wrap">
 
@@ -31,7 +34,7 @@ $user3 = $_SESSION['telephone'];
 
             <span class="mt-8 text-justify">
                 CENTRE DE FORMATION PROFESSIONNELLE LE LEADER EN INFORMATIQUE
-                <h1>Welcome, <?php echo htmlspecialchars($user1).' '.$user2.' '.$user3; ?></h1>
+                <h1>Bonjour, , <?php echo htmlspecialchars($user1).' '.$user2.' '.$user3.' '.$user4; ?></h1>
             </span>
                 <ul  class="font-medium flex flex-row text-justify mt-8 justify-between overflow-x-auto ">
 
@@ -40,7 +43,7 @@ $user3 = $_SESSION['telephone'];
                     </li>
 
                     <li class="  hover:bg-gray-200 rounded-lg  ">
-                        <a href="#"class="text-sky-500 font-bold p-8" >Deconnexion</a>
+                        <a href="signOut.php"class="text-sky-500 font-bold p-8" >Deconnexion</a>
                     </li>
 
                 </ul>
@@ -58,8 +61,9 @@ $user3 = $_SESSION['telephone'];
                         <ul class=" font-medium flex flex-row justify-between ">
 
                             <li class="  hover:bg-gray-500 rounded-lg p-4">
-                                <a href="#" class="text-sky-500 font-bold  ">FORMATIONS</a>
+                                <a href="trainings.php" class="text-sky-500 font-bold  ">Formations</a>
                             </li>
+                            
 
                             <li class="  hover:bg-gray-500 rounded-lg p-4">
                                 <a href="#" class="text-sky-500 font-bold">EVENEMENTS</a>

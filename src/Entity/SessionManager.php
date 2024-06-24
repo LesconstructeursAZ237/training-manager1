@@ -25,25 +25,21 @@ class SessionManager {
     public function destroy() {
         session_destroy();
     }
+    public function signOut() {
+        // Détruire toutes les variables de session
+        $_SESSION = array();
+        
+        // Effacer le cookie de session
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
+            setcookie(session_name(), '', time() - 42000,
+                $params["path"], $params["domain"],
+                $params["secure"], $params["httponly"]
+            );
+        }
+        
+        // Détruire la session
+        session_destroy();
+    }
 }
-
-/* / Exemple d'utilisation de la classe SessionManager
-$session = new SessionManager();
-
-// Définir une variable de session
-$session->set('username', 'JohnDoe');
-
-// Obtenir une variable de session
-$username = $session->get('username');
-echo 'Username: ' . $username; // Affichera 'Username: JohnDoe'
-
-// Supprimer une variable de session
-$session->delete('username');
-
-// Vérifier que la variable de session a été supprimée
-$username = $session->get('username');
-echo 'Username after delete: ' . $username; // Affichera 'Username after delete: ' (null)
-
-// Détruire la session (et toutes les variables de session)
-$session->destroy(); */
 

@@ -125,7 +125,7 @@ class UsersController
                         exit;
                 }
             } else if
-            (count($ressult99) == 3) {
+            (count($ressult99) == 5) {
                 echo '<script>
                          
                 alert("director"); 
@@ -133,11 +133,15 @@ class UsersController
                 header('location: director.php');
                 $SE1 = new SessionManager();
                 $SE1->set('nom', $ressult99[0]);
-                $SE1->set('mail', $ressult99[1]);
-                $SE1->set('telephone', $ressult99[2]);
+                $SE1->set('prenom', $ressult99[1]);
+                $SE1->set('mail', $ressult99[2]);
+                $SE1->set('telephone', $ressult99[3]);
+                $SE1->set('role_id', $ressult99[4]);
                 $_SESSION['nom'] = $SE1->get('nom');
+                $_SESSION['prenom'] = $SE1->get('prenom');
                 $_SESSION['mail'] = $SE1->get('mail');
                 $_SESSION['telephone'] = $SE1->get('telephone');
+                $_SESSION['role_id'] = $SE1->get('role_id');
             } else {
                 //echo '<script> alert("echec de connexion");</script>';
                 header('location: signin.php');
@@ -147,6 +151,21 @@ class UsersController
             }
 
         }
+    }
+    // function de deconnxion 
+    public function signOut(){
+
+        if (isset($_POST['signout'])) {
+
+            $sessionManager = new SessionManager();
+        
+            $sessionManager->signOut();
+            
+            // Rediriger vers la page de connexion ou une autre page
+            header('Location: ./../Users/signin.php');
+            exit;
+        }
+
     }
 }
 /*  public function signUp()  {

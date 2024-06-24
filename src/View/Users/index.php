@@ -29,8 +29,9 @@
                      </li>
 
                     <li class="  hover:bg-gray-200 rounded-lg  ">
-                        <a href="#"class="text-sky-500 font-bold p-8" >Deconnexion</a>
+                        <a href="signOut.php" class="text-sky-500 font-bold p-8" >Deconnexion</a>
                     </li>
+                  
 
                 </ul>
               
