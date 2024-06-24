@@ -23,8 +23,12 @@ unset($_SESSION['not_f_user']);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>page de connexion</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@^2.0/dist/tailwind.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="./../../../assets/css/signin.css">
+
     <script src="./../../../assets/js/nav.js" defer></script>
     <script src="./../../../assets/js/login.js" defer></script>
+    <script src="./../../../assets/js/input.js" defer></script>
     <style>
         .error {
             border: 2px solid red;
@@ -67,7 +71,8 @@ unset($_SESSION['not_f_user']);
                     id="log_in_form" method="post">
 
                     <div class=" p-1 bg-white overflow-auto rounded-lg  m-auto">
-                    <span class="text-red-400" id="error_user"></span>
+                    <span class="text-red-800" id="error_user"></span>
+                  
                     
                         <h1
                             class="mt-8 sm:text-xs md:text-base lg:text-lg xl:text-xl  2xl:text-2xl  m-auto capitalize  text-blue-500 font-bold">
@@ -112,8 +117,14 @@ unset($_SESSION['not_f_user']);
         // Utiliser JavaScript pour écrire dans la balise avec l'ID "error_user"
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('error_user').innerText = errorMessage;
+            document.getElementById('mail').style.borderColor = 'red';
+            document.getElementById('mail').style.borderWidth = '2px';
+            //input.style.borderColor = 'blue';
+
         });
+
     }
     </script>
+
 
 

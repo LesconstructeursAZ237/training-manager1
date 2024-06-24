@@ -1,0 +1,48 @@
+
+
+#error_user {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    animation: defilement 10s linear infinite, clignoter 2s steps(4, start) infinite;
+}
+
+@keyframes defilement {
+    0% {
+        left: 0;
+    }
+    50% {
+        left: calc(100% - 100px);
+    }
+    100% {
+        left: 0;
+    }
+}
+
+@keyframes clignoter {
+    0%, 100% {
+        visibility: visible;
+    }
+    50% {
+        visibility: hidden;
+    }
+}
+/* entete */
+#texte-start1{
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    animation: defilement1 40s linear infinite;
+}
+@keyframes defilement1 {
+    0% {
+        left: 0;
+    }
+    50% {
+        left: calc(100% - 100px);
+    }
+    100% {
+        left: 0;
+    }
+}
+

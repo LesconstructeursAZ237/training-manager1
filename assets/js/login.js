@@ -16,14 +16,15 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     // Ajouter un écouteur d'événement 'input' pour vérifier la longueur
     inputElement.addEventListener('input', function() {
-        // Vérifier la longueur de la valeur
+       // Vérifier la longueur de la valeur
         if (inputElement.value.length < 8) {
             // Ajouter la classe pour la bordure rouge
             inputElement.classList.add('error');
-        } else {
+        } 
+        else {
             // Retirer la classe si la condition n'est pas remplie
             inputElement.classList.remove('error');
-        }
+        } 
     });
 
     // Ajouter un écouteur d'événement 'submit' pour empêcher la soumission si la condition n'est pas remplie
@@ -85,3 +86,5 @@ document.addEventListener('DOMContentLoaded', function() {
     showImage(currentImageIndex);
     startInterval();
 });
+
+

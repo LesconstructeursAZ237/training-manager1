@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title> Page Acceuil </title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@^2.0/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./../../../assets/css/signin.css">
     <script src="./../../../assets/js/nav.js" defer></script>
 </head>
 <body>
@@ -15,7 +16,7 @@
 
             <img src="./../../../assets/img/logo2.jpg" class="h-full max-h-24 hover:bg-black rounded-lg p-1" alt=" logo"> 
 
-            <span class="mt-8 text-justify">CENTRE DE FORMATION PROFESSIONNELLE LE LEADER EN INFORMATIQUE</span>
+            <span class="mt-8 text-justify capitalize font-serif text-white text-opacity-100 font-bold text-xl" id="texte-start1">CENTRE DE FORMATION PROFESSIONNELLE LE LEADER EN INFORMATIQUE</span>
 
                 <ul  class="font-medium flex flex-row text-justify mt-8 justify-between overflow-x-auto ">
 
