@@ -1,3 +1,12 @@
+<?php
+require_once dirname(dirname(dirname(__DIR__))) . DIRECTORY_SEPARATOR . 'autoload.php';
+
+use App\Controller\UsersController;
+
+(new UsersController())->index();
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,7 +30,7 @@
                 <ul  class="font-medium flex flex-row text-justify mt-8 justify-between overflow-x-auto ">
 
                     <li class="  hover:bg-gray-200 rounded-lg  ">
-                       <button> <a href="registration.php"class="text-sky-500 font-bold p-8">Inscription</a></button>
+                       <button> <a href="#" class="text-sky-500 font-bold p-8">Inscription</a></button>
                     </li>
 
                     <li class="  hover:bg-gray-200 rounded-lg  ">
@@ -75,7 +84,7 @@
   <!-- ajout des images de font du debut -->
     
     <div class=" flex float-none items-center justify-center h-screen col-start-2 col-span-4 overflow-hidden">
-
+    <?= $dbconnection ?>
         <div id="slider" class=" bg-white p-4 relative float" >
             
                 <img src="./../../../assets/img/equipefootball2.jpg" alt="Image 1" class="w-full h-full object-contain hidden">

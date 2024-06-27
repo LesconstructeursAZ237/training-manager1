@@ -23,10 +23,10 @@ use Core\Configure;
  */
 class ConnectionManager
 {
-    private string $host;
-    private string $username;
-    private string $password;
-    private string $database;
+    private string $host = 'localhost';
+    private string $username = 'root';
+    private string $password = '';
+    private string $database ='ifpli_bd_projet';
 
     private $_connection_error;
 
@@ -100,3 +100,4 @@ class ConnectionManager
         $this->_pdo = null;
     }
 }
+

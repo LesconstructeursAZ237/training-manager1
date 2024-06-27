@@ -3,11 +3,6 @@
 session_start(); // debut
 $message = '';
 
-if (isset($_SESSION['message'])) {
-    $message = $_SESSION['message'];
-    unset($_SESSION['message']);
-}// fin
-
 
 require_once dirname(dirname(dirname(__DIR__))) . DIRECTORY_SEPARATOR . 'autoload.php';
 
@@ -38,30 +33,10 @@ use App\Controller\UsersController;
 
 
     <!-- formulaire d'inscription d'utilisateur -->
+  
 
-    <div class=" flex float-none items-center justify-center h-screen col-start-2 col-span-4 overflow-hidden">
-
-        <div id="slider" class=" bg-white p-4 relative">
-
-            <!-- image d'arriere plan -->
-
-            <img src=" ./../../../assets/img/equipefootball2.jpg" alt="Image 1"
-                class="w-full h-full object-contain hidden">
-
-            <img src=" ./../../../assets/img/equipefootball2.jpg" alt="Image 1"
-                class="w-full h-full object-contain hidden">
-
-            <img src="./../../../assets/img/aceuil3.jpg" alt="Image 1" class="w-full h-full object-contain hidden">
-
-            <img src="./../../../assets/img/acceuil4.jpg" alt="Image 1" class="w-full h-full object-contain hidden">
-
-            <button id="prev"
-                class="absolute rounded-lg  left-4 top-1/2 transform -translate-y-1/2 bg-gray-500 text-white p-2  hover:bg-sky-400">Previous</button>
-            <button id="next"
-                class=" absolute rounded-lg  right-4 top-1/2 transform -translate-y-1/2 bg-gray-500 text-white p-2  hover:bg-sky-400">Next</button>
-
-            <div class="absolute inset-0 flex mt-8 mb-8 sm:text-xs text-center m-auto shadow-xl rounded-lg sm:w-10/12   md:w-96 lg:w-1/2 xl:w-1/2 lg:text-xl md:text-lg 
-                2xl:bg-red-200 overflow-hidden border border-gray-800">
+            <div class="absolute inset-0 flex mt-8 mb-8 h-2/3 sm:text-xs text-center m-auto shadow-xl rounded-lg sm:w-10/12   md:w-96 lg:w-1/2 xl:w-1/2 lg:text-xl md:text-lg 
+                2xl:bg-red-200 overflow-hidden border-gray-800">
 
                 <form action="" class=" m-auto  xl:w-full 2xl:w-full " id="registrationForm" method="post">
 
@@ -109,16 +84,19 @@ use App\Controller\UsersController;
                                 </label> <br>
 
                                 <label for="" class="text-black font-bold ">Photo: <br>
-                                    <input required type="file" placeholder="" id="photo_user" name="photo_user"
+                                    <input required type="file" id="photo_user" name="photo_user"
                                         class="font-normal rounded-md text-center sm:h-5 xl:h-10 lg:h-10 md:h-10  w-full  placeholder-gray-400 border border-gray-400">
                                 </label> <br><br>
+
+                                <label for="" class="text-black font-bold "> <br>
+                                    <input required type="hidden"  id="modified" name="modified" value="<?php echo $tab[0].' '.$tab[1] ?>"  class=" ">
+                                </label> 
 
 
                             </div>
                         </div>
                         <div class="grid grid-cols-2 gap-3 overflow-auto ">
                             <div class="w-full">
-
                                 <button type="sumbit" class="bg-blue-500 sm:text-xs xl:text-xl p-1 h-10 w-2/3  hover:bg-blue-200 hover:text-blue-00 text-white font-bold
                                     rounded-md text-center" name="registration" id="btn_login">
                                     Ajouter
@@ -129,7 +107,7 @@ use App\Controller\UsersController;
                             <div class="w-full">
                                 <button class="bg-gray-500 sm:text-xs xl:text-xl p-1 h-10 w-2/3 hover:bg-red-300 text-white font-bold
                                     rounded-md text-center">
-                                    <a href="./index.php">Retour</a>
+                                    <a href="dashboard.php">Retour</a>
                                 </button><br>
                             </div>
 
@@ -143,7 +121,7 @@ use App\Controller\UsersController;
         </div>
 
     </div>
-    <?php require ("./../Elements/footerLogin.php"); ?>
+    
 
 
 </body>

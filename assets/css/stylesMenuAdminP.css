@@ -1,0 +1,32 @@
+/* styles.css */
+
+.transition-transform {
+    transition: transform 0.3s ease;
+}
+
+.transform {
+    transform: none;
+}
+
+.translate-x-full {
+    transform: translateX(100%);
+}
+
+/* Affichage du menu principal pour les appareils mobiles */
+@media (max-width: 767px) {
+    .lg\\:hidden {
+        display: none !important;
+    }
+
+    .lg\\:block {
+        display: block !important;
+    }
+
+    .lg\\:flex {
+        display: flex !important;
+    }
+
+    .hidden {
+        display: none !important;
+    }
+}

@@ -11,7 +11,11 @@ use App\Service\UsersServices;
 
 class UsersController
 {
+    private UsersServices $usersServices;
 
+    public function __construct(){
+        $this->usersServices = new UsersServices();
+    }
 
     function index()
     {
@@ -23,6 +27,30 @@ class UsersController
 
         $GLOBALS['dbconnection'] = $dbconnection;
     }
+
+    public function dashboard(){
+        $users = $this->usersServices->getAll();
+      
+            if (isset($_POST['get_all'])) {
+                //print_r($_POST); die();
+                $users = $this->usersServices->getAll(); 
+                $GLOBALS['users'] = $users;
+               
+            }
+           /*  $auth_user=['ok bonjour bonjour','145bonjour01', 'ok 9865'];
+            $GLOBALS['auth_user'] = $auth_user;
+ */
+            $auth_user = null;
+
+            if(isset($_SESSION['auth'])){
+                $auth_user= $_SESSION['auth'];
+            }
+    
+            $GLOBALS['auth'] = $auth_user;
+ 
+       
+    }
+
     public function registration()
     {
 
@@ -34,7 +62,9 @@ class UsersController
             $mail1 = ($_POST['mail']);
             $phone_number1 = ($_POST['phone_number']);
             $birth_date1 = ($_POST['birth_date']);
-            $photo_user1 = ($_POST['photo_user']); //print_r($_POST); die();
+            $photo_user1 = ($_POST['photo_user']);
+            $created_by = ($_POST['modified']);
+            //$created_by= $modified1[0].' '.$modified1[1]; //print_r($_POST); die();
 
             $name = stripslashes(strip_tags(trim($name1)));
             $firstName = stripslashes(strip_tags(trim($firstName1)));
@@ -42,8 +72,9 @@ class UsersController
             $phone_number = stripslashes(strip_tags(trim($phone_number1)));
             $photo_user = stripslashes(strip_tags(trim($photo_user1)));
             $pwd = $mail;
+            //print_r( $created_by); die();
             $utilisateur = new UsersServices();
-            $utilisateur1 = $utilisateur->registrationUser($name, $firstName, $mail, $phone_number, $birth_date1, $photo_user, $pwd);
+            $utilisateur1 = $utilisateur->registrationUser($name, $firstName, $mail, $phone_number, $birth_date1, $photo_user, $pwd, $created_by);
 
             switch ($utilisateur1) {
                 case 1:
@@ -80,12 +111,9 @@ class UsersController
             $email = stripslashes(strip_tags(trim($email1)));
             $password = stripslashes(strip_tags(trim($password1)));
             $conectUser = new UsersServices();
-            $ressult99 = $conectUser->signInUser($email, $password);
+            $result = $conectUser->signInUser($email, $password);
 
-            if (count($ressult99) == 1) {
-                $test1 = $ressult99[0];
-
-                switch ($ressult99[0]) {
+                switch ($result) {
                     case 0:
                         /*echo '<script> alert("user not found");</script>'; */
                         header('location: signin.php');
@@ -115,6 +143,14 @@ class UsersController
                         $SE1->set('not_f_user', 'visiteur');
                         $_SESSION['not_f_user'] = $SE1->get('not_f_user');
                         exit;
+                    case is_array($result):
+                    
+                        $auth =[ $result[1], $result[2],  $result[3]];
+                        $_SESSION['auth'] = $auth;
+                        
+                        header('location: dashboard.php');
+                        //$GLOBALS['auth'] = $auth;                     
+                        exit;
 
                     default:
                         //echo '<script> alert("echec de connexion");</script>';
@@ -124,43 +160,20 @@ class UsersController
                         $_SESSION['not_f_user'] = $SE1->get('not_f_user');
                         exit;
                 }
-            } else if
-            (count($ressult99) == 5) {
-                echo '<script>
-                         
-                alert("director"); 
-               </script>';
-                header('location: director.php');
-                $SE1 = new SessionManager();
-                $SE1->set('nom', $ressult99[0]);
-                $SE1->set('prenom', $ressult99[1]);
-                $SE1->set('mail', $ressult99[2]);
-                $SE1->set('telephone', $ressult99[3]);
-                $SE1->set('role_id', $ressult99[4]);
-                $_SESSION['nom'] = $SE1->get('nom');
-                $_SESSION['prenom'] = $SE1->get('prenom');
-                $_SESSION['mail'] = $SE1->get('mail');
-                $_SESSION['telephone'] = $SE1->get('telephone');
-                $_SESSION['role_id'] = $SE1->get('role_id');
-            } else {
-                //echo '<script> alert("echec de connexion");</script>';
-                header('location: signin.php');
-                $SE1 = new SessionManager();
-                $SE1->set('not_f_user', 'echec de connexion');
-                $_SESSION['not_f_user'] = $SE1->get('not_f_user');
-            }
-
-        }
+            } 
+                     
     }
+
     // function de deconnxion 
-    public function signOut(){
+    public function signOut()
+    {
 
         if (isset($_POST['signout'])) {
 
             $sessionManager = new SessionManager();
-        
+
             $sessionManager->signOut();
-            
+
             // Rediriger vers la page de connexion ou une autre page
             header('Location: ./../Users/signin.php');
             exit;
@@ -168,10 +181,5 @@ class UsersController
 
     }
 }
-/*  public function signUp()  {
-    $GLOBALS["message"] = "It's working";
-} */
-
-
 
 

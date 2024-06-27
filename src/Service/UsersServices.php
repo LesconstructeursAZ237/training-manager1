@@ -13,10 +13,12 @@ class UsersServices
 {
     private \PDO $_pdo;
 
+
     public function __construct()
     {
         $connectionManager = new ConnectionManager();
         $this->_pdo = $connectionManager->getConnection();
+
     }
 
     public function testDbConnection(): string
@@ -32,29 +34,42 @@ class UsersServices
 
 
 
-    public function registrationUser(string $name, string $firstName, string $mail, string $phone_number, $birth_date, string $photo_user, string $pwd): int
+    public function registrationUser(string $name, string $firstName, string $mail, string $phone_number, $birth_date, string $photo_user, string $pwd, $created_by): int
     {
         //print_r($firstName);  die();
 
-        $user1 = new User($name, $firstName, $mail, $phone_number, $birth_date, $photo_user, $pwd);
-        $name1 = $user1->getName();
-        $firstName1 = $user1->getFirst_name();
-        $mail1 = $user1->getMail();
-        $phone_number1 = $user1->getPhone_number();
-        $birth_date1 = $user1->getbirth_date();
-        $photo_user1 = $user1->getPhoto_user();
-        $passwords1 = $user1->getMail();
+        $userData = [
+            '_name' => $name,
+            '_first_name' => $firstName,
+            '_mail' => $mail,
+            '_passwords' => $pwd,
+            '_phone_number' => $phone_number,
+            '_birth_date' => $birth_date,
+            '_photo_user' => $photo_user,
+            '_created_by' => $created_by,
+        ];
+
+
+        $usersData = new User($userData);
+        $name1 = $usersData->getName();
+        $firstName1 = $usersData->getFirst_name();
+        $mail1 = $usersData->getMail();
+        $phone_number1 = $usersData->getPhone_number();
+        $birth_date1 = $usersData->getbirth_date();
+        $photo_user1 = $usersData->getPhoto_user();
+        $passwords1 = $usersData->getMail();
+        $created_by = $usersData->getCreate_by();
+        // print_r($created_by );  die();
         $passwords = password_hash($passwords1, PASSWORD_DEFAULT);
-        $role1 = $user1->getRole_id(); //role = 1 pour etudiant 
+        $role1 = $usersData->getRole_id(); //role = 1 pour etudiant 
 
         global $var_retour;
 
 
-        $request1 = "SELECT mail, phone_number FROM users WHERE mail = :mail AND phone_number = :phone";
+        $request1 = "SELECT mail, phone_number FROM users WHERE mail = :mail";
         $select_request1 = $this->_pdo->prepare($request1);
 
         $select_request1->bindParam(':mail', $mail1);
-        $select_request1->bindParam(':phone', $phone_number1);
 
         $select_request1->execute();
 
@@ -65,8 +80,8 @@ class UsersServices
             return 20;   //l'utilisateur existe deja
 
         } else {
-            $saveUser = $this->_pdo->prepare("INSERT INTO Users(first_name, last_name, mail, phone_number, birth_date, photo_user, passwords, role_id)
-                        value(:NOM, :PRENOM, :MAIL, :TELEPHONE, :BIRTHD, :PHOT, :PWD, :ROLEID)");
+            $saveUser = $this->_pdo->prepare("INSERT INTO Users(first_name, last_name, mail, phone_number, birth_date, photo_user, passwords, created_by, role_id)
+                        value(:NOM, :PRENOM, :MAIL, :TELEPHONE, :BIRTHD, :PHOT, :PWD, :CREAT, :ROLEID)");
 
             $saveUser->bindParam(':NOM', $name1);
             $saveUser->bindParam(':PRENOM', $firstName1);
@@ -75,6 +90,7 @@ class UsersServices
             $saveUser->bindParam(':BIRTHD', $birth_date1);
             $saveUser->bindParam(':PHOT', $photo_user1);
             $saveUser->bindParam(':PWD', $passwords);
+            $saveUser->bindParam(':CREAT', $created_by);
             $saveUser->bindParam(':ROLEID', $role1);   //role = 1 pour etudiant  
             //$role1= 1; 
             // $saveUser->execute();
@@ -178,87 +194,111 @@ class UsersServices
         }
     }
 
-    public function SignInUser(string $mail, string $passwords): array
+    /**
+     * Cette méthode sélectionne tous les utilisateurs de la base de données.
+     * 
+     * @return User[] Un tableau d'objets User.
+     */
+    public function getAll(): array
     {
+        $request1 = "SELECT * FROM users WHERE statut = :statut";
+        $select_request1 = $this->_pdo->prepare($request1);
+        $select_request1->bindValue(':statut', 'afficher');
+        $select_request1->execute();
+        $data = $select_request1->fetchAll(\PDO::FETCH_ASSOC); // FETCH_ASSOC pour obtenir un tableau associatif
 
-        $user1 = new User('', '', $mail, '', '', '', $passwords);
-        $mail1 = $user1->getMail();
+        $users = [];
+        foreach ($data as $userData) {
+            $user = new User();
+            $user->setId($userData['id']);
+            $user->setBirth_date($userData['birth_date']);
+            $user->setPhoto_user($userData['photo_user']);
+            $user->setPassword($userData['passwords']);
+            $user->setFirst_name($userData['first_name']);
+            $user->setName($userData['last_name']);
+            $user->setMail($userData['mail']);
+            $user->setPhone_number($userData['phone_number']);
+            $user->setRegistration_number($userData['registration_number']);
+            $users[] = $user;
+        }
+
+        return $users;
+    }
+
+
+
+    public function SignInUser(string $mail, string $passwords)
+    {
+        $userData = [
+            '_mail' => $mail,
+            '_passwords' => $passwords,
+        ];
+
+
+        $user1 = new User($userData);
+
         $intput_pass = $user1->getPasswords();
+        $mail1 = $user1->getMail();
 
         $request1 = "SELECT * FROM users WHERE mail = :mail";
 
         $select_request4 = $this->_pdo->prepare($request1); // Préparer la requête
 
         $select_request4->bindParam(':mail', $mail1, \PDO::PARAM_STR);
-        //print_r($mail1, $intput_pass); die();
+
         $select_request4->execute();
 
         $rowCount = $select_request4->rowCount();
+        //print_r($rowCount); die();
         if ($rowCount > 0) {
-            
-            $result3 = $select_request4->fetchAll();
-            foreach ($result3 as $row3) {
-                $output_pass = $row3['passwords'];// save passwords
-                $rol_id = $row3['role_id'];
-                $prenom_session = $row3['last_name'];
-                $nom_session = $row3['first_name'];
-                $mail_session = $row3['mail'];
-                $phone_session = $row3['phone_number'];
-                $role_session = $row3['role_id'];
-                
-            }
-            if (password_verify($intput_pass, $output_pass)) {
-                $tab1 = array($nom_session, $prenom_session, $mail_session, $phone_session, $role_session);
-                //'Mot de passe valide !';
-                switch ($rol_id) {
-                    case 1:
-                        return array(1);//student
-                
-                    case 2:
-                        return $tab1;//secretaire
-                    case 3:
-                        return $tab1;
-                    case 4:
-                        return array(4);                        
-                       
-                    //autres cas
-                    default:
 
-                    return array(4);// visiteur
-                        
+            while ($row = $select_request4->fetch(\PDO::FETCH_ASSOC)) {
+                $table = $row;
+                // utiliser les éléments du tableau
+                $values = array_values($table);
+
+                if (isset($values[7])) {
+                    $outPoutPassword = $values[7];
                 }
-            } 
-            else
-            {
-                return array(10);//'Mot de passe invalide.';
+                if (isset($values[15])) {
+                    $role_id = $values[15];
+                }
+                if (password_verify($intput_pass, $outPoutPassword)) {
+                    //'Mot de passe valide !';
+                    switch ($role_id) {
+                        case 1:
+                            return 1;//student
+                        case 2:
+                            return $values;//secretaire
+                        case 3:
+                            return $values;//directeur
+                        case 4:
+                            return 4;
+                        //autres cas
+                        default:
+                            return 4;// visiteur           
+                    }
+
+                } else {
+                    return 10;//'Mot de passe invalide.';
+                }
+
             }
-        } 
-        else 
-        {
-            return array(0); // user not found
+        } else {
+            return 0; // user not found
         }
     }
-    
-    
+
 }
 
-/*       // find and existing registration number
-                        $request3 = "SELECT mail, phone_number FROM users WHERE registration_number= :REG1";
-    $select_request3 = $this->_pdo->prepare($request3);
-
-    $select_request3->bindParam(':REG1', $registration_number10);
-    $result3 = $select_request3->execute();
-
-    // Récupérer le nombre de lignes renvoyées par la requête
-    $rowCount1 = $select_request3->rowCount();
-    if($rowCount1 > 0){
-        $result3 = $select_request3->fetchAll();
-        foreach($result3 as $row3){
-            $val0 = $row3['registration_number'];
-            $val1 = substr($val0, -4);
-
-
-        }
-    } */
-//(new UsersServices())->signInUser('mailfabrice','pass0255');
+/*  $users = (new UsersServices())->sellectAllUser();
+foreach ($users as $user): ?>
+    <div>
+        <p>Nom complet: <?= htmlspecialchars($user->getFirst_name() . ' ' . $user->getName()) ?></p>
+        <p>Email: <?= htmlspecialchars($user->getMail()) ?></p>
+        <p>Numéro de téléphone: <?= ($user->getPhone_number()) ?></p>
+        <p>Numéro d'inscription: <?= htmlspecialchars($user->getRegistration_number()) ?></p>
+        <hr>
+    </div>
+<?php endforeach; ?> */
 
