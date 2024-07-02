@@ -20,6 +20,7 @@ class User {
     private $_deleted;
     private $_pdo;
     private $_role_id;
+    private $_role;
 
     // Constructeur
    public function __construct(array $userData = [])
@@ -42,6 +43,7 @@ class User {
         $this->_deleted = $userData['_deleted'] ?? null;
         $this->_pdo = $userData['_pdo'] ?? null;
         $this->_role_id = $userData['_role_id'] ?? 1;
+        $this->_role = $userData['_role'] ?? null;
     }
 }
 
@@ -97,7 +99,12 @@ class User {
         return $this->_pdo;
     }
     public function getRole_id() {
+        
         return $this->_role_id;
+    }
+    public function getRole() {
+        
+        return $this->_role;
     }
 
     // Setters
@@ -151,5 +158,8 @@ class User {
     }
     public function setRole_id($_role_id) {
         $this->_role_id = $_role_id;
+    }
+    public function setRole($_role) {
+        $this->_role = $_role;
     }
 }

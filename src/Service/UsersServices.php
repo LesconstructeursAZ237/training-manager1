@@ -46,7 +46,7 @@ class UsersServices
             '_phone_number' => $phone_number,
             '_birth_date' => $birth_date,
             '_photo_user' => $photo_user,
-            '_created_by' => $created_by,
+            '_create_by' => $created_by,
         ];
 
 
@@ -59,7 +59,6 @@ class UsersServices
         $photo_user1 = $usersData->getPhoto_user();
         $passwords1 = $usersData->getMail();
         $created_by = $usersData->getCreate_by();
-        // print_r($created_by );  die();
         $passwords = password_hash($passwords1, PASSWORD_DEFAULT);
         $role1 = $usersData->getRole_id(); //role = 1 pour etudiant 
 
@@ -201,11 +200,15 @@ class UsersServices
      */
     public function getAll(): array
     {
-        $request1 = "SELECT * FROM users WHERE statut = :statut";
-        $select_request1 = $this->_pdo->prepare($request1);
-        $select_request1->bindValue(':statut', 'afficher');
-        $select_request1->execute();
-        $data = $select_request1->fetchAll(\PDO::FETCH_ASSOC); // FETCH_ASSOC pour obtenir un tableau associatif
+        $request = "SELECT u.*, r.name
+                FROM users u
+                LEFT JOIN roles r ON u.role_id = r.id
+                WHERE u.statut = :statut
+                ORDER BY u.first_name ASC";
+        $request1 = $this->_pdo->prepare($request);
+        $request1->bindValue(':statut', 'afficher');
+        $request1->execute();
+        $data = $request1->fetchAll(\PDO::FETCH_ASSOC);
 
         $users = [];
         foreach ($data as $userData) {
@@ -219,6 +222,7 @@ class UsersServices
             $user->setMail($userData['mail']);
             $user->setPhone_number($userData['phone_number']);
             $user->setRegistration_number($userData['registration_number']);
+            $user->setRole($userData['name']);
             $users[] = $user;
         }
 
@@ -288,7 +292,275 @@ class UsersServices
             return 0; // user not found
         }
     }
+    /**
+     * Cette méthode modifie le role d'un utilisateur dans la base de données.
+     * 
+     * @return int tableau d'objets User.
+     */
+    public function setNewRole(int $id, string $newRole, string $newModified): int
+    {
+        function getNewValueRoleId(string $chaine): int
+        {
+            switch ($chaine) {
+                case 'visitor':
+                    return 4;
+                case 'student':
+                    return 1;
+                case 'secretary':
+                    return 2;
+                default:
+                    return 4;
+            }
+        }
 
+        $currentDate = date('Y-m-d');/* pour stocker la date de modification */
+        $roleId = getNewValueRoleId($newRole);
+        $userData = [
+            '_id' => $id,
+            '_role_id' => $roleId,
+            '_modified_by' => $newModified,
+            '_modified_date' => $currentDate,
+        ];
+
+        $userNewRole = new User($userData);
+
+        $checkId = $userNewRole->getId();
+        $InputRole = $userNewRole->getRole_id();
+        $newModified = $userNewRole->getModified_by();
+        $newCurrentDate = $userNewRole->getModified_date();
+        /*   check if it is the same role */
+        $request1 = "SELECT * FROM users WHERE id = :ID AND role_id =:role_id";
+
+        $select_request4 = $this->_pdo->prepare($request1); // Préparer la requête
+
+        $select_request4->bindParam(':ID', $checkId, \PDO::PARAM_STR);
+        $select_request4->bindParam(':role_id', $InputRole, \PDO::PARAM_STR);
+
+        $select_request4->execute();
+        global $retourVal;
+        $rowCount = $select_request4->rowCount();
+        if ($rowCount > 0) {
+            $retourVal = 1;
+        }
+        $request2 = "SELECT role_id FROM users WHERE id = :ID ";
+
+        $select_request2 = $this->_pdo->prepare($request2); // Préparer la requête
+
+        $select_request2->bindParam(':ID', $checkId, \PDO::PARAM_STR);
+
+        $select_request2->execute();
+
+
+        while ($row1 = $select_request2->fetch(\PDO::FETCH_ASSOC)) {
+            $table1 = $row1;
+            // utiliser les éléments du tableau
+            $values = array_values($table1);
+            /* check if role is director */
+            if (isset($values[0])) {
+                $val = $values[0];
+                if ($val == 3) {
+                    $retourVal = 0;
+                } else {
+                    
+                    $saveNewRole = $this->_pdo->prepare("UPDATE Users 
+                                              SET role_id = :role_id,
+                                                    modifie_by = :modifie_by, 
+                                                    modifie_date = :modifie_date
+                                                WHERE id = :id");
+                    $saveNewRole->bindParam(':id', $checkId, \PDO::PARAM_STR);
+                    $saveNewRole->bindParam(':role_id', $InputRole, \PDO::PARAM_STR); 
+                    $saveNewRole->bindParam(':modifie_by', $newModified, \PDO::PARAM_STR); 
+                    $saveNewRole->bindParam(':modifie_date', $newCurrentDate, \PDO::PARAM_STR); 
+                    $saveNewRole->execute();
+                    if ($saveNewRole) {
+                        $retourVal = 1;
+                    } else {
+                        $retourVal = 0;
+                    }
+                }
+
+
+            } else {
+                $retourVal = 0;
+            }
+        }
+
+        return $retourVal;
+
+    }
+    /* edit registration number */
+    public function setMatricule(int $id, string $newMat, string $newModified): int
+    {
+     
+
+        $currentDate = date('Y-m-d');/* pour stocker la date de modification */
+        $userData = [
+            '_id' => $id,
+            '_registration_number' => $newMat,
+            '_modified_by' => $newModified,
+            '_modified_date' => $currentDate,
+        ];
+        $newMat = new User($userData);
+            global $retourVal;
+        $checkId = $newMat->getId(); /*echo $checkId; die(); IFPLI-24-0027 IFPLI-24-0027*/
+        $InputMat = $newMat->getRegistration_number();// echo $InputMat; die();
+        $newModifiedMat = $newMat->getModified_by();
+        $newCurrentDate = $newMat->getModified_date();
+        $saveNewMat = $this->_pdo->prepare("UPDATE Users 
+        SET registration_number = :registration_number,
+              modifie_by = :modifie_by, 
+              modifie_date = :modifie_date
+          WHERE id = :id");
+            $saveNewMat->bindParam(':id', $checkId, \PDO::PARAM_STR);
+            $saveNewMat->bindParam(':registration_number', $InputMat, \PDO::PARAM_STR); 
+            $saveNewMat->bindParam(':modifie_by', $newModifiedMat, \PDO::PARAM_STR); 
+            $saveNewMat->bindParam(':modifie_date', $newCurrentDate, \PDO::PARAM_STR); 
+            $saveNewMat->execute();
+                if ($saveNewMat) {
+                $retourVal = 1;
+                } else {
+                $retourVal = 0;
+                }
+                return $retourVal;
+    }
+
+    /* edit email */
+    public function editEmail(int $id, string $newMail, string $newModified): int
+    {
+     
+      
+        $currentDate = date('Y-m-d');/* pour stocker la date de modification */
+        $userData = [
+            '_id' => $id,
+            '_mail' => $newMail,
+            '_modified_by' => $newModified,
+            '_modified_date' => $currentDate,
+        ];
+        $newMail = new User($userData);
+            global $retourVal;
+        $checkId = $newMail->getId(); /*echo $checkId; die();fab1@gmail.com*/
+        $InputMail = $newMail->getMail(); 
+        $newModifiedMail = $newMail->getModified_by();
+        $newCurrentDate = $newMail->getModified_date();
+        $saveNewMail = $this->_pdo->prepare("UPDATE Users 
+        SET mail = :mail,
+              modifie_by = :modifie_by, 
+              modifie_date = :modifie_date
+          WHERE id = :id");
+            $saveNewMail->bindParam(':id', $checkId, \PDO::PARAM_STR);
+            $saveNewMail->bindParam(':mail', $InputMail, \PDO::PARAM_STR); 
+            $saveNewMail->bindParam(':modifie_by', $newModifiedMail, \PDO::PARAM_STR); 
+            $saveNewMail->bindParam(':modifie_date', $newCurrentDate, \PDO::PARAM_STR); 
+            $saveNewMail->execute();
+                if ($saveNewMail) {
+                $retourVal = 1;
+                } else {
+                $retourVal = 0;
+                }
+                return $retourVal;
+    }
+    /* edit phone number */
+    public function editPhoneNumber(int $id, int $newPhone, string $newModified): int
+    {
+         
+        $currentDate = date('Y-m-d');/* pour stocker la date de modification */
+        $userData = [
+            '_id' => $id,
+            '_phone_number' => $newPhone,
+            '_modified_by' => $newModified,
+            '_modified_date' => $currentDate,
+        ];
+        $newPhoneNumber = new User($userData);
+            global $retourVal;
+        $checkId = $newPhoneNumber->getId(); 
+        $InputPhoneNumber = $newPhoneNumber->getPhone_number(); 
+        $newModifiedPhone = $newPhoneNumber->getModified_by();
+        $newCurrentDate = $newPhoneNumber->getModified_date();
+        $saveNewPhone = $this->_pdo->prepare("UPDATE Users 
+        SET phone_number = :phone_number,
+              modifie_by = :modifie_by, 
+              modifie_date = :modifie_date
+          WHERE id = :id");
+            $saveNewPhone->bindParam(':id', $checkId, \PDO::PARAM_STR);
+            $saveNewPhone->bindParam(':phone_number', $InputPhoneNumber, \PDO::PARAM_STR); 
+            $saveNewPhone->bindParam(':modifie_by', $newModifiedPhone, \PDO::PARAM_STR); 
+            $saveNewPhone->bindParam(':modifie_date', $newCurrentDate, \PDO::PARAM_STR); 
+            $saveNewPhone->execute();
+                if ($saveNewPhone) {
+                $retourVal = 1;
+                } else {
+                $retourVal = 0;
+                }
+                return $retourVal;
+    }
+    /* edit last_name */
+    public function editFirstName(int $id, string $newPrenom, string $newModified): int
+    {
+         
+        $currentDate = date('Y-m-d');/* pour stocker la date de modification */
+        $userData = [
+            '_id' => $id,
+            '_first_name' => $newPrenom,
+            '_modified_by' => $newModified,
+            '_modified_date' => $currentDate,
+        ];
+        $newPrenom = new User($userData);
+            global $retourVal;
+        $checkId = $newPrenom->getId(); 
+        $InputPrenom = $newPrenom->getFirst_name(); 
+        $newModifiedPrenom = $newPrenom->getModified_by();
+        $newCurrentDate = $newPrenom->getModified_date();
+        $saveNewPrenom = $this->_pdo->prepare("UPDATE Users 
+        SET last_name = :last_name,
+              modifie_by = :modifie_by, 
+              modifie_date = :modifie_date
+          WHERE id = :id");
+            $saveNewPrenom ->bindParam(':id', $checkId, \PDO::PARAM_STR);
+            $saveNewPrenom->bindParam(':last_name', $InputPrenom, \PDO::PARAM_STR); 
+            $saveNewPrenom->bindParam(':modifie_by', $newModifiedPrenom, \PDO::PARAM_STR); 
+            $saveNewPrenom->bindParam(':modifie_date', $newCurrentDate, \PDO::PARAM_STR); 
+            $saveNewPrenom->execute();
+                if ($saveNewPrenom) {
+                $retourVal = 1;
+                } else {
+                $retourVal = 0;
+                }
+                return $retourVal;
+    }
+    /* edit first_name */
+    public function editName(int $id, string $newNom, string $newModified): int
+    {
+         
+        $currentDate = date('Y-m-d');/* pour stocker la date de modification */
+        $userData = [
+            '_id' => $id,
+            '_name' => $newNom,
+            '_modified_by' => $newModified,
+            '_modified_date' => $currentDate,
+        ];
+        $newNom = new User($userData);
+            global $retourVal;
+        $checkId = $newNom->getId(); 
+        $InputNom = $newNom->getName(); 
+        $newModifiedNom = $newNom->getModified_by();
+        $newCurrentDate = $newNom->getModified_date();
+        $saveNewNom = $this->_pdo->prepare("UPDATE Users 
+        SET first_name = :first_name,
+              modifie_by = :modifie_by, 
+              modifie_date = :modifie_date
+          WHERE id = :id");
+            $saveNewNom ->bindParam(':id', $checkId, \PDO::PARAM_STR);
+            $saveNewNom->bindParam(':first_name', $InputNom, \PDO::PARAM_STR); 
+            $saveNewNom->bindParam(':modifie_by', $newModifiedNom, \PDO::PARAM_STR); 
+            $saveNewNom->bindParam(':modifie_date', $newCurrentDate, \PDO::PARAM_STR); 
+            $saveNewNom->execute();
+                if ($saveNewNom) {
+                $retourVal = 1;
+                } else {
+                $retourVal = 0;
+                }
+                return $retourVal;
+    }
 }
 
 /*  $users = (new UsersServices())->sellectAllUser();

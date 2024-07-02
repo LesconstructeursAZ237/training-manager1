@@ -45,9 +45,162 @@ class UsersController
             if(isset($_SESSION['auth'])){
                 $auth_user= $_SESSION['auth'];
             }
-    
             $GLOBALS['auth'] = $auth_user;
- 
+
+            /* button change role  */
+            if(isset($_POST['changeRole'])){
+                $newRole = $_POST['dropdown'];
+                $idNewRole =intval( $_POST['newId']);
+                $NewRoleModified = $_POST['modified'];
+                $sqlUpdateRole = new UsersServices() ;
+                $resquest = $sqlUpdateRole->setNewRole($idNewRole, $newRole, $NewRoleModified) ;
+                switch ($resquest) {
+                    case 1:
+                        echo '<script> alert("modification reuisssir");
+                         window.location.href = "./../Users/dashboard.php";
+                        </script>';
+                        exit;
+                    case 0:
+                        echo '<script> alert("echec de modification");
+                        window.location.href = "./../Users/dashboard.php";
+                        </script>';               
+                        exit;
+                    //autres cas
+                    default:
+                    echo '<script> alert("echec");
+                    window.location.href = "./../Users/dashboard.php";
+                    </script>';
+                } 
+            }
+/* modification registration number */
+            if(isset($_POST['editMat'])){
+                $newMat = $_POST['newMat'];
+                $Id =intval( $_POST['indentifiantMat']);
+                $newModifiedMat =$_POST['modifiedMatricule'];
+                $newValue = new UsersServices() ;
+                $resquestMat = $newValue->setMatricule($Id, $newMat, $newModifiedMat) ;
+                switch ($resquestMat) {
+                    case 1:
+                        echo '<script> alert("modification reuisssir");
+                         window.location.href = "./../Users/dashboard.php";
+                        </script>';
+                        exit;
+                    case 0:
+                        echo '<script> alert("echec de modification");
+                        window.location.href = "./../Users/dashboard.php";
+                        </script>';               
+                        exit;
+                    //autres cas
+                    default:
+                    echo '<script> alert("echec");
+                    window.location.href = "./../Users/dashboard.php";
+                    </script>';
+                }
+                
+            }
+ /* modification email */
+ if(isset($_POST['editEmail'])){
+    $newEmail = $_POST['newEmail'];
+    $Id =intval( $_POST['indentifiantEmail']);
+    $modifiedEmail =$_POST['modifiedEmail'];
+    $newValue = new UsersServices() ;
+    $resquestMat = $newValue->editEmail($Id, $newEmail, $modifiedEmail) ;
+    switch ($resquestMat) {
+        case 1:
+            echo '<script> alert("modification reuisssir");
+             window.location.href = "./../Users/dashboard.php";
+            </script>';
+            exit;
+        case 0:
+            echo '<script> alert("echec de modification");
+            window.location.href = "./../Users/dashboard.php";
+            </script>';               
+            exit;
+        //autres cas
+        default:
+        echo '<script> alert("echec");
+        window.location.href = "./../Users/dashboard.php";
+        </script>';
+    }
+
+
+    
+}
+        /* modification phone number */
+        if(isset($_POST['EditPhoneNumber'])){
+            $newPhone = intval($_POST['newPhoneNumber']);
+            $Id =intval( $_POST['indentifiantTelephone']);
+            $modifiedPhone =$_POST['modifiedPhoneNumber'];
+            $newValue = new UsersServices() ; 
+            $resquestPhone = $newValue->editPhoneNumber($Id, $newPhone, $modifiedPhone) ;
+            switch ($resquestPhone) {
+                case 1:
+                    echo '<script> alert("modification reuisssir");
+                     window.location.href = "./../Users/dashboard.php";
+                    </script>';
+                    exit;
+                case 0:
+                    echo '<script> alert("echec de modification");
+                    window.location.href = "./../Users/dashboard.php";
+                    </script>';               
+                    exit;
+                //autres cas
+                default:
+                echo '<script> alert("echec");
+                window.location.href = "./../Users/dashboard.php";
+                </script>';
+            }
+        }
+        /* modification last_name */
+        if(isset($_POST['editPrenom'])){
+            $newPrenom = $_POST['newPrenom'];
+            $Id =intval( $_POST['indentifiantPrenom']);
+            $modifiedPrenom =$_POST['modifiedPrenom'];
+            $newValue = new UsersServices() ; 
+            $resquestPrenom = $newValue->editFirstName($Id, $newPrenom, $modifiedPrenom) ;
+            switch ($resquestPrenom) {
+                case 1:
+                    echo '<script> alert("modification reuisssir");
+                     window.location.href = "./../Users/dashboard.php";
+                    </script>';
+                    exit;
+                case 0:
+                    echo '<script> alert("echec de modification");
+                    window.location.href = "./../Users/dashboard.php";
+                    </script>';               
+                    exit;
+                //autres cas
+                default:
+                echo '<script> alert("echec");
+                window.location.href = "./../Users/dashboard.php";
+                </script>';
+            }
+        }
+        /* modification first_name */
+        if(isset($_POST['editNom'])){
+            $newNom = $_POST['newNom'];
+            $Id =intval( $_POST['indentifiantNom']);
+            $modifiedNom =$_POST['modifiedNom'];
+            $newValue = new UsersServices() ; 
+            $resquestNom = $newValue->editName($Id, $newNom , $modifiedNom) ;
+            switch ($resquestNom) {
+                case 1:
+                    echo '<script> alert("modification reuisssir");
+                     window.location.href = "./../Users/dashboard.php";
+                    </script>';
+                    exit;
+                case 0:
+                    echo '<script> alert("echec de modification");
+                    window.location.href = "./../Users/dashboard.php";
+                    </script>';               
+                    exit;
+                //autres cas
+                default:
+                echo '<script> alert("echec");
+                window.location.href = "./../Users/dashboard.php";
+                </script>';
+            }
+        }
        
     }
 
@@ -78,23 +231,35 @@ class UsersController
 
             switch ($utilisateur1) {
                 case 1:
-                    echo '<script> alert("enregistrement reuisssir");</script>';
+                    echo '<script> alert("enregistrement reuisssir");
+                    window.location.href = "./../Users/dashboard.php";
+                    </script>';
                     exit;
                 case 2:
-                    echo '<script> alert("echec matricul");</script>';
+                    echo '<script> alert("echec matricul");
+                    window.location.href = "./../Users/dashboard.php";
+                    </script>';
                     exit;
                 case 20:
-                    echo '<script> alert("cet utilisateur exicte deja");</script>';
+                    echo '<script> alert("cet utilisateur exicte deja");
+                    window.location.href = "./../Users/dashboard.php";
+                    </script>';
                     exit;
                 case 21:
-                    echo '<script> alert("echec enregistrement premier champs");</script>';
+                    echo '<script> alert("echec enregistrement premier champs");
+                    window.location.href = "./../Users/registration.php";
+                    </script>';
                     exit;
                 case 22:
-                    echo '<script> alert("echec recuperation id");</script>';
+                    echo '<script> alert("echec recuperation id");
+                    window.location.href = "./../registration.php";
+                    </script>';
                     exit;
                 //autres cas
                 default:
-                    echo "echec";
+                echo '<script> alert("echec");
+                window.location.href = "./../Users/registration.php";
+                </script>';
             }
         }
 
@@ -133,14 +298,14 @@ class UsersController
                         //echo '<script> alert("student");</script>';
                         header('location: signin.php');
                         $SE1 = new SessionManager();
-                        $SE1->set('not_f_user', 'student');
+                        $SE1->set('not_f_user', 'la section de connexion etudiant n\'est pas encore developper');
                         $_SESSION['not_f_user'] = $SE1->get('not_f_user');
                         exit;
                     case 4:
                         //echo '<script> alert("visiteur");</script>';
                         header('location: signin.php');
                         $SE1 = new SessionManager();
-                        $SE1->set('not_f_user', 'visiteur');
+                        $SE1->set('not_f_user', 'la section de connexion visiteur n\'est pas encore developper');
                         $_SESSION['not_f_user'] = $SE1->get('not_f_user');
                         exit;
                     case is_array($result):
@@ -178,7 +343,6 @@ class UsersController
             header('Location: ./../Users/signin.php');
             exit;
         }
-
     }
 }
 

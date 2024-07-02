@@ -89,7 +89,9 @@ use App\Controller\UsersController;
                                 </label> <br><br>
 
                                 <label for="" class="text-black font-bold "> <br>
-                                    <input required type="hidden"  id="modified" name="modified" value="<?php echo $tab[0].' '.$tab[1] ?>"  class=" ">
+                                <?php if (isset($_SESSION['auth']) && is_array($_SESSION['auth'])): ?>
+                                    <input required type="hidden"  id="modified" name="modified" value="<?php echo(htmlspecialchars($_SESSION['auth'][1]).' '.htmlspecialchars($_SESSION['auth'][0])); ?>"  class=" ">
+                                    <?php endif; ?>
                                 </label> 
 
 
