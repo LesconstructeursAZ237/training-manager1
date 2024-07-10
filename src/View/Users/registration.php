@@ -1,14 +1,13 @@
 <?php
 //variable de session pour retour de message
 session_start(); // debut
-$message = '';
 
 
 require_once dirname(dirname(dirname(__DIR__))) . DIRECTORY_SEPARATOR . 'autoload.php';
 
 use App\Controller\UsersController;
 
-(new UsersController())->registration();
+(new UsersController())->addUser();
 
 ?>
 
@@ -41,7 +40,7 @@ use App\Controller\UsersController;
                 <form action="" class=" m-auto  xl:w-full 2xl:w-full " id="registrationForm" method="post">
 
                     <div class=" p-1 bg-white overflow-auto rounded-lg  m-auto text-base">
-                        <?php if ($message): ?>
+                        <?php if (isset($message)): ?>
                             <p
                                 class="mt-8 sm:text-xs md:text-base lg:text-lg xl:text-xl  2xl:text-2xl  m-auto capitalize  text-blue-500 font-bold ">
                                 <?php echo htmlspecialchars($message); ?>
@@ -123,9 +122,6 @@ use App\Controller\UsersController;
         </div>
 
     </div>
-    
-
-
 </body>
 
 </html>

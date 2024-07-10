@@ -8,6 +8,11 @@ require_once dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'autoload.php';
 
 use Core\Database\ConnectionManager;
 use App\Entity\User;
+use App\Entity\Role;
+use Core\Auth\PasswordHasher;
+use Core\FlashMessages\Flash;
+
+
 
 class UsersServices
 {
@@ -65,10 +70,11 @@ class UsersServices
         global $var_retour;
 
 
-        $request1 = "SELECT mail, phone_number FROM users WHERE mail = :mail";
+        $request1 = "SELECT mail, phone_number FROM users WHERE mail = :mail AND deleted=:deleted";
         $select_request1 = $this->_pdo->prepare($request1);
 
         $select_request1->bindParam(':mail', $mail1);
+        $select_request1->bindValue(':deleted', 0);
 
         $select_request1->execute();
 
@@ -91,8 +97,7 @@ class UsersServices
             $saveUser->bindParam(':PWD', $passwords);
             $saveUser->bindParam(':CREAT', $created_by);
             $saveUser->bindParam(':ROLEID', $role1);   //role = 1 pour etudiant  
-            //$role1= 1; 
-            // $saveUser->execute();
+           
             if ($saveUser->execute()) {
                 $request2 = "SELECT id FROM users WHERE mail = :mail AND phone_number = :phone";
                 $select_request2 = $this->_pdo->prepare($request2);
@@ -203,10 +208,11 @@ class UsersServices
         $request = "SELECT u.*, r.name
                 FROM users u
                 LEFT JOIN roles r ON u.role_id = r.id
-                WHERE u.statut = :statut
+                WHERE u.statut = :statut AND deleted = :deleted
                 ORDER BY u.first_name ASC";
         $request1 = $this->_pdo->prepare($request);
         $request1->bindValue(':statut', 'afficher');
+        $request1->bindValue(':deleted', 0);
         $request1->execute();
         $data = $request1->fetchAll(\PDO::FETCH_ASSOC);
 
@@ -231,7 +237,7 @@ class UsersServices
 
 
 
-    public function SignInUser(string $mail, string $passwords)
+    public function  SignInUser(string $mail, string $passwords)
     {
         $userData = [
             '_mail' => $mail,
@@ -269,13 +275,14 @@ class UsersServices
                 }
                 if (password_verify($intput_pass, $outPoutPassword)) {
                     //'Mot de passe valide !';
+                    $ID = intval($values[0]);
                     switch ($role_id) {
                         case 1:
                             return 1;//student
-                        case 2:
-                            return $values;//secretaire
-                        case 3:
-                            return $values;//directeur
+                        case 2:                  
+                            return $this->getById($ID);                  
+                        case 3:                         
+                            return $this->getById($ID);//directeur
                         case 4:
                             return 4;
                         //autres cas
@@ -561,16 +568,104 @@ class UsersServices
                 }
                 return $retourVal;
     }
+
+    /* delete user */
+    public function deletedUser(int $id,  string $modified): int{
+
+        $currentDate = date('Y-m-d');/* pour stocker la date de modification */
+        $userData = [
+            '_id' => $id,
+            '_modified_by' => $modified,
+            '_modified_date' => $currentDate,
+        ];
+        $Deletet = new User($userData);
+            global $retourVal;
+        
+                $checkId = $Deletet->getId(); 
+                $Modified = $Deletet->getModified_by();
+                $newCurrentDate = $Deletet->getModified_date();
+        
+                $saveDeletedUser  = $this->_pdo->prepare("UPDATE Users 
+                SET statut = :statut,
+                    deleted = :deleted,
+                      modifie_by = :modifie_by, 
+                      modifie_date = :modifie_date
+                  WHERE id = :id");
+                    $saveDeletedUser ->bindParam(':id', $checkId, \PDO::PARAM_STR);
+                    $saveDeletedUser->bindValue(':statut', 'non', \PDO::PARAM_STR); 
+                    $saveDeletedUser->bindValue(':deleted', 1, \PDO::PARAM_STR); 
+                    $saveDeletedUser->bindParam(':modifie_by', $Modified, \PDO::PARAM_STR); 
+                    $saveDeletedUser->bindParam(':modifie_date', $newCurrentDate, \PDO::PARAM_STR); 
+                    $saveDeletedUser->execute();
+                        if ($saveDeletedUser) {
+                        $retourVal = 1;
+                        } else {
+                        $retourVal = 0;
+                        }
+           
+            return $retourVal;
+    }
+
+    public function getById($id): ?User
+    {
+        $result = [];
+
+        $sql = "SELECT users.*, roles.*
+                FROM users
+                INNER JOIN roles ON users.role_id = roles.id
+                WHERE users.id = :id AND users.deleted = :deleted";
+        try {
+            $query = $this->_pdo->prepare($sql);
+            $query->bindParam(':id', $id, \PDO::PARAM_INT); // Si l'ID est un entier
+            $query->bindValue(':deleted', 0, \PDO::PARAM_INT); // Si deleted est un entier
+            $query->execute();
+        
+            $result = $query->fetch(\PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            throw new \Exception("SQL Exception: " . $e->getMessage(), 1);
+        }
+        
+        if (empty($result)) {
+            return null;
+        }
+            $user = new User();
+            $user->setId($result['id']);
+            $user->setBirth_date($result['birth_date']);
+            $user->setPhoto_user($result['photo_user']);
+            $user->setPassword($result['passwords']);
+            $user->setFirst_name($result['first_name']);
+            $user->setName($result['last_name']);
+            $user->setMail($result['mail']);
+            $user->setPhone_number($result['phone_number']);
+            $user->setRegistration_number($result['registration_number']);
+            $user->setRole($result['name']);
+            $user->setRole_id($result['role_id']);
+          
+
+        return $user;
+    }
+    public function delete(int $id): bool
+    {
+
+        return true;
+    }
+
+   
 }
 
-/*  $users = (new UsersServices())->sellectAllUser();
-foreach ($users as $user): ?>
-    <div>
-        <p>Nom complet: <?= htmlspecialchars($user->getFirst_name() . ' ' . $user->getName()) ?></p>
-        <p>Email: <?= htmlspecialchars($user->getMail()) ?></p>
-        <p>Numéro de téléphone: <?= ($user->getPhone_number()) ?></p>
-        <p>Numéro d'inscription: <?= htmlspecialchars($user->getRegistration_number()) ?></p>
-        <hr>
-    </div>
-<?php endforeach; ?> */
+/* $userService = new UsersServices();
+
+// Appeler la méthode getById avec un ID spécifique
+$userA = $userService->getById(24);
+
+if ($userA!== null) {
+    // Afficher les valeurs de l'utilisateur
+    echo "ID: " . $userA->getRole_id() . "<br>";
+    echo "Name: " . $userA->getRole() . "<br>";
+    echo "Name: " . $userA->getRegistration_number() . "<br>";
+    echo "Email: " . $userA->getMail() . "<br>";
+} else {
+    // Gérer le cas où l'utilisateur n'est pas trouvé
+    echo "Utilisateur non trouvé.";
+} */
 

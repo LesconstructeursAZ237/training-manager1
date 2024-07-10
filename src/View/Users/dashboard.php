@@ -8,8 +8,9 @@ use App\Controller\UsersController;
 
 /**
  * @var array<\App\Entity\User> $users
- * @var array<\App\Controller\UsersController> $auth_user 
- * @var array<\App\Service\UsersServices>  $auth  
+ * @var string<\App\Controller\UsersController> $auth_user  
+ * @var string<\App\Controller\UsersController> $flasMessage  
+ * @var array<\App\Entity\User> $auth
  */
 ?>
 
@@ -21,9 +22,11 @@ use App\Controller\UsersController;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>page d'administration</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="./../../../assets/css/stylesMenuAdminP.css">
-    <script src="./../../../assets/js/scriptMenuAdminP.js" defer></script>
+    <link rel="stylesheet" href="./../../../assets/css/animationDasboard.css">
+    <script src="./../../../assets/js/scriptMenuDashboard.js" defer></script>
     <script src="./../../../assets/js/openModalUsersDashboard.js" defer></script>
+    <script src="./../../../assets/js/anotherFunctionDashboard.js" defer></script>
+
 </head>
 
 <body class="bg-gray-100">
@@ -31,62 +34,61 @@ use App\Controller\UsersController;
     <!-- Top Navigation -->
     <nav class="bg-white shadow-md w-full fixed top-0 z-10 bg-blue-400 opacity-70">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16 items-center">
+            <div class="menueActive flex justify-between h-16 items-center">
                 <h1 class="text-lg font-bold text-white">IFP Le leader en Info </h1>
-
+                    
                 <!-- Bouton de menu pour les appareils mobiles -->
-                <button id="menu_toggle"
-                    class=" lg:hidden bg-gray-700  sm:p-1 w-15 text-white p-4 hover:bg-blue-900  focus:outline-none">
-                    Menu
-                </button>
-
-                <!-- Barre de navigation principale -->
-                <div id="main_menu" class="hidden lg:flex space-x-8 flex-1 justify-evenly items-center p-2">
-                    <!-- pages -->
-                    <div class="relative group">
-                        <button id="btn_accueil"
-                            class="text-white  rounded p-2 hover:text-white hover:bg-blue-500 text-xl font-medium focus:outline-none">pages</button>
-                        <div id="accueil"
-                            class="submenu absolute left-0 mt-2 w-48 bg-gray-700 shadow-lg rounded hidden">
-                            <a href="#" class="block px-4 py-2 text-white hover:bg-gray-200">acceuil</a>
-                            <a href="#" class="block px-4 py-2 text-white hover:bg-gray-20">formation</a>
-                            <a href="#" class="block px-4 py-2 text-white hover:bg-gray-20">evenement</a>
-                        </div>
-                    </div>
-                    <!-- utilisateurs -->
-                    <div class="relative group">
-                        <button id="btn_propos"
-                            class="text-white  rounded p-2 hover:text-white hover:bg-blue-500 text-xl font-medium focus:outline-none">utilisateurs</button>
-
-                        <div id="propos" class="submenu absolute left-0 mt-2 w-48 bg-white shadow-lg rounded hidden">
-                            <a href="registration.php"
-                                class="block px-4 py-2 text-gray-700 hover:bg-gray-200">ajouter</a>
-                            <form action="" method="post">
-                                <button type="submit" name="get_all"
-                                    class="block px-4 py-2 text-gray-700 hover:bg-gray-200">voir les
-                                    utilisateurs</button>
-                            </form>
-                        </div>
-                    </div>
-                    <!-- formations -->
-                    <div class="relative group">
-                        <button id="btn_services"
-                            class="text-white  rounded p-2 hover:text-white hover:bg-blue-500 text-xl font-medium focus:outline-none">formations</button>
-                        <div id="services" class="submenu absolute left-0 mt-2 w-48 bg-white shadow-lg rounded hidden">
-                            <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">ajouter</a>
-                            <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">voir les formations</a>
-                        </div>
-                    </div>
-                    <!-- evenements -->
-                    <div class="relative group">
-                        <button id="btn_contact"
-                            class="text-white   rounded p-2 hover:text-white hover:bg-blue-500 text-xl font-medium focus:outline-none">evenements</button>
-                        <div id="contact" class="submenu absolute left-0 mt-2 w-48 bg-white shadow-lg rounded hidden">
-                            <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">ajouter</a>
-                            <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">voir les evenements</a>
-                        </div>
-                    </div>
+                <div class="relative">
+                    <button id="btnMobilePhone"
+                            class="lg:hidden bg-gray-700 sm:p-1 w-15 text-white p-4 hover:bg-blue-900 focus:outline-none  right-0">
+                            Menu
+                    </button>
                 </div>
+
+        <div>
+            <button id="btnAccueil" onclick="toggleSubmenu('btnAccueil', 'submenu1')" class="btnMenu text-white rounded p-2 hover:text-white hover:bg-blue-500 text-xl font-medium focus:outline-none">pages</button>
+            <div id="submenu1" class="hidden ml-4 mt-2 w-48 shadow-lg rounded">
+                <a href="#" class="block px-4 py-2 text-white hover:bg-gray-200">accueil</a>
+                <a href="#" class="block px-4 py-2 text-white hover:bg-gray-200">formation</a>
+                <a href="#" class="block px-4 py-2 text-white hover:bg-gray-200">evenement</a>
+                <button onclick="closeSubmenu('submenu1')" class="block px-4 py-2 bg-red-500 text-white rounded">X</button>
+            </div>
+        </div>
+        <div>
+            <button id="btnUser" onclick="toggleSubmenu('btnUser', 'submenu2')" class="btnMenu text-white rounded p-2 hover:text-white hover:bg-blue-500 text-xl font-medium focus:outline-none">utilisateurs</button>
+            <div id="submenu2" class="hidden ml-4 mt-2 w-48 bg-white shadow-lg rounded">
+                <button type="submit" id="btnAddUder" href="" class="block px-4 py-2 text-gray-700 hover:bg-gray-200" onclick="addNewUser()">ajouter</button>
+                <form action="" method="post">
+                    <button  name="get_all" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">voir les utilisateurs</button>
+                </form>
+                <button onclick="closeSubmenu('submenu2')" class="block px-4 py-2 bg-red-500 text-white rounded">X</button>
+            </div>
+        </div>
+        <div>
+            <button id="btnService" onclick="toggleSubmenu('btnService', 'submenu3')" class="btnMenu text-white rounded p-2 hover:text-white hover:bg-blue-500 text-xl font-medium focus:outline-none">formations</button>
+            <div id="submenu3" class="hidden ml-4 mt-2 w-48 bg-white shadow-lg rounded">
+                <a href="./../Trainings/trainings.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">ajouter</a>
+                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">voir les formations</a>
+                <button onclick="closeSubmenu('submenu3')" class="block px-4 py-2 bg-red-500 text-white rounded">X</button>
+            </div>
+        </div>
+        <div>
+            <button id="btnLevel" onclick="toggleSubmenu('btnLevel', 'submenuNiveau')" class="btnMenu text-white rounded p-2 hover:text-white hover:bg-blue-500 text-xl font-medium focus:outline-none">Niveau</button>
+            <div id="submenuNiveau" class="hidden ml-4 mt-2 w-48 bg-white shadow-lg rounded">
+                <a href="./../Level/addLevels.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">ajouter</a>
+                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">voir les niveaux</a>
+                <button onclick="closeSubmenu('submenuNiveau')" class="block px-4 py-2 bg-red-500 text-white rounded">X</button>
+            </div>
+        </div>
+        <div>
+            <button id="btnEvent" onclick="toggleSubmenu('btnEvent', 'submenu4')" class="btnMenu text-white rounded p-2 hover:text-white hover:bg-blue-500 text-xl font-medium focus:outline-none">evenements</button>
+            <div id="submenu4" class="hidden ml-4 mt-2 w-48 bg-white shadow-lg rounded">
+                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">ajouter</a>
+                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">voir les evenements</a>
+                <button onclick="closeSubmenu('submenu4')" class="block px-4 py-2 bg-red-500 text-white rounded">X</button>
+            </div>
+        </div>
+               
 
             </div>
             <div class="">
@@ -115,7 +117,7 @@ use App\Controller\UsersController;
     </nav>
 
     <!-- Sidebar (for mobile view) -->
-    <div id="sidebar"
+    <div id="menuMobilePhone"
         class="soumenu2 lg:hidden bg-opacity-70 fixed top-0 left-0 w-1/3 h-full bg-blue-700 shadow-md  z-20 transition-transform transform -translate-x-full lg:translate-x-0 lg:block">
         <nav class="p-1 flex flex-col">
             <!-- Barre de navigation principale -->
@@ -124,7 +126,7 @@ use App\Controller\UsersController;
                     class="text-white  rounded p-2 hover:text-white hover:bg-blue-500 text-xl font-medium focus:outline-none">utilisateurs</button>
 
                 <div id="propos" class=" left-0 mt-2 w-48 bg-white shadow-lg rounded">
-                    <a href="registration.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">ajouter</a>
+                    <a href="" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">ajouter</a>
                     <form action="" method="post">
                         <button type="submit" name="get_all"
                             class="block px-4 py-2 text-gray-700 hover:bg-gray-200">voir les
@@ -157,23 +159,43 @@ use App\Controller\UsersController;
 
     <!-- Main content -->
     <div id="content" class="lg:ml-64 p-4 mt-16  mx-auto ">
-        <h1 class="text-2xl font-bold">Page d'Administration</h1>
-
-        <p class="mt-4"> principal page.</p>
-        <span class="mt-8 text-justify">
-            <?php if (isset($_SESSION['auth']) && is_array($_SESSION['auth'])): ?>
-                <p class="mb-4"><?= htmlspecialchars($_SESSION['auth'][1]) ?>     <?= htmlspecialchars($_SESSION['auth'][2]) ?>
-                </p>
-                <span id="modifiedBy"><?= htmlspecialchars($_SESSION['auth'][1]).' '.htmlspecialchars($_SESSION['auth'][0]) ?></span>
-            <?php endif; ?>
-
-            <h1>Bonjour,........ , </h1>
-        </span>
+        
+    </div>
+       <!-- pour le resulat de la requete -->
+       <span id="flashMessage" class="mt-4 flex items-center justify-center text-red-500"><?php 
+       if(isset($flashMessage)) {
+        echo ($flashMessage);
+       }
+       if (isset($_SESSION['flashMessage'])) {
+        unset($_SESSION['flashMessage']);
+    }
+       ?></span>
+    <div id="container" class="flex space-x-4 mt-4 items-center justify-center">
+            <div class="flex flex-col items-center ">
+                    <div id="stepOne" class="hidden"> </div>            
+                <p id="stepOneMessage" class="text-green-500 text-sm hidden">envois de la requete...</p>                        
+            </div>
+            <div class="flex flex-col items-center ">
+                            <div id="stepTwo" class="hidden"></div>
+                            <p id="stepTwoMessage" class="text-blue-500 text-sm hidden">reception de la requete...</p>
+            </div>
+            <div class="flex flex-col items-center">
+                            <div id="stepThree" class="hidden"></div>
+                            <p id="stepThreeMessage" class="text-blue-500 text-sm hidden">Traitement en cours...</p>
+            </div>
+            <div class="flex flex-col items-center">
+                            <div id="stepFour" class="hidden"></div>
+                            <p id="stepFourMessage" class="text-blue-500 text-sm hidden">décision en cours...</p>
+            </div>
     </div>
 
     <!-- list of users -->
-    <div class="container place-items-center">
-        <table class="lg:w-4/5 sm:w-full bg-white m-auto"> <?php if (isset($users) && is_array($users)) { ?>
+    <div class="container place-items-center lg:w-11/12">
+   <?php  if (isset($auth_user)){ ?>
+<span id="flashConnxion" class="hover:bg-blue-300 bg-blue-500 w-1/3 p-2 rounded text-white flex items-center justify-center  m-auto" onclick="closeFlashConnexion()"> <?= ($auth_user)?></span>
+<?php }?>
+        <table class="lg-full sm:w-full bg-white m-auto mb-8"> <?php if (isset($users) && is_array($users)) { ?>
+            <h2 class="text-2xl font-bold lg:ml-64 p-4 mt-16  mx-auto "><?= $listUser?></h2>
                 <thead>
                     <tr>
                         <th
@@ -243,29 +265,22 @@ use App\Controller\UsersController;
 
     <!-- delete modal -->
      <div id="deleteModal" class="container lg:w-2/5  mx-auto fixed z-10 inset-0 overflow-y-auto hidden">
-     <form class="bg-white p-8 rounded-lg shadow-md w-full max-w-md " " >
-        <h2 class="text-2xl font-bold mb-6 text-gray-800">modal de suppression</h2>
-        <h3>voulez-vous Supprimer <span id="DeleteNom" > </span>?</h3>
+     <form class="bg-red-200 p-8 rounded-lg shadow-md w-full max-w-md " method="post">
+        <h3>voulez-vous Supprimer <span id="DeleteNom" class="font-bold"> </span>?</h3>
 
         <div class="mb-4">
-            <label for="input1"   class="block text-gray-700 font-bold mb-2">id</label>
-            <input type="text" id="identifiant" name="identifiant" class="hidden border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-        </div>
-
-
-        <div class="mb-4">
-            <label for="input3" class="block text-gray-700 font-bold mb-2">prenom</label>
-            <input type="text" id="DeletePrenom" name="DeletePrenom" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-        </div>
-
-        <div class="flex items-center justify-between">
-            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">confirmer</button>
+        <?php if (isset($auth_user)): ?>
+                                     <input required type="hedden"  id="deletedU" name="deletedU" value="<?php echo$auth_user;  ?>"  class="hidden ">
+                                    <?php endif; ?>
+            <input type="hidden" id="identifiant" name="identifiant" class=" border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
         </div>
         <div class="flex items-center justify-between">
-            <button type="button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" onclick="closeDeleteModalUser()">quitter</button>
-        </div>
+            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded focus:outline-none focus:shadow-outline" name="btnDeleteUser">confirmer</button>
+            <button type="button" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-1 px-4 rounded focus:outline-none focus:shadow-outline" onclick="closeDeleteModalUser()">quitter</button>      
+        </div>            
     </form>
-     </div>
+    </div>
+    <!--end delete modal -->
  
   
    
@@ -288,8 +303,8 @@ use App\Controller\UsersController;
                         <p id="userNom" class="text-sm text-gray-500"></p>
                         <form action="" id="editNom" method="post" class="hidden">
                             <div>
-                            <?php if (isset($_SESSION['auth']) && is_array($_SESSION['auth'])): ?>
-                                     <input required type="hidden"  id="modifiedNom" name="modifiedNom" value="<?php echo(htmlspecialchars($_SESSION['auth'][1]).' '.htmlspecialchars($_SESSION['auth'][0])); ?>"  class=" ">
+                            <?php if (isset($auth_user)): ?>
+                                     <input required type="hidden"  id="modifiedNom" name="modifiedNom" value="<?php echo$auth_user; ?>"  class=" ">
                                     <?php endif; ?>
                                 <input type="hidden" id="indentifiantNom" name="indentifiantNom">
                                 <input type="text" placeholder="nouvelle valeur nom ici" class="font-normal 
@@ -316,8 +331,8 @@ use App\Controller\UsersController;
                         <p id="userPrenom" class="text-sm text-gray-500"></p>
                         <form action="" id="editPrenom" method="post" class="hidden">
                             <div>
-                            <?php if (isset($_SESSION['auth']) && is_array($_SESSION['auth'])): ?>
-                                     <input required type="hidden"  id="modifiedPrenomr" name="modifiedPrenom" value="<?php echo(htmlspecialchars($_SESSION['auth'][1]).' '.htmlspecialchars($_SESSION['auth'][0])); ?>"  class=" ">
+                            <?php if (isset($auth_user)): ?>
+                                     <input required type="hidden"  id="modifiedPrenomr" name="modifiedPrenom" value="<?php echo$auth_user;  ?>"  class=" ">
                                     <?php endif; ?>
                                 <input type="hidden" id="indentifiantPrenom" name="indentifiantPrenom">
                                 <input type="text" placeholder="nouvelle valeur prenom ici" class="font-normal 
@@ -344,8 +359,8 @@ use App\Controller\UsersController;
                         <p id="userTelephone" class="text-sm text-gray-500"></p>
                         <form action="" id="editPhoneNumber" method="post" class="hidden">
                             <div>
-                            <?php if (isset($_SESSION['auth']) && is_array($_SESSION['auth'])): ?>
-                                     <input required type="hidden"  id="modifiedPhoneNumber" name="modifiedPhoneNumber" value="<?php echo(htmlspecialchars($_SESSION['auth'][1]).' '.htmlspecialchars($_SESSION['auth'][0])); ?>"  class=" ">
+                            <?php if (isset($auth_user) ): ?>
+                                     <input required type="hidden"  id="modifiedPhoneNumber" name="modifiedPhoneNumber" value="<?php echo$auth_user ; ?>"  class=" ">
                                     <?php endif; ?>
                                 <input type="text" id="indentifiantTelephone" name="indentifiantTelephone">
                                 <input type="number" placeholder="nouvelle valeur numero telephone ici" class="font-normal 
@@ -372,8 +387,8 @@ use App\Controller\UsersController;
                         <p id="userEmail" class="text-sm text-gray-500"></p>
                         <form action="" id="editEmail" method="post" class="hidden">
                             <div>
-                            <?php if (isset($_SESSION['auth']) && is_array($_SESSION['auth'])): ?>
-                                     <input required type="hidden"  id="modifiedEmail" name="modifiedEmail" value="<?php echo(htmlspecialchars($_SESSION['auth'][1]).' '.htmlspecialchars($_SESSION['auth'][0])); ?>"  class=" ">
+                            <?php if (isset($auth_user)): ?>
+                                     <input required type="hidden"  id="modifiedEmail" name="modifiedEmail" value="<?php echo$auth_user;  ?>"  class=" ">
                                     <?php endif; ?>
                     
                                 <input type="hidden" id="indentifiantEmail" name="indentifiantEmail">
@@ -402,8 +417,8 @@ use App\Controller\UsersController;
                         <!-- form change registration number -->
                         <form action="" id="editMat" method="post" class="hidden">
                             <div>
-                                <?php if (isset($_SESSION['auth']) && is_array($_SESSION['auth'])): ?>
-                                     <input required type="hidden"  id="modifiedMatricule" name="modifiedMatricule" value="<?php echo(htmlspecialchars($_SESSION['auth'][1]).' '.htmlspecialchars($_SESSION['auth'][0])); ?>"  class=" ">
+                                <?php if (isset($auth_user)): ?>
+                                     <input required type="hidden"  id="modifiedMatricule" name="modifiedMatricule" value="<?php echo$auth_user;  ?>"  class=" ">
                                     <?php endif; ?>
                                 <input id="indentifiantMat" name="indentifiantMat" type="hidden">
                                 <input type="text" placeholder="nouvelle valeur matricutle ici" class="font-normal 
@@ -448,8 +463,8 @@ use App\Controller\UsersController;
                             <form action="" method="post">
                                 <div class="mb-4">
                               
-                                    <?php if (isset($_SESSION['auth']) && is_array($_SESSION['auth'])): ?>
-                                     <input required type="hidden"  id="modified" name="modified" value="<?php echo(htmlspecialchars($_SESSION['auth'][1]).' '.htmlspecialchars($_SESSION['auth'][0])); ?>"  class=" ">
+                                    <?php if (isset($auth_user)): ?>
+                                     <input required type="hidden"  id="modified" name="modified" value="<?php echo$auth_user; ?>"  class=" ">
                                     <?php endif; ?>
                                
                                     <input id="identifiantModalChangeRole" class="hidden" type="number" name="newId">
@@ -476,6 +491,113 @@ use App\Controller\UsersController;
             </tbody>
         </table>
     </div>
+
+    <!-- add an User -->
+     <!-- formulaire d'inscription d'utilisateur -->
+<div id="formAddUser" class="absolute hidden  inset-10 flex mt-2 mb-8 h-full sm:text-xs text-center m-auto shadow-xl rounded-lg sm:w-10/12 md:w-96 lg:w-1/2 xl:w-1/2 lg:text-xl md:text-lg 2xl:bg-red-200 overflow-auto border-gray-800">
+
+<form action="addUser.php" class="m-auto xl:w-full 2xl:w-full" id="registrationForm" method="post">
+
+    <div class="p-1 bg-red-200 overflow-auto rounded-lg m-auto text-base">
+                <h1
+                    class="mt-8 sm:text-xs md:text-base lg:text-lg xl:text-xl 2xl:text-2xl m-auto capitalize text-blue-500 font-bold">
+                    Formulaire d'ajout d'utilisateur
+                </h1>
+
+                <div class=" grid grid-cols-1 md:grid-cols-2 gap-3 overflow-auto p-4">
+                    <div class="w-full">
+                        <label for="name" class="text-black font-bold">Nom: <br>
+                            <input required type="text" placeholder="Votre nom ici" id="name" name="name"
+                                class="font-normal rounded-md text-center sm:h-5 xl:h-10 lg:h-10 md:h-10 w-full placeholder-gray-400 border border-gray-400">
+                        </label>
+                    </div>
+                    <div class="w-full">
+                        <label for="firstName" class="text-black font-bold">Prenom: <br>
+                            <input required type="text" placeholder="First Name" id="firstName" name="firstName"
+                                class="font-normal rounded-md text-center sm:h-5 xl:h-10 lg:h-10 md:h-10 w-full placeholder-gray-400 border border-gray-400">
+                        </label>
+                    </div>
+                    <div class="w-full">
+                        <label for="mail" class="text-black font-bold">Adresse Email: <br>
+                            <input required type="email" placeholder="Votre adresse email ici" id="mail" name="mail"
+                                class="font-normal rounded-md text-center sm:h-5 xl:h-10 lg:h-10 md:h-10 w-full placeholder-gray-400 border border-gray-400">
+                        </label>
+                    </div>
+                    <div class="w-full">
+                        <label for="phone_number" class="text-black font-bold">Numéro de téléphone: <br>
+                            <input required type="number" placeholder="690 487 232" id="phone_number" name="phone_number"
+                                class="font-normal rounded-md text-center sm:h-5 xl:h-10 lg:h-10 md:h-10 w-full placeholder-gray-400 border border-gray-400">
+                        </label>
+                    </div>
+                    <div class="w-full">
+                        <label for="birth_date" class="text-black font-bold">Date de Naissance: <br>
+                            <input required type="date" id="birth_date" name="birth_date"
+                                class="font-normal rounded-md text-center sm:h-5 xl:h-10 lg:h-10 md:h-10 w-full placeholder-gray-400 border border-gray-400">
+                        </label>
+                    </div>
+                    <div class="w-full">
+                        <label for="photo_user" class="text-black font-bold">Photo: <br>
+                            <input required type="file" id="photo_user" name="photo_user"
+                                class="font-normal rounded-md text-center sm:h-5 xl:h-10 lg:h-10 md:h-10 w-full placeholder-gray-400 border border-gray-400">
+                        </label>
+                    </div>
+                    <!-- Input qui prend deux colonnes -->
+                    <div class="w-full md:col-span-2">
+                        <label for="address" class="text-black font-bold">Mot de passe: <br>
+                            <input required type="password" placeholder="Votre mot de passe ici" id="pwdUser" name="pwdUser"
+                                class="font-normal rounded-md text-center sm:h-5 xl:h-10 lg:h-10 md:h-10 w-full placeholder-gray-400 border border-gray-400">
+                        </label>
+                    </div>
+                    <div class="w-full md:col-span-2">
+                        <?php if (isset($auth_user)): ?>
+                            <input required type="hidden" id="modified" name="modified"
+                                value="<?php echo$auth_user;  ?>"
+                                class="">
+                        <?php endif; ?>
+                    </div>
+                </div>
+    
+                <div class="grid grid-cols-2 gap-3 overflow-auto p-4">
+                    <div class="w-full">
+                        <button type="submit"
+                            class="bg-blue-500 sm:text-xs xl:text-xl p-1 h-10 w-full hover:bg-blue-200 hover:text-blue-00 text-white font-bold rounded-md text-center"
+                            name="registration" id="">
+                            Ajouter
+                        </button>
+                    </div>
+                    <div class="w-full">
+                        <button 
+                            class="bg-gray-500 sm:text-xs xl:text-xl p-1 h-10 w-full hover:bg-red-300 text-white font-bold rounded-md text-center">
+                            <a href="">Retour</a>
+                        </button>
+                    </div>
+                    
+                </div>
+            </div>
+            
+        </form>
+    </div>
+    <script type="text/javascript">
+    function deleteEmployee(id) {
+        if (confirm("Voulez-vous vraiment supprimer cet employé")) {
+            var xmlhttp = new XMLHttpRequest();
+            var url = "<?= VIEW_PATH . 'Users/delete.php?ajax=1&id=' ?>" + id;
+
+            xmlhttp.onreadystatechange = function() {
+                if (xmlhttp.readyState == 4) {
+                    if (xmlhttp.status == 200) {
+                        location.reload();
+                    } else {
+                        alert("Erreur: " + (JSON.parse(xmlhttp.response)).message);
+                    }
+                }
+            };
+
+            xmlhttp.open("GET", url, true);
+            xmlhttp.send();
+        }
+    }
+</script>
 
 </body>
 

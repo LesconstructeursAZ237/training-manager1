@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         if (inputElement.value.length < 8) {
             // Empêcher la soumission du formulaire
             event.preventDefault();
-            alert('La longueur du mot de passe doit être d\'au moins 8 caractères.');
+            document.getElementById('passwordIncorect').innerHTML = "le mot de passe doit avoir une longueur d'au moins 8 carracteres!"
         }
     });
 });

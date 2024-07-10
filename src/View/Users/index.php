@@ -70,7 +70,7 @@ use App\Controller\UsersController;
                     </li>
 
                     <li class="  hover:bg-black  hover:text-white  rounded-lg p-4 bg-blue-500 opacity-100">
-                        <a href="signin.php" class="text-white font-bold">autre</a>
+                        <a href="#" class="text-white font-bold">autre</a>
                     </li>
 
                 </ul>
@@ -83,7 +83,7 @@ use App\Controller\UsersController;
     <div class=" flex float-none items-center justify-center h-screen col-start-2 col-span-4 overflow-hidden">
         <div id="slider" class=" bg-white p-4 relative float">
 
-            <img src="./../../../assets/img/equipefootball2.jpg" alt="Image 1"
+            <img src="<?= ADD_IMG_PATH.'equipefootball2.jpg'?>" alt="Image 1"
                 class="w-full h-full object-contain hidden">
 
             <img src="./../../../assets/img/cotidiene2.jpg" alt="Image 1" class="w-full h-full object-contain hidden">

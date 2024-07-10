@@ -71,9 +71,9 @@ unset($_SESSION['not_f_user']);
                     id="log_in_form" method="post">
 
                     <div class=" p-1 bg-white overflow-auto rounded-lg  m-auto">
+                        <!-- balise du message d'erreur -->
                     <span class="text-red-800" id="error_user"></span>
-                  
-                    
+                                     
                         <h1
                             class="mt-8 sm:text-xs md:text-base lg:text-lg xl:text-xl  2xl:text-2xl  m-auto capitalize  text-blue-500 font-bold">
                             formulaire de connexion au compte</h1><br>
@@ -111,7 +111,7 @@ unset($_SESSION['not_f_user']);
 </html>
 
     <script>
-    // Vérifier si le message d'erreur existe
+    // metre le message d'erreur dans une variable js
     var errorMessage = "<?php echo $error_message; ?>";
     if (errorMessage) {
         // Utiliser JavaScript pour écrire dans la balise avec l'ID "error_user"

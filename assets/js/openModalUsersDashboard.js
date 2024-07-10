@@ -86,11 +86,10 @@ function closeeditModalMat() {
         document.getElementById('changeRole').classList.remove('hidden');
     
     }
-
-    /* modal de suppression */
     function ChangeRole() {
         document.getElementById('changeRole').classList.add('hidden');}
 
+         /* modal de suppression */
 /* afficher le modal de suppression d'un utilisateur */
         function openDeleteModal(button) {
    
@@ -100,8 +99,7 @@ function closeeditModalMat() {
 
              //affectation des valeurs
     document.getElementById('identifiant').value = id ; 
-    document.getElementById('DeleteNom').innerHTML = userNom  ; 
-    document.getElementById('DeletePrenom').value = userPrenom ;  
+    document.getElementById('DeleteNom').innerHTML = userNom+" "+userPrenom+" "; 
    
     document.getElementById('deleteModal').classList.remove('hidden');
 

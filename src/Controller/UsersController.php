@@ -8,7 +8,9 @@ use App\Entity\SessionManager;
 require_once dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'autoload.php';
 
 use App\Service\UsersServices;
-
+use Core\Auth\Auth;
+use Core\FlashMessages\Flash;
+use App\Entity\User;
 class UsersController
 {
     private UsersServices $usersServices;
@@ -31,22 +33,31 @@ class UsersController
     public function dashboard(){
         $users = $this->usersServices->getAll();
       
-            if (isset($_POST['get_all'])) {
+            
                 //print_r($_POST); die();
                 $users = $this->usersServices->getAll(); 
                 $GLOBALS['users'] = $users;
-               
-            }
+             
            /*  $auth_user=['ok bonjour bonjour','145bonjour01', 'ok 9865'];
             $GLOBALS['auth_user'] = $auth_user;
- */
+ */         if (isset( $_SESSION['auth_user'])){
+                $auth_user=($_SESSION['auth_user']).', vous ete connecter';
+                $GLOBALS['auth_user'] = $auth_user;
+            }
+            
             $auth_user = null;
 
             if(isset($_SESSION['auth'])){
                 $auth_user= $_SESSION['auth'];
             }
             $GLOBALS['auth'] = $auth_user;
+            $listUser = 'Listes des utilisateurs';
+            $GLOBALS['listUser'] = $listUser;
 
+            if(isset($_SESSION['flashMessage'])){
+                $flashMessage = $_SESSION['flashMessage'];
+                $GLOBALS['flashMessage'] = $flashMessage;
+            }
             /* button change role  */
             if(isset($_POST['changeRole'])){
                 $newRole = $_POST['dropdown'];
@@ -201,10 +212,37 @@ class UsersController
                 </script>';
             }
         }
-       
+       /* delete user */
+       if(isset($_POST['btnDeleteUser'])){
+        $Id =intval( $_POST['identifiant']);
+        $modifiedU =$_POST['deletedU'];
+        //echo $Id; die();
+        $deleted = new UsersServices() ; 
+        $deletedUser = $deleted->deletedUser($Id,  $modifiedU) ;
+        switch ($deletedUser) {
+            case 1:
+                $SE1 = new SessionManager();
+                    $SE1->set('flashMessage','suppression reuisssir!');
+                    $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+                    header("location: ./../Users/dashboard.php");
+                exit;
+            case 0:
+                $SE1 = new SessionManager();
+                    $SE1->set('flashMessage','echec de suppresion de l\'utilisateur!');
+                    $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+                    header("location: ./../Users/dashboard.php");              
+                exit;
+            //autres cas
+            default:
+            $SE1 = new SessionManager();
+                    $SE1->set('flashMessage','echec!');
+                    $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+                    header("location: ./../Users/dashboard.php");
+        }
+    }
     }
 
-    public function registration()
+    public function addUser()
     {
 
         if (isset($_POST['registration'])) {
@@ -217,6 +255,7 @@ class UsersController
             $birth_date1 = ($_POST['birth_date']);
             $photo_user1 = ($_POST['photo_user']);
             $created_by = ($_POST['modified']);
+            $pwd = ($_POST['pwdUser']);
             //$created_by= $modified1[0].' '.$modified1[1]; //print_r($_POST); die();
 
             $name = stripslashes(strip_tags(trim($name1)));
@@ -224,42 +263,47 @@ class UsersController
             $mail = stripslashes(strip_tags(trim($mail1)));
             $phone_number = stripslashes(strip_tags(trim($phone_number1)));
             $photo_user = stripslashes(strip_tags(trim($photo_user1)));
-            $pwd = $mail;
             //print_r( $created_by); die();
             $utilisateur = new UsersServices();
             $utilisateur1 = $utilisateur->registrationUser($name, $firstName, $mail, $phone_number, $birth_date1, $photo_user, $pwd, $created_by);
 
             switch ($utilisateur1) {
-                case 1:
-                    echo '<script> alert("enregistrement reuisssir");
-                    window.location.href = "./../Users/dashboard.php";
-                    </script>';
+                case 1: 
+                    $SE1 = new SessionManager();
+                    $SE1->set('flashMessage','enregistrement reuisssir');
+                    $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+                    header("location: ./../Users/dashboard.php");
                     exit;
                 case 2:
-                    echo '<script> alert("echec matricul");
-                    window.location.href = "./../Users/dashboard.php";
-                    </script>';
+                    $SE1 = new SessionManager();
+                    $SE1->set('flashMessage','echec matricul');
+                    $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+                    header("location: ./../Users/dashboard.php");
                     exit;
                 case 20:
-                    echo '<script> alert("cet utilisateur exicte deja");
-                    window.location.href = "./../Users/dashboard.php";
-                    </script>';
+                    $SE1 = new SessionManager();
+                    $SE1->set('flasMessage','cet utilisateur est deja ajouter');
+                    $_SESSION['flasMessage'] = $SE1->get('flasMessage');
+                    header("location: ./../Users/dashboard.php");
                     exit;
                 case 21:
-                    echo '<script> alert("echec enregistrement premier champs");
-                    window.location.href = "./../Users/registration.php";
-                    </script>';
+                    $SE1 = new SessionManager();
+                    $SE1->set('flasMessage','echec enregistrement premier champs');
+                    $_SESSION['flasMessage'] = $SE1->get('flasMessage');
+                    header("location: ./../Users/dashboard.php");
                     exit;
                 case 22:
-                    echo '<script> alert("echec recuperation id");
-                    window.location.href = "./../registration.php";
-                    </script>';
+                    $SE1 = new SessionManager();
+                    $SE1->set('flasMessage','echec recuperation id: impossible d\'attribuer un matricule');
+                    $_SESSION['flasMessage'] = $SE1->get('flasMessage');
+                    header("location: ./../Users/dashboard.php");
                     exit;
-                //autres cas
+                /*autres cas*/
                 default:
-                echo '<script> alert("echec");
-                window.location.href = "./../Users/registration.php";
-                </script>';
+                $SE1 = new SessionManager();
+                $SE1->set('flasMessage','echec!');
+                $_SESSION['flasMessage'] = $SE1->get('flasMessage');
+                header("location: ./../Users/dashboard.php");
             }
         }
 
@@ -278,53 +322,66 @@ class UsersController
             $conectUser = new UsersServices();
             $result = $conectUser->signInUser($email, $password);
 
-                switch ($result) {
-                    case 0:
-                        /*echo '<script> alert("user not found");</script>'; */
-                        header('location: signin.php');
-                        $SE1 = new SessionManager();
-                        $SE1->set('not_f_user', 'user not found');
-                        $_SESSION['not_f_user'] = $SE1->get('not_f_user');
+                
+                if ($result instanceof User) {
 
-                        exit;
-                    case 10:
-                        //echo '<script> alert("mot de passe invalide");</script>';
-                        header('location: signin.php');
-                        $SE1 = new SessionManager();
-                        $SE1->set('not_f_user', 'mot de passe invalide');
-                        $_SESSION['not_f_user'] = $SE1->get('not_f_user');
-                        exit;
-                    case 1:
-                        //echo '<script> alert("student");</script>';
-                        header('location: signin.php');
-                        $SE1 = new SessionManager();
-                        $SE1->set('not_f_user', 'la section de connexion etudiant n\'est pas encore developper');
-                        $_SESSION['not_f_user'] = $SE1->get('not_f_user');
-                        exit;
-                    case 4:
-                        //echo '<script> alert("visiteur");</script>';
-                        header('location: signin.php');
-                        $SE1 = new SessionManager();
-                        $SE1->set('not_f_user', 'la section de connexion visiteur n\'est pas encore developper');
-                        $_SESSION['not_f_user'] = $SE1->get('not_f_user');
-                        exit;
-                    case is_array($result):
-                    
-                        $auth =[ $result[1], $result[2],  $result[3]];
-                        $_SESSION['auth'] = $auth;
-                        
-                        header('location: dashboard.php');
-                        //$GLOBALS['auth'] = $auth;                     
-                        exit;
+                    // La valeur retournée est une instance de User
+                    $SE1 = new SessionManager();
+                    $SE1->set('auth_user', $result->getFirst_name() .' '. $result->getName());
+                    $_SESSION['auth_user'] = $SE1->get('auth_user');                
+                    header('location: dashboard.php');
 
-                    default:
-                        //echo '<script> alert("echec de connexion");</script>';
-                        header('location: signin.php');
-                        $SE1 = new SessionManager();
-                        $SE1->set('not_f_user', 'echec de connexion');
-                        $_SESSION['not_f_user'] = $SE1->get('not_f_user');
-                        exit;
+                } 
+                else 
+                {
+                    // La valeur retournée n'est pas une instance de User (probablement null)
+                    switch ($result) {
+                        case 0:
+                            /*echo '<script> alert("user not found");</script>'; */
+                            header('location: signin.php');
+                            $SE1 = new SessionManager();
+                            $SE1->set('not_f_user', 'user not found');
+                            $_SESSION['not_f_user'] = $SE1->get('not_f_user');
+    
+                            exit;
+                        case 10:
+                            //echo '<script> alert("mot de passe invalide");</script>';
+                            header('location: signin.php');
+                            $SE1 = new SessionManager();
+                            $SE1->set('not_f_user', 'mot de passe invalide');
+                            $_SESSION['not_f_user'] = $SE1->get('not_f_user');
+                            exit;
+                        case 1:
+                            //echo '<script> alert("student");</script>';
+                            header('location): signin.php');
+                            $SE1 = new SessionManager();
+                            $SE1->set('not_f_user', 'la section de connexion etudiant n\'est pas encore developper');
+                            $_SESSION['not_f_user'] = $SE1->get('not_f_user');
+                            exit;
+                        case 4:
+                            //echo '<script> alert("visiteur");</script>';
+                            header('location: signin.php');
+                            $SE1 = new SessionManager();
+                            $SE1->set('not_f_user', 'la section de connexion visiteur n\'est pas encore developper');
+                            $_SESSION['not_f_user'] = $SE1->get('not_f_user');
+                            exit;   
+                        case 101:
+                            //echo '<script> alert("visiteur");</script>';
+                            header('location: signin.php');
+                            $SE1 = new SessionManager();
+                            $SE1->set('not_f_user', 'l\'utilisateur a été supprimer ou desactivé');
+                            $_SESSION['not_f_user'] = $SE1->get('not_f_user');
+                            exit;   
+                        default:
+                            //echo '<script> alert("echec de connexion");</script>';
+                            header('location: signin.php');
+                            $SE1 = new SessionManager();
+                            $SE1->set('not_f_user', 'echec de connexion');
+                            $_SESSION['not_f_user'] = $SE1->get('not_f_user');
+                            exit;
+                    }
                 }
+               
             } 
                      
     }
@@ -343,6 +400,50 @@ class UsersController
             header('Location: ./../Users/signin.php');
             exit;
         }
+    }
+   public function delete(){
+    AuthController::require_admin_priv();
+
+		if (!isset($_GET['id']) || empty($_GET['id'])) {
+			header('Location: ' .  VIEW_PATH  . 'Users');
+			exit;
+		}
+
+		// check if the employee exists
+		$checkEmployee = $this->usersServices->getById($_GET['id']);
+		if (!$checkEmployee) {
+			if (isset($_GET['ajax']) && $_GET['ajax'] == 1) {
+				header('Content-Type: application/json');
+				echo json_encode(['status' => 'success', 'message' => "Aucun utilisateur trouvé avec l'id " . $_GET['id']]);
+
+				exit;
+			}
+
+			Flash::error("Aucun utilisateur trouvé avec l'id " . $_GET['id']);
+
+			header('Location: ' .  VIEW_PATH  . 'Employees');
+			exit;
+		}
+
+
+		$deleted = $this->usersServices->delete((int)$_GET['id']);
+
+		if ($deleted) {
+			Flash::success("L'utilisateur a été supprimé avec succès.");
+		} else {
+			Flash::error("L'utilisateur n'a pas été supprimé. Veuillez réessayer !");
+		}
+
+		if (isset($_GET['ajax']) && $_GET['ajax'] == 1) {
+			header('Content-Type: application/json');
+			echo json_encode(['status' => 'success', 'message' => 'utilisateur supprimé avec succès.']);
+
+			exit;
+		}
+
+		header('Location: ' . VIEW_PATH . 'Users');
+	
+
     }
 }
 
