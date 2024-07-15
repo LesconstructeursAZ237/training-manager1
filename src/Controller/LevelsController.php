@@ -10,7 +10,7 @@ require_once dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'autoload.php';
 use App\Service\LevelServices;
 use Core\Auth\Auth;
 use Core\FlashMessages\Flash;
-use App\Entity\User;
+use App\Entity\Level;
 
 class LevelsController
 {
@@ -76,7 +76,7 @@ class LevelsController
                 else
                 {
                     $availabitlity = htmlspecialchars($_POST['availability']);
-                    $level = (new LevelServices())->addLevel($grade, $availabitlity);
+                    $level =  $this->levelServices->addLevel($grade, $availabitlity);
                         if ($level == 1) {
                             header('location: addLevels.php');
                             $_SESSION['flashMessage'] = 'ajout reussir!';
@@ -98,8 +98,85 @@ class LevelsController
         }
     }
  public function getLevel(){
-    if(isset($_POST['btnGetLevle'])){
-        
+
+    $levels = $this->levelServices ->getLevel(); 
+    $GLOBALS['levels'] = $levels ;
+
+    $listLevel = 'Listes des niveaux';
+    $GLOBALS['listLevel'] = $listLevel;
+    
+    if(isset($_SESSION['flashMessage'])){
+        $flashMessage = $_SESSION['flashMessage'];
+        $GLOBALS['flashMessage'] = $flashMessage;
     }
+   
+    
+  
+ }
+ public function update(){
+    header('Content-Type: application/json');
+
+    $response = array();
+    
+    if (isset($_POST['ajax']) && $_POST['ajax'] == 1) {
+        if (isset($_POST['id']) && isset($_POST['othervar'])) {
+            $level_id = intval($_POST['id']);
+            $actualDisponibility = $_POST['othervar'];
+            sleep(2);
+            
+            $updateLevel =  $this->levelServices->closeAndOpenLevel($level_id);
+
+            if ($updateLevel) {
+                /*  mises à jour effectuer */
+                $response = array(
+                    'message' => 'succes',
+                    'data' => array(
+                        'id' => $level_id,
+                        'name' => $actualDisponibility,
+                        'description' => 'description du niveau',
+                        'succes' => 'mise a jour réussir',
+                        'error' => 'Échec de la mise à jour' 
+                    )
+                );
+            
+            } else {
+                  /*  mises à jour echouer */
+                  $response = array(
+                    'message' => 'error',
+                    'data' => array(
+                        'id' => $level_id,
+                        'name' => $actualDisponibility,
+                        'description' => 'description du niveau',
+                        'succes' => 'mise a jour réussir',
+                        'error' => 'Échec de la mise à jour' 
+                    )
+                );
+            }
+        } else {
+            /* En cas d'absence d'ID ou d'autre variable */
+            $response = array(
+                'message' => 'invalidparameters',
+                'data' => array(
+                    'succes' => 'mise a jour réussir',
+                    'invalidparameters' => 'absence d\'id ou autres parametres' 
+                )
+            );
+        }
+    } else {
+        /* Gérer les requêtes non-AJAX si nécessaire */
+          $response = array(
+            'message' => 'invalidrequest',
+            'data' => array(
+                'succes' => 'mise a jour réussir',
+                'invalidrequest' => 'Requête non autorisée' 
+            )
+        );
+    }
+    
+    echo json_encode($response);
+    
+
  }
 }
+
+

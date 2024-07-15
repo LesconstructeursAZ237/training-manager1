@@ -8,7 +8,7 @@ use App\Controller\UsersController;
 
 /**
  * @var array<\App\Entity\User> $users
- * @var string<\App\Controller\UsersController> $auth_user  
+ * @var array<\App\Controller\UsersController> $auth_user  
  * @var string<\App\Controller\UsersController> $flasMessage  
  * @var array<\App\Entity\User> $auth
  */
@@ -48,7 +48,7 @@ use App\Controller\UsersController;
         <div>
             <button id="btnAccueil" onclick="toggleSubmenu('btnAccueil', 'submenu1')" class="btnMenu text-white rounded p-2 hover:text-white hover:bg-blue-500 text-xl font-medium focus:outline-none">pages</button>
             <div id="submenu1" class="hidden ml-4 mt-2 w-48 shadow-lg rounded">
-                <a href="#" class="block px-4 py-2 text-white hover:bg-gray-200">accueil</a>
+                <a href="index.php" class="block px-4 py-2 text-white hover:bg-gray-200">accueil</a>
                 <a href="#" class="block px-4 py-2 text-white hover:bg-gray-200">formation</a>
                 <a href="#" class="block px-4 py-2 text-white hover:bg-gray-200">evenement</a>
                 <button onclick="closeSubmenu('submenu1')" class="block px-4 py-2 bg-red-500 text-white rounded">X</button>
@@ -68,7 +68,7 @@ use App\Controller\UsersController;
             <button id="btnService" onclick="toggleSubmenu('btnService', 'submenu3')" class="btnMenu text-white rounded p-2 hover:text-white hover:bg-blue-500 text-xl font-medium focus:outline-none">formations</button>
             <div id="submenu3" class="hidden ml-4 mt-2 w-48 bg-white shadow-lg rounded">
                 <a href="./../Trainings/trainings.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">ajouter</a>
-                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">voir les formations</a>
+                <a href="./../Trainings/getTrainings.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">voir les formations</a>
                 <button onclick="closeSubmenu('submenu3')" class="block px-4 py-2 bg-red-500 text-white rounded">X</button>
             </div>
         </div>
@@ -76,7 +76,7 @@ use App\Controller\UsersController;
             <button id="btnLevel" onclick="toggleSubmenu('btnLevel', 'submenuNiveau')" class="btnMenu text-white rounded p-2 hover:text-white hover:bg-blue-500 text-xl font-medium focus:outline-none">Niveau</button>
             <div id="submenuNiveau" class="hidden ml-4 mt-2 w-48 bg-white shadow-lg rounded">
                 <a href="./../Level/addLevels.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">ajouter</a>
-                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">voir les niveaux</a>
+                <a href="./../Level/getLevels.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">voir les niveaux</a>
                 <button onclick="closeSubmenu('submenuNiveau')" class="block px-4 py-2 bg-red-500 text-white rounded">X</button>
             </div>
         </div>
@@ -163,105 +163,87 @@ use App\Controller\UsersController;
     </div>
        <!-- pour le resulat de la requete -->
        <span id="flashMessage" class="mt-4 flex items-center justify-center text-red-500"><?php 
-       if(isset($flashMessage)) {
-        echo ($flashMessage);
-       }
-       if (isset($_SESSION['flashMessage'])) {
-        unset($_SESSION['flashMessage']);
-    }
-       ?></span>
-    <div id="container" class="flex space-x-4 mt-4 items-center justify-center">
-            <div class="flex flex-col items-center ">
-                    <div id="stepOne" class="hidden"> </div>            
-                <p id="stepOneMessage" class="text-green-500 text-sm hidden">envois de la requete...</p>                        
-            </div>
-            <div class="flex flex-col items-center ">
-                            <div id="stepTwo" class="hidden"></div>
-                            <p id="stepTwoMessage" class="text-blue-500 text-sm hidden">reception de la requete...</p>
-            </div>
-            <div class="flex flex-col items-center">
-                            <div id="stepThree" class="hidden"></div>
-                            <p id="stepThreeMessage" class="text-blue-500 text-sm hidden">Traitement en cours...</p>
-            </div>
-            <div class="flex flex-col items-center">
-                            <div id="stepFour" class="hidden"></div>
-                            <p id="stepFourMessage" class="text-blue-500 text-sm hidden">décision en cours...</p>
-            </div>
-    </div>
+            if(isset($flashMessage)) {
+                echo ($flashMessage);
+            }
+            if (isset($_SESSION['flashMessage'])) {
+                 unset($_SESSION['flashMessage']); 
+                }?>
+       </span>
 
     <!-- list of users -->
-    <div class="container place-items-center lg:w-11/12">
-   <?php  if (isset($auth_user)){ ?>
-<span id="flashConnxion" class="hover:bg-blue-300 bg-blue-500 w-1/3 p-2 rounded text-white flex items-center justify-center  m-auto" onclick="closeFlashConnexion()"> <?= ($auth_user)?></span>
-<?php }?>
-        <table class="lg-full sm:w-full bg-white m-auto mb-8"> <?php if (isset($users) && is_array($users)) { ?>
-            <h2 class="text-2xl font-bold lg:ml-64 p-4 mt-16  mx-auto "><?= $listUser?></h2>
-                <thead>
-                    <tr>
-                        <th
-                            class="text-center py-2 px-4 border-b-2 border-gray-200 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                            occupation</th>
-                        <th
-                            class="text-center py-2 px-4 border-b-2 border-gray-200 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                            Nom</th>
-                        <th
-                            class="text-center py-2 px-4 border-b-2 border-gray-200 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                            Prenom</th>
-                        <th
-                            class="text-center py-2 px-4 border-b-2 border-gray-200 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                            Email</th>
-                        <th
-                            class="text-center py-2 px-4 border-b-2 border-gray-200 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                            Numéro de téléphone</th>
-                        <th
-                            class="text-center py-2 px-4 border-b-2 border-gray-200 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                            Matricule</th>
-                        <th
-                            class="text-center py-2 px-4 border-b-2 border-gray-200 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                            Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($users as $user): ?>
-                        <tr>
-                            <td class="py-2 px-4 border-b border-gray-200 text-center">
-                                <?= $user->getRole() ?>
-                            </td>
-                            <td class="py-2 px-4 border-b border-gray-200 text-center">
-                                <?= $user->getFirst_name() ?>
-                            </td>
-                            <td class="py-2 px-4 border-b border-gray-200 text-center">
-                                <?= htmlspecialchars($user->getName()) ?>
-                            </td>
-                            <td class="py-2 px-4 border-b border-gray-200  justify-center items-center">
-                                <?= htmlspecialchars($user->getMail()) ?>
-                            </td>
-                            <td class="py-2 px-4 border-b border-gray-200  justify-center items-center">
-                                <?= ($user->getPhone_number()) ?>
-                            </td>
-                            <td class="py-2 px-4 border-b border-gray-200  justify-center items-center">
-                                <?= htmlspecialchars($user->getRegistration_number()) ?>
-                            </td>
-                            <td class="py-1 px-1 border-b border-gray-200  justify-between items-center">
-                                <button class="bg-blue-400 hover:bg-blue-500 text-white px-3 py-1 rounded"
-                                    data-FistName="<?= $user->getFirst_name() ?>" data-name="<?= $user->getName() ?>"
-                                    data-email="<?= $user->getMail() ?>" data-telephone="<?= $user->getPhone_number() ?>"
-                                    data-registrationNumber="<?= $user->getRegistration_number() ?>"
-                                    data-matricule="<?= $user->getId() ?>" onclick="openModal(this)">
-                                    Modifier</button>
-                                <button class="bg-red-300 hover:bg-red-400 text-white px-3 py-1 rounded"
-                                data-identifiant="<?= $user->getId() ?>"
-                                data-Nom="<?= $user->getFirst_name() ?>"
-                                data-Prenom="<?= $user->getName()?>"
-                                onclick="openDeleteModal(this)">Supprimer</button>
-                            </td>
+    <div class=" place-items-center w-10/12 m-auto">
+   <?php if (isset($auth_user)  && is_array($auth_user)) { ?>
+        <span id="flashConnxion"
+            class="hover:bg-blue-300 bg-blue-500 w-1/3 p-2 rounded text-white flex items-center justify-center  m-auto"
+            onclick="closeFlashConnexion()"> <?= $auth_user[0].' '.$auth_user[1].', vous ete connecter' ?></span>
+    <?php } ?>
+    <table class="w-full bg-white m-auto mb-8"> <?php if (isset($users) && is_array($users)) { ?>
+            <h2 class="text-2xl font-bold lg:ml-64 p-4 mt-16  mx-auto "><?= $listUser ?></h2>
+            <thead>
+                <tr>
+                    <th
+                        class="text-center py-2 px-4 border-b-2 border-gray-200 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                        occupation</th>
+                    <th
+                        class="text-center py-2 px-4 border-b-2 border-gray-200 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                        Nom</th>
+                    <th
+                        class="text-center py-2 px-4 border-b-2 border-gray-200 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                        Prenom</th>
+                    <th
+                        class="text-center py-2 px-4 border-b-2 border-gray-200 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                        Email</th>
+                    <th
+                        class="text-center py-2 px-4 border-b-2 border-gray-200 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                        Numéro de téléphone</th>
+                    <th
+                        class="text-center py-2 px-4 border-b-2 border-gray-200 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                        Matricule</th>
+                    <th
+                        class="text-center py-2 px-4 border-b-2 border-gray-200 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                        Action</th>
+                </tr>
+            </thead>
+            <tbody class="text-sm">
+                <?php foreach ($users as $user): ?>
+                    <tr >
+                        <td class="py-2 px-4 border-b border-gray-200 text-center">
+                            <?= $user->getRole() ?>
+                        </td>
+                        <td class="py-2 px-4 border-b border-gray-200 text-center">
+                            <?= $user->getFirst_name() ?>
+                        </td>
+                        <td class="py-2 px-4 border-b border-gray-200 text-center">
+                            <?= htmlspecialchars($user->getName()) ?>
+                        </td>
+                        <td class="py-2 px-4 border-b border-gray-200  justify-center items-center">
+                            <?= htmlspecialchars($user->getMail()) ?>
+                        </td>
+                        <td class="py-2 px-4 border-b border-gray-200  justify-center items-center">
+                            <?= ($user->getPhone_number()) ?>
+                        </td>
+                        <td class="py-2 px-4 border-b border-gray-200  justify-center items-center">
+                            <?= htmlspecialchars($user->getRegistration_number()) ?>
+                        </td>
+                        <td class="p-4 border-b border-gray-200 flex justify-between items-center">
+                            <button class="bg-blue-400 hover:bg-blue-500 text-white px-3 py-1 rounded"
+                                data-FistName="<?= $user->getFirst_name() ?>" data-name="<?= $user->getName() ?>"
+                                data-email="<?= $user->getMail() ?>" data-telephone="<?= $user->getPhone_number() ?>"
+                                data-registrationNumber="<?= $user->getRegistration_number() ?>"
+                                data-matricule="<?= $user->getId() ?>" onclick="openModal(this)">
+                                Modifier</button>
+                            <button class="bg-red-300 hover:bg-red-400 text-white px-3 py-1 rounded"
+                                data-identifiant="<?= $user->getId() ?>" data-Nom="<?= $user->getFirst_name() ?>"
+                                data-Prenom="<?= $user->getName() ?>" onclick="openDeleteModal(this)">Supprimer</button>
+                        </td>
 
-                        </tr>
-                    <?php endforeach;
-        } ?>
-            </tbody>
-        </table>
-    </div>
+                    </tr>
+                <?php endforeach;
+    } ?>
+        </tbody>
+    </table>
+</div>
 
     <!-- delete modal -->
      <div id="deleteModal" class="container lg:w-2/5  mx-auto fixed z-10 inset-0 overflow-y-auto hidden">
@@ -577,27 +559,6 @@ use App\Controller\UsersController;
             
         </form>
     </div>
-    <script type="text/javascript">
-    function deleteEmployee(id) {
-        if (confirm("Voulez-vous vraiment supprimer cet employé")) {
-            var xmlhttp = new XMLHttpRequest();
-            var url = "<?= VIEW_PATH . 'Users/delete.php?ajax=1&id=' ?>" + id;
-
-            xmlhttp.onreadystatechange = function() {
-                if (xmlhttp.readyState == 4) {
-                    if (xmlhttp.status == 200) {
-                        location.reload();
-                    } else {
-                        alert("Erreur: " + (JSON.parse(xmlhttp.response)).message);
-                    }
-                }
-            };
-
-            xmlhttp.open("GET", url, true);
-            xmlhttp.send();
-        }
-    }
-</script>
 
 </body>
 

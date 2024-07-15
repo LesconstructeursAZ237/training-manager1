@@ -445,7 +445,7 @@ class UsersServices
         ];
         $newMail = new User($userData);
             global $retourVal;
-        $checkId = $newMail->getId(); /*echo $checkId; die();fab1@gmail.com*/
+        $checkId = $newMail->getId(); 
         $InputMail = $newMail->getMail(); 
         $newModifiedMail = $newMail->getModified_by();
         $newCurrentDate = $newMail->getModified_date();

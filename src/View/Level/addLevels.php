@@ -22,7 +22,7 @@ use App\Controller\LevelsController;
     <!-- add js files -->
     <script src="./../../../assets/js/scriptFormAddLevel.js" defer></script>
 </head>
-<body class="bg-gray-100 flex items-center justify-center h-screen">
+<body class="bg-gray-200 flex items-center justify-center h-screen">
     <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
           <!-- pour le message de la requete en cas d'erreur -->
        <span id="flashMessage" class="mt-4 flex items-center justify-center text-red-500"><?php 

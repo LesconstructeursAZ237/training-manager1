@@ -30,3 +30,40 @@ define('SERVICE_PATH', APP . 'Service' . DS);
 if (!defined('BASE_URL')) {
     define('BASE_URL', getFullDomainUrl().'training-manager'.VIEW_PATH.'Users/dashboard.php');
 }
+
+// Assets files
+if (!defined('VIEWS')) {
+    define('VIEWS', BASE_URL . APP_DIR . '/View/');
+}
+
+if (!defined('ASSETS')) {
+    define('ASSETS', BASE_URL . 'assets/');
+}
+
+if (!defined('UPLOADS')) {
+    define('UPLOADS', BASE_URL . 'public/uploads/');
+}
+
+if (!defined('INTERNSHIP_REPORTS_DIR_NAME')) {
+    define('INTERNSHIP_REPORTS_DIR_NAME', 'internship-reports');
+}
+
+if (!defined('INTERNSHIP_DOCUMENTS_DIR_NAME')) {
+    define('INTERNSHIP_DOCUMENTS_DIR_NAME', 'internship-documents');
+}
+
+if (!defined('UPLOADS_PATH')) {
+    define('UPLOADS_PATH', ROOT . DS . 'public' . DS . 'uploads' . DS);
+}
+
+if (!defined('IMAGES')) {
+    define('IMAGES', ASSETS . 'images' . DS);
+}
+
+if (!defined('VENDOR')) {
+    define('VENDOR', BASE_URL . 'vendor' . DS);
+}
+
+if (!defined('PAGINATOR_KEY')) {
+    define('PAGINATOR_KEY', "__paginator__");
+}

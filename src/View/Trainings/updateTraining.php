@@ -5,6 +5,6 @@ require_once dirname(dirname(dirname(__DIR__))) . DIRECTORY_SEPARATOR . 'autoloa
 
 use App\Controller\TrainingsController;
 
-(new TrainingsController())->registrationTraining();
+(new TrainingsController())->updateTraining();
 
 ?>

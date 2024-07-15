@@ -8,53 +8,130 @@ use App\Entity\SessionManager;
 require_once dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'autoload.php';
 
 use App\Service\TrainingsServices;
+use App\Service\LevelServices;
 class TrainingsController
 {
-    public function registrationTraining()
-    {
+  private TrainingsServices $trainingsServices;
+  private LevelServices $levelServices;
+  
+  
 
-        if (isset($_POST['trainingAdd'])) {
-            //print_r($_POST); die();
+  public function __construct(){
+      $this->trainingsServices = new TrainingsServices();
+      $this->levelServices = new LevelServices();
+      
+  }
+  
+    public function addTraining(){
+        $SE1 = new SessionManager();
+            
+        $levels = (new LevelServices())->getLevel();
+        $GLOBALS['levels'] = $levels ;
 
-            $code1 = ($_POST['codes']);
-            $description1 = ($_POST['descriptions']);
-            $prices1 = ($_POST['prices']);
-            $durations1 = ($_POST['durations']);
-            $codes = stripslashes(strip_tags(trim($code1)));
-            $description = stripslashes(strip_tags(trim($description1)));
-            $prices  = stripslashes(strip_tags(trim($prices1 )));
-            $durations = stripslashes(strip_tags(trim($durations1)));
-           /*  if(isset($_SESSION['role_id']) == 3 ) {
-                $tab_SS= array ($_SESSION['role_id']);*/
+        if(isset($_SESSION['flashMessage'])){
+            $flashMessage = $_SESSION['flashMessage'];
+            $GLOBALS['flashMessage'] = $flashMessage;
+        }
 
-                $training = new TrainingsServices();
-                $training_result = $training->registrationTraining($codes, $description, $prices, $durations);
+        if (isset( $_SESSION['auth_user'])){
+            $auth_user=($_SESSION['auth_user']);
+            $GLOBALS['auth_user'] = $auth_user;
+        }
 
-                switch ($training_result) {
+        if(isset($_POST['btnAddTraining'])){
+            $code = htmlspecialchars($_POST['codes']);
+            $description = htmlspecialchars(trim($_POST['descriptions']));
+            $prices = $_POST['prices'];
+            $durations = $_POST['durations'];
+            $modified = $_POST['modified'];
+            if (isset($_POST['trainingAddLevel']) && is_array($_POST['trainingAddLevel'])  && !empty($_POST['trainingAddLevel'])) {
+                $selectedLevels = $_POST['trainingAddLevel']; 
+
+                $saveTaining= $this->trainingsServices->addTraining( $code, $description, $prices, $durations, $modified, $_POST['trainingAddLevel']);
+               
+                switch($saveTaining){
                     case 1:
-                        echo '<script> alert("enregistrement reuisssir");</script>';
-                        exit;
-                    case 11:
-                        echo '<script> alert("echec d\'enregistrement");</script>';
-                        exit;
-                    case 10:
-                        echo '<script> alert("cet formation exicte deja");</script>';
-                        exit;
-                    //autres cas
+                        $SE1->set('flashMessage','a jout reuisir!');
+                        $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+                        header("location: ./../Trainings/Trainings.php");
+                    exit;
+                    case 0:
+                            
+                        $SE1->set('flashMessage',' echec d\'enregistrement de formation, reéssayer!');
+                        $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+                        header("location: ./../Trainings/Trainings.php");
+                    exit;
+                    case 2:
+                        $SE1->set('flashMessage',' la formation existe déja!');
+                        $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+                        header("location: ./../Trainings/Trainings.php");
+                    exit;
+                    case 5:
+                        $SE1->set('flashMessage',' echec de liaisaon entre niveau et formation!');
+                        $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+                        header("location: ./../Trainings/Trainings.php");
+                    exit;
                     default:
-                        echo "echec";
-                }
-            /*  }
-            else
-            {
-                header('location: signin.php');  
-            }*/
+                    $SE1->set('flashMessage',' echec!');
+                    $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+                    header("location: ./../Trainings/Trainings.php");
+                exit;
+
+                        
+                        
+
+                }                            
+            }else{
+            
+                $SE1->set('flashMessage',' echec: choix du ou des niveau(x) manquant!');
+                $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+                header("location: ./../Trainings/Trainings.php");
+
+            exit;
             }
-        
-       else
-        {
-           // header('location: ../src/View/trainings.php');  
-        }  
-    
     }
+      
+    }
+
+    public function getTrainings(){
+        
+        $trainings = $this->trainingsServices ->getTrainings(); 
+        $GLOBALS['trainings'] = $trainings ;
+
+        $listTraining = 'Listes des formations et niveaux';
+        $GLOBALS['listTraining'] = $listTraining;
+        
+        
+    }
+    public function updateTraining(){
+        $slt='OK BONJOUR';
+        $GLOBALS['slt']=$slt;
+        if(isset($_SESSION['flashMessage'])){
+            $flashMessage = $_SESSION['flashMessage'];
+            $GLOBALS['flashMessage'] = $flashMessage;
+        }
+
+        if(isset($_POST['name="closeLevel"']) || isset($_POST['name="openLevel"'] ))
+        $levelId="";  
+        $levelId = intval($this->trainingsServices ->getIdOneElement('levels','names',$_POST['levelName'])); 
+        $up = new LevelServices();
+        $updateLevel = $up->closeAndOpenLevel($levelId);
+
+        if($updateLevel==1){
+            $SE1 = new SessionManager();
+            $SE1->set('flashMessage','mise a jour reuissir!');
+            $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+            header("location: ./../Trainings/getTrainings.php");
+        }
+        else{
+            $SE1 = new SessionManager();
+            $SE1->set('flashMessage','mise a jour reuissir!');
+            $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+            header("location: ./../Trainings/getTrainings.php");
+        }
+
+        
+     
+    }
+    
 }

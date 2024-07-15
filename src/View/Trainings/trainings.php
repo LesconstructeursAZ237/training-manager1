@@ -5,8 +5,14 @@ require_once dirname(dirname(dirname(__DIR__))) . DIRECTORY_SEPARATOR . 'autoloa
 
 use App\Controller\TrainingsController;
 
-(new TrainingsController())->registrationTraining();
+(new TrainingsController())->addTraining();
 
+/**
+ * @var string<\App\Controller\UsersController> $auth_user 
+ * @var array<\App\Entity\Level> $levels
+ * @var string<\App\Controller\TrainingsController> $flasMessage  
+
+ */
 ?>
 
 
@@ -21,7 +27,7 @@ use App\Controller\TrainingsController;
     <link rel="stylesheet" href="./../../../assets/css/animationFormTrainings.css">
     <script src="./../../../assets/js/scriptMenuTrainings.js" defer></script>
     <script src="./../../../assets/js/openModalUsersDashboard.js" defer></script>
-    <script src="./../../../assets/js/resquestAjaxFormAddTrainings.js" defer></script>
+    <script src="./../../../assets/js/scriptsFormAddTrainings.js" defer></script>
 
 </head>
 
@@ -107,82 +113,91 @@ use App\Controller\TrainingsController;
 
     <!-- form add training -->
     <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md relative z-10 p-4" id="formTrainingsAdd">
-    <span id="response"></span>
-    <span id="stepOne"></span>
-    <span id="stepTwo"></span>
-    <span id="stepThree"></span>
-    <span id="stepFour"></span>
-    <span id="stepFinal"></span>
-    <h2 class="text-2xl font-bold mb-6 text-gray-800">Formulaire d'ajout de formation</h2>
-    <form id="registrationForm" method="POST">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 overflow-auto p-4">
-            <div class="w-full">
-                <label for="codes" class="text-black">Code: <br>
-                    <input type="text" placeholder="Code de la formation" id="codes" name="codes"
-                        class="font-normal rounded-md text-center sm:h-5 xl:h-10 lg:h-10 md:h-10 w-full placeholder-gray-400 border border-gray-400">
-                </label>
-            </div>
-            <div class="w-full">
-                <label for="descriptions" class="text-black">Description: <br>
-                    <input type="text" placeholder="Description de la formation" id="descriptions" name="descriptions"
-                        class="font-normal rounded-md text-center sm:h-5 xl:h-10 lg:h-10 md:h-10 w-full placeholder-gray-400 border border-gray-400">
-                </label>
-            </div>
-            <div class="w-full">
-                <label for="price" class="text-black">Prix: <br>
-                    <input type="number" placeholder="Prix de la formation" id="price" name="price"
-                        class="font-normal rounded-md text-center sm:h-5 xl:h-10 lg:h-10 md:h-10 w-full placeholder-gray-400 border border-gray-400">
-                </label>
-            </div>
-            <div class="w-full">
-                <label for="durations" class="text-black">Durée: <br>
-                    <input type="number" placeholder="Durée de la formation" id="durations" name="durations"
-                        class="font-normal rounded-md text-center sm:h-5 xl:h-10 lg:h-10 md:h-10 w-full placeholder-gray-400 border border-gray-400">
-                </label>
-            </div>
-        </div>
+        <!-- pour le message de la requete en cas d'erreur -->
+        <span id="flashMessage" class="mt-4 flex items-center justify-center text-red-500"><?php
+        if (isset($flashMessage)) {
+            echo ($flashMessage);
+        }
+        if (isset($_SESSION['flashMessage'])) {
+            unset($_SESSION['flashMessage']);
+        }
+        ?></span>
 
-        <label class="text-black">Choisir le(s) niveau(x) d'étude pour cette formation:</label>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 overflow-auto p-4">
-            <div class="w-full">
-                <label class="flex items-center">
-                    <input type="checkbox" name="trainingAddLevel[]" value="1"
-                        class="font-normal rounded-md text-center w-4 h-4 placeholder-gray-400 border border-gray-400 mr-2">
-                    Niveau 1
-                </label>
+        <h2 class="text-2xl font-bold mb-6 text-gray-800">Formulaire d'ajout de formation</h2>
+        
+        <form id="FormAddTraining"  method="POST" >
+            <div  class="grid grid-cols-1 md:grid-cols-2 gap-3 overflow-auto p-4">
+                <div class="w-full">
+                    <!-- modifid value -->
+                    <?php if (isset($auth_user) && is_array($auth_user)) {?>
+                        <input type="text" placeholder="modified" id="modified" name="modified" value="<?= $auth_user[2]?>"
+                            class=" hidden font-normal rounded-md text-center sm:h-5 xl:h-10 lg:h-10 md:h-10 w-full placeholder-gray-400 border border-gray-400">
+        <?php }?>
+                    
+                           
+                     <label for="codes" class="text-black">Code: <br>
+                        <input type="text" placeholder="Code de la formation" id="codes" name="codes"
+                            class="font-normal rounded-md text-center sm:h-5 xl:h-10 lg:h-10 md:h-10 w-full placeholder-gray-400 border border-gray-400">
+                            <span id="codesError" class="text-red-500"></span>
+                        </label>
+                </div>
+                <div class="w-full ">
+                    <label for="descriptions" class="text-black">Description: <br>
+                        <input type="text" placeholder="Description de la formation" id="descriptions"
+                            name="descriptions"
+                            class="font-normal rounded-md text-center sm:h-5 xl:h-10 lg:h-10 md:h-10 w-full placeholder-gray-400 border border-gray-400">
+                            <span id="descriptionsError" class="text-red-500"></span>
+                        </label>
+                </div>
+                <div class="w-full">
+                    <label for="price" class="text-black">Prix: <br>
+                        <input type="number" placeholder="Prix de la formation" id="prices" name="prices"
+                            class="font-normal rounded-md text-center sm:h-5 xl:h-10 lg:h-10 md:h-10 w-full placeholder-gray-400 border border-gray-400">
+                            <span id="pricesError" class="text-red-500"></span>
+                        </label>
+                </div>
+                <div class="w-full">
+                    <label for="durations" class="text-black">Durée: <br>
+                        <input type="number" placeholder="Durée de la formation" id="durations" name="durations"
+                            class="font-normal rounded-md text-center sm:h-5 xl:h-10 lg:h-10 md:h-10 w-full placeholder-gray-400 border border-gray-400">
+                            <span id="durationsError" class="text-red-500"></span>
+                        </label>
+                </div>
             </div>
-            <div class="w-full">
-                <label class="flex items-center">
-                    <input type="checkbox" name="trainingAddLevel[]" value="2"
-                        class="font-normal rounded-md text-center w-4 h-4 placeholder-gray-400 border border-gray-400 mr-2">
-                    Niveau 2
-                </label>
+            <div id="error-message" class="text-red-500 mt-2"></div>
+            <label class="text-black">Choisir le(s) niveau(x) d'étude pour cette formation:</label>
+            <div class="flex justify-center items-cente">
+                <button type="button" onclick="viewLevel()" id="viewlevel"
+                    class="w-1/3 justify-between  bg-blue-400 text-white p-1 rounded-md hover:bg-blue-600">
+                    Voir les niveaux</button>
+            </div> <br>
+            <div id="viewLevels" class="grid grid-cols-1 md:grid-cols-2 gap-3 overflow-auto p-4 hidden">
+                <?php if (isset($levels) && is_array($levels)) {
+                    foreach ($levels as $level) { ?>
+                        <div class="w-full">
+                            <label class="flex items-center">
+                                <input type="checkbox" name="trainingAddLevel[]"
+                                    value="<?= htmlspecialchars($level->getGradeLevel()) ?>"
+                                    class="font-normal rounded-md text-center w-4 h-4 placeholder-gray-400 border border-gray-400 mr-2">
+                                <?php echo htmlspecialchars($level->getGradeLevel()); ?>
+                            </label>
+                        </div>
+                    <?php }
+                } else { ?>
+                    <p class=" bg-red-300 w-full p-1 rounded text-white flex items-center justify-center text-sm mx-auto">Aucun
+                        niveau
+                        disponible.</p>
+                <?php } ?>
             </div>
-            <div class="w-full">
-                <label class="flex items-center">
-                    <input type="checkbox" name="trainingAddLevel[]" value="3"
-                        class="font-normal rounded-md text-center w-4 h-4 placeholder-gray-400 border border-gray-400 mr-2">
-                    Niveau 3
-                </label>
-            </div>
-            <div class="w-full">
-                <label class="flex items-center">
-                    <input type="checkbox" name="trainingAddLevel[]" value="4"
-                        class="font-normal rounded-md text-center w-4 h-4 placeholder-gray-400 border border-gray-400 mr-2">
-                    Niveau 4
-                </label>
-            </div>
-        </div>
 
-        <div class="flex justify-end space-x-4">
-            <button type="button" id="trainingAdd"
-                class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Envoyer</button>
-            <a href="./../Users/dashboard.php"
-                class="w-full bg-gray-500 text-white py-2 px-4 rounded-md shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">Annuler</a>
-        </div>
-    </form>
-</div>
-
+            <div class="flex justify-end space-x-4">
+                <button type="submit" name="btnAddTraining"
+                    class="w-full bg-blue-600 text-white p-2 text-center rounded-md shadow-sm hover:bg-blue-700 focus:outline-none">Enregistrer</button>
+                <a href="./../Users/dashboard.php"
+                    class="w-full bg-gray-500 text-white p-2 text-center rounded-md shadow-sm hover:bg-gray-600 focus:outline-none">Annuler</a>
+            </div>
+        </form>
+    </div>
 
 </body>
 

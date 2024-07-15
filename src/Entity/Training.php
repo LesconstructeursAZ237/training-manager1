@@ -4,19 +4,30 @@ namespace App\Entity;
 class Training{
     private $_id;
     private $_code;
-    private $_description;
+    private $_descriptions;
     private $_price;
     private $_durations;
     private $_modified;
-    public function __construct($_id=null, $_code, $_description, $_price, $_durations, array $_modified = null) {
-        if ($_id !== null) {
-            $this->_id = $_id;
+    private $_level;
+    private $_levelAvailabilities;
+    private $_levelName;
+    private $_level_id;
+    private $_training_id;
+    public function __construct(array $trainingData = []) {
+      
+        if (!empty($trainingData)) {
+            $this->_id = $trainingData['id'] ?? null;
+            $this->_code= $trainingData['code'] ?? null;
+            $this->_descriptions = $trainingData['descriptions'] ?? null;
+            $this->_price = $trainingData['price'] ?? null;
+            $this->_durations = $trainingData['durations'] ?? null;
+            $this->_modified = $trainingData['modified'] ?? null;
+            $this->_level = $trainingData['level'] ?? null;
+            $this->_levelAvailabilities = $trainingData['levelAvailabilities'] ?? null;
+            $this->_levelName = $trainingData['levelName'] ?? null;
+        
+           
         }
-        $this->_code = $_code;
-        $this->_description = $_description;
-        $this->_price = $_price;
-        $this->_durations = $_durations;
-        $this->_modified = $_modified;
     }
     // definition des getters
     public function getId() {
@@ -25,8 +36,8 @@ class Training{
     public function getCode() {
         return $this->_code;
     }
-    public function getDescription() {
-        return $this->_description;
+    public function getDescriptions() {
+        return $this->_descriptions;
     }
     public function getPrice() {
         return $this->_price;
@@ -44,8 +55,8 @@ class Training{
     public function setCode($_code) {
         $this->_code = $_code;
     }
-    public function setDescription($_description) {
-        $this->_description = $_description;
+    public function setDescription($_descriptions) {
+        $this->_descriptions = $_descriptions;
     }
     public function setPrice($_price) {
         $this->_price = $_price;
@@ -58,4 +69,104 @@ class Training{
     }
 
     
+
+    /**
+     * Get the value of _level
+     */ 
+    public function getLevel()
+    {
+        return $this->_level;
+    }
+
+    /**
+     * Set the value of _level
+     *
+     * @return  self
+     */ 
+    public function setLevel($_level)
+    {
+        $this->_level = $_level;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of _levelAvailabilities
+     */ 
+    public function getLevelAvailabilities()
+    {
+        return $this->_levelAvailabilities;
+    }
+
+    /**
+     * Set the value of _levelAvailabilities
+     *
+     * @return  self
+     */ 
+    public function setLevelAvailabilities($_levelAvailabilities)
+    {
+        $this->_levelAvailabilities = $_levelAvailabilities;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of _levelName
+     */ 
+    public function getLevelName()
+    {
+        return $this->_levelName;
+    }
+
+    /**
+     * Set the value of _levelName
+     *
+     * @return  self
+     */ 
+    public function setLevelName($_levelName)
+    {
+        $this->_levelName = $_levelName;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of _level_id
+     */ 
+    public function getLevel_id()
+    {
+        return $this->_level_id;
+    }
+
+    /**
+     * Set the value of _level_id
+     *
+     * @return  self
+     */ 
+    public function setLevel_id($_level_id)
+    {
+        $this->_level_id = $_level_id;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of _training_id
+     */ 
+    public function getTraining_id()
+    {
+        return $this->_training_id;
+    }
+
+    /**
+     * Set the value of _training_id
+     *
+     * @return  self
+     */ 
+    public function setTraining_id($_training_id)
+    {
+        $this->_training_id = $_training_id;
+
+        return $this;
+    }
 }

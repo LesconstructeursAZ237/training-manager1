@@ -31,20 +31,15 @@ class UsersController
     }
 
     public function dashboard(){
-        $users = $this->usersServices->getAll();
-      
-            
-                //print_r($_POST); die();
+              
                 $users = $this->usersServices->getAll(); 
                 $GLOBALS['users'] = $users;
-             
-           /*  $auth_user=['ok bonjour bonjour','145bonjour01', 'ok 9865'];
-            $GLOBALS['auth_user'] = $auth_user;
- */         if (isset( $_SESSION['auth_user'])){
-                $auth_user=($_SESSION['auth_user']).', vous ete connecter';
+  
+            if (isset( $_SESSION['auth_user'])){
+                $auth_user=($_SESSION['auth_user']);
                 $GLOBALS['auth_user'] = $auth_user;
             }
-            
+          
             $auth_user = null;
 
             if(isset($_SESSION['auth'])){
@@ -83,7 +78,7 @@ class UsersController
                     </script>';
                 } 
             }
-/* modification registration number */
+                /* modification registration number */
             if(isset($_POST['editMat'])){
                 $newMat = $_POST['newMat'];
                 $Id =intval( $_POST['indentifiantMat']);
@@ -222,7 +217,7 @@ class UsersController
         switch ($deletedUser) {
             case 1:
                 $SE1 = new SessionManager();
-                    $SE1->set('flashMessage','suppression reuisssir!');
+                    $SE1->set('flashMessage','suppression reuissir!');
                     $_SESSION['flashMessage'] = $SE1->get('flashMessage');
                     header("location: ./../Users/dashboard.php");
                 exit;
@@ -327,7 +322,8 @@ class UsersController
 
                     // La valeur retournée est une instance de User
                     $SE1 = new SessionManager();
-                    $SE1->set('auth_user', $result->getFirst_name() .' '. $result->getName());
+                    $tab = [$result->getFirst_name(), $result->getName(), $result->getMail(), $result->getId()];
+                    $SE1->set('auth_user', $tab);
                     $_SESSION['auth_user'] = $SE1->get('auth_user');                
                     header('location: dashboard.php');
 
@@ -337,7 +333,7 @@ class UsersController
                     // La valeur retournée n'est pas une instance de User (probablement null)
                     switch ($result) {
                         case 0:
-                            /*echo '<script> alert("user not found");</script>'; */
+                         
                             header('location: signin.php');
                             $SE1 = new SessionManager();
                             $SE1->set('not_f_user', 'user not found');
@@ -345,14 +341,14 @@ class UsersController
     
                             exit;
                         case 10:
-                            //echo '<script> alert("mot de passe invalide");</script>';
+                           
                             header('location: signin.php');
                             $SE1 = new SessionManager();
                             $SE1->set('not_f_user', 'mot de passe invalide');
                             $_SESSION['not_f_user'] = $SE1->get('not_f_user');
                             exit;
                         case 1:
-                            //echo '<script> alert("student");</script>';
+                           
                             header('location): signin.php');
                             $SE1 = new SessionManager();
                             $SE1->set('not_f_user', 'la section de connexion etudiant n\'est pas encore developper');
@@ -366,7 +362,7 @@ class UsersController
                             $_SESSION['not_f_user'] = $SE1->get('not_f_user');
                             exit;   
                         case 101:
-                            //echo '<script> alert("visiteur");</script>';
+                       
                             header('location: signin.php');
                             $SE1 = new SessionManager();
                             $SE1->set('not_f_user', 'l\'utilisateur a été supprimer ou desactivé');
