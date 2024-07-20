@@ -5,6 +5,13 @@ use App\Controller\UsersController;
 
 (new UsersController())->index();
 
+/**
+ * @var string<\App\Controller\UsersController> $auth_user 
+ * @var array<\App\Entity\Level> $levels
+ * @var string<\App\Controller\TrainingsController> $flasMessage  
+
+ */
+
 ?>
 
 <!DOCTYPE html>
@@ -39,7 +46,7 @@ use App\Controller\UsersController;
                     </button>
                 </li>
             </ul>
-
+     
 
             <button id="main_nav" class=" justify-between ">
 
@@ -111,6 +118,11 @@ use App\Controller\UsersController;
         <h1 class=" text-2xl  m-2 capitalize  text-blue-500 font-bold">
             pourquoi choisir Le Leader en informatique?
         </h1>
+        <?php if (isset($auth_user)  && is_array($auth_user)) { ?>
+        <span id="flashConnxion"
+            class="hover:bg-blue-300 bg-blue-500 w-1/3 p-2 rounded text-white flex items-center justify-center  m-auto"
+           > <?= $auth_user[0].' '.$auth_user[1].', vous ete connecter' ?></span>
+    <?php } ?>
         <p class="">Lorem ipsum dolor sit amet consectetur,<br> adipisicing elit.
             Eaque quasi neque sunt delectus accusamus possimus at est,<br>
             enim, unde ipsa dignissimos. Ad ex delectus corrupti possimus iusto voluptatum ipsam sequi!
@@ -196,7 +208,6 @@ use App\Controller\UsersController;
 
 
     </div>
-
     <br><br>
     <!-- end page -->
     <div class="p-5 content-stretch md:content-around grid gap-8 sm:grid-cols-1 sm:size-10/12

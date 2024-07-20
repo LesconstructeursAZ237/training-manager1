@@ -30,7 +30,7 @@ class TrainingsServices
             return "<div class='alert alert-danger'> Cannot connect to database. Reason : <span class='fw-bold'> " . $connectionManager->getError() . "</div>";
         }
     }
-    public function getIdOneElement($tableName, $columName, $close)
+    public function getIdOneElement($tableName, $columName, $close): ?int
     {
 
         $sql1 = "SELECT id FROM $tableName WHERE $columName = :parameter ";
@@ -142,28 +142,46 @@ class TrainingsServices
     }
     public function getTrainings(): ? array{
                
-                 $reqst = "SELECT t.*, l.*, tl.*
-                  FROM trainings t
-                  LEFT JOIN training_levels tl ON t.id = tl.training_id
-                  LEFT JOIN levels l ON tl.level_id = l.id
-                  WHERE t.id > :parameter 
-                  ORDER BY t.code ASC ";
+        $reqst = "SELECT 
+        t.id AS training_id,
+        t.code,
+        t.descriptions,
+        t.durations,
+        t.price,
+        GROUP_CONCAT(DISTINCT l.names SEPARATOR ', ') AS levels,
+        l.availabilities
+    FROM 
+        trainings t
+    LEFT JOIN 
+        training_levels tl ON t.id = tl.training_id
+    LEFT JOIN 
+        levels l ON tl.level_id = l.id
+    WHERE 
+        t.id > :parameter
+    AND delete_training=:deleteT
+    GROUP BY 
+        t.id, t.code, t.descriptions, t.durations, t.price
+    ORDER BY 
+        l.names ASC";
+
+                
 
                     $getTraining = $this->_pdo->prepare($reqst);
                     $getTraining->bindValue(':parameter',0);
+                    $getTraining->bindValue(':deleteT',0);
                     $getTraining->execute();
 
             $allTrainings = $getTraining->fetchAll(\PDO::FETCH_ASSOC);
         $trainings = [];
         foreach ($allTrainings as $al) {
             $training = new Training([
-                'id' => $al['id'],
-                'code' => $al['code'],           
-                'price' => $al['price'],
-                'durations' => $al['durations'],
-                'descriptions' => $al['descriptions'],
-                'levelName' => $al['names'],
-                'levelAvailabilities' => $al['availabilities'],             
+               'id' => $al['training_id'], // Utiliser l'alias 'training_id' pour 'id'
+                'levelName' => $al['levels'], // Utiliser l'alias 'levels' pour 'levelName'
+                'code' => $al['code'],
+                'levelAvailabilities' => $al['availabilities'], // Utiliser 'availabilities' pour 'levelAvailabilities'
+                'descriptions' => $al['descriptions'],             
+                'durations' => $al['durations'],             
+                'price' => $al['price'],             
 
             ]);
             $trainings[] = $training; 
@@ -171,6 +189,104 @@ class TrainingsServices
 
         return $trainings;
     }
-  
+ 
+    public function delete(array $data): int
+{
+    $trainingDatas = new Training($data);
+
+    $deleteTraining = $this->_pdo->prepare("
+        UPDATE trainings 
+        SET delete_training = :deleteT,
+            modified_by = :modified_by
+        WHERE id = :id AND code = :code
+    ");
+
+
+    $modified = $trainingDatas->getModified();
+    $idTraining = $trainingDatas->getId();
+    $codeT = $trainingDatas->getCode();
+
+
+    $deleteTraining->bindValue(':deleteT', 1, \PDO::PARAM_INT); 
+    $deleteTraining->bindParam(':modified_by', $modified, \PDO::PARAM_STR);
+    $deleteTraining->bindParam(':id', $idTraining, \PDO::PARAM_STR);
+    $deleteTraining->bindParam(':code', $codeT, \PDO::PARAM_STR);
+
+    
+    if ($deleteTraining->execute()) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+    public function update(array $data,): int {
+            
+       
+        $trainingDatas = new Training($data);
+
+        $code = $trainingDatas->getCode();
+        $descript = $trainingDatas->getDescriptions();
+        $dure = intval($trainingDatas->getDurations());
+        $price = $trainingDatas->getPrice();
+        $modified = $trainingDatas->getModified();
+        $id = intval($trainingDatas->getId());
+        
+             // print_r($trainingDatas);  die();
+              
+             $update = $this->_pdo->prepare("
+            UPDATE trainings 
+                SET code = :code,
+                durations = :durations,
+                price = :price,
+                descriptions = :descriptions,
+                modified_by = :modified_by
+                WHERE id = :id
+        ");
+
+
+            $update->bindParam(':id', $id , \PDO::PARAM_INT);
+            $update->bindParam(':code', $code , \PDO::PARAM_STR);
+            $update->bindParam(':price', $price , \PDO::PARAM_STR);
+            $update->bindParam(':durations', $dure , \PDO::PARAM_INT);
+            $update->bindParam(':descriptions', $descript, \PDO::PARAM_STR); 
+            $update->bindParam(':modified_by', $modified, \PDO::PARAM_STR); 
+
+            $update->execute();
+            if($update){
+                return 1;
+            }
+            else{
+                return 0;
+            }
+
+    }
+    /*fonction pour sélectionner les niveaux qui ne sont pas associés au training spécifié*/
+    public function getLevelsNotInTraining( int $trainingId):?array {
+      
+        $req = "SELECT l.*
+                FROM levels l
+                WHERE l.id NOT IN (
+                    SELECT tl.level_id
+                    FROM training_levels tl
+                    WHERE tl.training_id = :training_id
+                )";
+    
+        try {
+            
+            $stmt = $this->_pdo->prepare($req);
+            $stmt->bindValue(':training_id', $trainingId, \PDO::PARAM_INT);
+            $stmt->execute();
+            
+            // Récupérer les résultats
+            $levelsNotInTraining = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            
+            return $levelsNotInTraining;
+        } catch (\PDOException $e) {
+           
+            die("Erreur lors de la récupération des niveaux : " . $e->getMessage());
+        }
+    }
+    
 
 }

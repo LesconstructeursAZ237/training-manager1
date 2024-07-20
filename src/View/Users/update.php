@@ -3,8 +3,9 @@
 
 require_once dirname(dirname(dirname(__DIR__))) . DIRECTORY_SEPARATOR . 'autoload.php';
 
-use App\Controller\TrainingsController;
+use App\Controller\UsersController;
 
-(new TrainingsController())->updateTraining();
+(new UsersController())->updateUser();
+
 
 ?>

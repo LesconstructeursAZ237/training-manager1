@@ -164,3 +164,25 @@ class AutoLoader
 }
 
 (new AutoLoader())->register();
+use Core\Configure;
+
+if(session_status() ===  PHP_SESSION_NONE){
+    $configure = new Configure();
+
+        $default_session_cookie_params = [
+            'timeout' => 60*60*24*2, // two days
+            'path' => '/', 
+            'domain' => getFullDomainUrl(),
+            'secure' => true,
+            'httponly' => true,
+        ];
+        $session_cookie_params = array_merge($configure->read('Session', $default_session_cookie_params), $default_session_cookie_params);
+
+        ini_set('session.gc_maxlifetime', $session_cookie_params['timeout']);
+        ini_set('session.cookie_lifetime', $session_cookie_params['timeout']);
+        session_start();
+
+        $_SESSION['__configure__'] = serialize($configure);
+
+    
+}

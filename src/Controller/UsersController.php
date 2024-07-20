@@ -35,7 +35,7 @@ class UsersController
                 $users = $this->usersServices->getAll(); 
                 $GLOBALS['users'] = $users;
   
-            if (isset( $_SESSION['auth_user'])){
+            if (isset($_SESSION['auth_user'])){
                 $auth_user=($_SESSION['auth_user']);
                 $GLOBALS['auth_user'] = $auth_user;
             }
@@ -207,42 +207,71 @@ class UsersController
                 </script>';
             }
         }
-       /* delete user */
-       if(isset($_POST['btnDeleteUser'])){
-        $Id =intval( $_POST['identifiant']);
-        $modifiedU =$_POST['deletedU'];
-        //echo $Id; die();
-        $deleted = new UsersServices() ; 
-        $deletedUser = $deleted->deletedUser($Id,  $modifiedU) ;
-        switch ($deletedUser) {
-            case 1:
-                $SE1 = new SessionManager();
-                    $SE1->set('flashMessage','suppression reuissir!');
-                    $_SESSION['flashMessage'] = $SE1->get('flashMessage');
-                    header("location: ./../Users/dashboard.php");
-                exit;
-            case 0:
-                $SE1 = new SessionManager();
-                    $SE1->set('flashMessage','echec de suppresion de l\'utilisateur!');
-                    $_SESSION['flashMessage'] = $SE1->get('flashMessage');
-                    header("location: ./../Users/dashboard.php");              
-                exit;
-            //autres cas
-            default:
-            $SE1 = new SessionManager();
-                    $SE1->set('flashMessage','echec!');
-                    $_SESSION['flashMessage'] = $SE1->get('flashMessage');
-                    header("location: ./../Users/dashboard.php");
-        }
+  
     }
+    public function updateUser(){
+        if (isset($_POST['btnEditUser'])) {
+            $name = htmlspecialchars($_POST['name']);
+            $firstName = htmlspecialchars($_POST['firstName']);
+            $mail = htmlspecialchars($_POST['mail']);
+            $phoneNumber = $_POST['phoneNumber'];
+            $matriculeUser = htmlspecialchars($_POST['matriculeUser']);
+            $idUser = htmlspecialchars($_POST['idUser']);
+            $birthDate = $_POST['birthDate'];
+            $photoUser = $_POST['photoUser'];
+            if(!$_POST['modifiedSessionUser']){
+                $SE1 = new SessionManager();
+                $SE1->set('flashMessage','connecter vous!');
+                $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+                header("location: ./../Users/signin.php");
+                exit;
+            }
+            $modifiedSessionUser = $_POST['modifiedSessionUser'];
+            if($name=='' || $firstName=='' || $mail=='' || $phoneNumber=='' || $matriculeUser==''){
+                $SE1 = new SessionManager();
+                $SE1->set('flashMessage','champs vide ou non remplir');
+                $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+                header("location: ./../Users/directorHead.php");
+                exit;
+            }
+            
+            $currentDate = date('Y-m-d');/* pour stocker la date de modification */
+            $userData = [
+            '_id' => $idUser,
+            '_registration_number' => $matriculeUser,
+            '_modified_by' => $modifiedSessionUser,
+            '_modified_date' => $currentDate,
+            '_name' => $name,
+            '_first_name' => $firstName,
+            '_mail' => $mail,
+            '_phone_number' => $phoneNumber,
+            '_birth_date' => $birthDate,
+            '_photo_user' => $photoUser,
+        ];
+        $update = new UsersServices();
+        $updateSave = $update->updateUser($userData);
+        if($updateSave==1){
+            $SE1 = new SessionManager();
+            $SE1->set('flashMessage','mise a jour reuissir');
+            $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+            header("location: ./../Users/directorHead.php");
+            exit;
+        }else{
+            $SE1 = new SessionManager();
+            $SE1->set('flashMessage','échec des mise a jour');
+            $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+            header("location: ./../Users/directorHead.php");
+            exit;
+        }
+         
+        }
     }
 
     public function addUser()
     {
 
         if (isset($_POST['registration'])) {
-            //print_r($_POST); die();
-
+        
             $name1 = ($_POST['name']);
             $firstName1 = ($_POST['firstName']);
             $mail1 = ($_POST['mail']);
@@ -251,59 +280,101 @@ class UsersController
             $photo_user1 = ($_POST['photo_user']);
             $created_by = ($_POST['modified']);
             $pwd = ($_POST['pwdUser']);
-            //$created_by= $modified1[0].' '.$modified1[1]; //print_r($_POST); die();
+                if(!$created_by){
+                    $_SESSION['flashMessage']='veuillez vous connecter!'; 
+                exit;
+                }
 
             $name = stripslashes(strip_tags(trim($name1)));
             $firstName = stripslashes(strip_tags(trim($firstName1)));
             $mail = stripslashes(strip_tags(trim($mail1)));
             $phone_number = stripslashes(strip_tags(trim($phone_number1)));
             $photo_user = stripslashes(strip_tags(trim($photo_user1)));
-            //print_r( $created_by); die();
+          
             $utilisateur = new UsersServices();
             $utilisateur1 = $utilisateur->registrationUser($name, $firstName, $mail, $phone_number, $birth_date1, $photo_user, $pwd, $created_by);
 
             switch ($utilisateur1) {
                 case 1: 
                     $SE1 = new SessionManager();
-                    $SE1->set('flashMessage','enregistrement reuisssir');
+                    $SE1->set('flashMessage','Ajout d\'utilisateur reuissir');
                     $_SESSION['flashMessage'] = $SE1->get('flashMessage');
-                    header("location: ./../Users/dashboard.php");
+                    header("location: ./../Users/directorHead.php");
                     exit;
                 case 2:
                     $SE1 = new SessionManager();
                     $SE1->set('flashMessage','echec matricul');
                     $_SESSION['flashMessage'] = $SE1->get('flashMessage');
-                    header("location: ./../Users/dashboard.php");
+                    header("location: ./../Users/directorHead.php");
                     exit;
                 case 20:
                     $SE1 = new SessionManager();
                     $SE1->set('flasMessage','cet utilisateur est deja ajouter');
                     $_SESSION['flasMessage'] = $SE1->get('flasMessage');
-                    header("location: ./../Users/dashboard.php");
+                    header("location: ./../Users/directorHead.php");
                     exit;
                 case 21:
                     $SE1 = new SessionManager();
                     $SE1->set('flasMessage','echec enregistrement premier champs');
                     $_SESSION['flasMessage'] = $SE1->get('flasMessage');
-                    header("location: ./../Users/dashboard.php");
+                    header("location: ./../Users/directorHead.php");
                     exit;
                 case 22:
                     $SE1 = new SessionManager();
                     $SE1->set('flasMessage','echec recuperation id: impossible d\'attribuer un matricule');
                     $_SESSION['flasMessage'] = $SE1->get('flasMessage');
-                    header("location: ./../Users/dashboard.php");
+                    header("location: ./../Users/directorHead.php");
                     exit;
                 /*autres cas*/
                 default:
                 $SE1 = new SessionManager();
                 $SE1->set('flasMessage','echec!');
                 $_SESSION['flasMessage'] = $SE1->get('flasMessage');
-                header("location: ./../Users/dashboard.php");
+                header("location: ./../Users/directorHead.php");
             }
         }
 
     }
+    public function delete(){
 
+        if(isset($_POST['btnDeleteUser'])){
+            $Id =intval($_POST['deleteID']);
+            if(!$_POST['deletedU']){
+                $SE1 = new SessionManager();
+                $SE1->set('flashMessage','connectrer vous!');
+                $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+                header("location: ./../Users/signin.php");
+            exit;
+            }
+      
+            $modifiedU =$_POST['deletedU'];
+        
+            $deleted = new UsersServices() ; 
+            $deletedUser = $deleted->deletedUser(intval($_POST['deleteID']),  $modifiedU) ;
+            switch ($deletedUser) {
+                case 1:
+                    $SE1 = new SessionManager();
+                        $SE1->set('flashMessage','suppression reuissir!');
+                        $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+                        header("location: ./../Users/directorHead.php");
+                    exit;
+                case 0:
+                    $SE1 = new SessionManager();
+                        $SE1->set('flashMessage','echec de suppresion de l\'utilisateur!');
+                        $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+                        header("location: ./../Users/directorHead.php");              
+                    exit;
+                //autres cas
+                default:
+                $SE1 = new SessionManager();
+                        $SE1->set('flashMessage','echec!');
+                        $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+                        header("location: ./../Users/directorHead.php");
+            }
+        }
+        
+    }
+    
     public function signin()
     {
         if (isset($_POST['signin'])) {
@@ -324,8 +395,9 @@ class UsersController
                     $SE1 = new SessionManager();
                     $tab = [$result->getFirst_name(), $result->getName(), $result->getMail(), $result->getId()];
                     $SE1->set('auth_user', $tab);
-                    $_SESSION['auth_user'] = $SE1->get('auth_user');                
-                    header('location: dashboard.php');
+                    $_SESSION['auth_user'] = $SE1->get('auth_user');                  
+                    $_SESSION['ArrayAuth']= IsConnect::IfConnect(true, $_SESSION['auth_user']);            
+                    header('location: directorHead.php');
 
                 } 
                 else 
@@ -397,50 +469,8 @@ class UsersController
             exit;
         }
     }
-   public function delete(){
-    AuthController::require_admin_priv();
+   
 
-		if (!isset($_GET['id']) || empty($_GET['id'])) {
-			header('Location: ' .  VIEW_PATH  . 'Users');
-			exit;
-		}
-
-		// check if the employee exists
-		$checkEmployee = $this->usersServices->getById($_GET['id']);
-		if (!$checkEmployee) {
-			if (isset($_GET['ajax']) && $_GET['ajax'] == 1) {
-				header('Content-Type: application/json');
-				echo json_encode(['status' => 'success', 'message' => "Aucun utilisateur trouvé avec l'id " . $_GET['id']]);
-
-				exit;
-			}
-
-			Flash::error("Aucun utilisateur trouvé avec l'id " . $_GET['id']);
-
-			header('Location: ' .  VIEW_PATH  . 'Employees');
-			exit;
-		}
-
-
-		$deleted = $this->usersServices->delete((int)$_GET['id']);
-
-		if ($deleted) {
-			Flash::success("L'utilisateur a été supprimé avec succès.");
-		} else {
-			Flash::error("L'utilisateur n'a pas été supprimé. Veuillez réessayer !");
-		}
-
-		if (isset($_GET['ajax']) && $_GET['ajax'] == 1) {
-			header('Content-Type: application/json');
-			echo json_encode(['status' => 'success', 'message' => 'utilisateur supprimé avec succès.']);
-
-			exit;
-		}
-
-		header('Location: ' . VIEW_PATH . 'Users');
-	
-
-    }
 }
 
 

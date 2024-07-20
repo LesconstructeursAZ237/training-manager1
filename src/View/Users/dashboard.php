@@ -21,6 +21,8 @@ use App\Controller\UsersController;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>page d'administration</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="./../../../assets/css/animationDasboard.css">
     <script src="./../../../assets/js/scriptMenuDashboard.js" defer></script>
@@ -67,7 +69,7 @@ use App\Controller\UsersController;
         <div>
             <button id="btnService" onclick="toggleSubmenu('btnService', 'submenu3')" class="btnMenu text-white rounded p-2 hover:text-white hover:bg-blue-500 text-xl font-medium focus:outline-none">formations</button>
             <div id="submenu3" class="hidden ml-4 mt-2 w-48 bg-white shadow-lg rounded">
-                <a href="./../Trainings/trainings.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">ajouter</a>
+                <a href="./../Trainings/addTrainings.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">ajouter</a>
                 <a href="./../Trainings/getTrainings.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-200">voir les formations</a>
                 <button onclick="closeSubmenu('submenu3')" class="block px-4 py-2 bg-red-500 text-white rounded">X</button>
             </div>
@@ -105,7 +107,7 @@ use App\Controller\UsersController;
                 </div>                 
 
                 <div class="relative group">
-                    <a href="#"
+                    <a href="signOut.php"
                         class="text-white   rounded p-2 hover:text-white hover:bg-blue-500 text-xl font-medium focus:outline-none">Deconnexion</a>
                 </div>
 
@@ -475,7 +477,7 @@ use App\Controller\UsersController;
     </div>
 
     <!-- add an User -->
-     <!-- formulaire d'inscription d'utilisateur -->
+     <!-- form -->
 <div id="formAddUser" class="absolute hidden  inset-10 flex mt-2 mb-8 h-full sm:text-xs text-center m-auto shadow-xl rounded-lg sm:w-10/12 md:w-96 lg:w-1/2 xl:w-1/2 lg:text-xl md:text-lg 2xl:bg-red-200 overflow-auto border-gray-800">
 
 <form action="addUser.php" class="m-auto xl:w-full 2xl:w-full" id="registrationForm" method="post">

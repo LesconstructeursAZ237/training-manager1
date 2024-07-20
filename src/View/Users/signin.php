@@ -69,7 +69,7 @@ unset($_SESSION['not_f_user']);
 
                 <form action="" class=" m-auto  xl:w-96 2xl:w-96 "
                     id="log_in_form" method="post">
-
+                        
                     <div class=" p-1 bg-white overflow-auto rounded-lg  m-auto">
                         <!-- balise du message d'erreur -->
                     <span class="text-red-800" id="error_user"></span>
@@ -112,14 +112,15 @@ unset($_SESSION['not_f_user']);
 
     <script>
     // metre le message d'erreur dans une variable js
-    var errorMessage = "<?php echo $error_message; ?>";
+    var errorMessage = "<?php if(isset($error_message)){
+    echo $error_message; } ?>";
     if (errorMessage) {
         // Utiliser JavaScript pour écrire dans la balise avec l'ID "error_user"
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('error_user').innerText = errorMessage;
             document.getElementById('mail').style.borderColor = 'red';
             document.getElementById('mail').style.borderWidth = '2px';
-            //input.style.borderColor = 'blue';
+         
 
         });
 

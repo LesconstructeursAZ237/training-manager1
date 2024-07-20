@@ -20,19 +20,111 @@ use App\Controller\LevelsController;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>liste des niveaux d'étude</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="./../../../assets/css/animationGetLevel.css">
     <!-- add js files -->
 
 </head>
+<body class="bg-gray-100">
+    
+            <!-- Logo -->
+            <div class="absolute inset-0 z-0">
+                <img src="./../../../../assets/img/logo1.png" alt="Logo" class="ml-0 p-0 h-1/12 w-1/12 object-contain">
+            </div>
+  
+<nav class="bg-blue-900 opacity-90 p-0 h-2/12">
+     
+    <div class="container mx-auto flex items-center justify-between ">
+        
+           <!-- Navigation Links -->
+           <div class="hidden md:flex space-x-4 items-center">
+            <button class="text-white hover:bg-blue-400 p-2 rounded"><i class="fas fa-user"></i>Utilisateurs</button>
+            <button class="text-white hover:bg-blue-400 p-2 rounded"><i class="fas fa-graduation-cap"></i>Formations</button>
+            <button class="text-white hover:bg-blue-400 p-2 rounded"><i class="fas fa-calendar-alt"></i>Évènements</button>
+            <button class="text-white hover:bg-blue-400 p-2 rounded" ><i class="fas fa-graduation-cap"></i>Niveau</button>
+            <button class="text-white hover:bg-blue-400 p-2 rounded"><i class="fas fa-user-graduate"></i>Étudiants</button>
+            <button class="text-white hover:bg-blue-400 p-2 rounded"><i class="fas fa-home"></i>Accueil</button>
+        </div>
 
-<body class="bg-gray-300">
+        <!-- Search Bar -->
+        <div class=" m-2 rounded-lg w-full max-w-md flex items-center justify-center h-full">
+            <form action="" method="post" class="w-full flex">
+                <input type="text" id="search" name="search" placeholder="Entrez votre recherche"
+                    class="w-full px-4 py-2 h-full border rounded-l-lg">
+                <button type="submit"
+                    class="bg-blue-800 text-white px-5 py-2 rounded-r-lg hover:bg-blue-700 focus:outline-none"><i class="fas fa-search"></i></button>
+            </form>
+        </div>
+
+        <!-- Profile Button -->
+        <div class="flex items-center space-x-4">
+            <button class="text-white p-2 rounded ml-2 mr-0 hover:bg-blue-500"><i class="fas fa-user-cog"></i>Profil</button>
+            <button id="btnOpenVerticalMenu" onclick="openVerticalMenu()" class="lg:hidden text-white p-2 rounded ml-2 mr-0 hover:bg-blue-500">Menu</button>
+        </div>
+    </div>
+
+  
+</nav>
+
+    
+<div class="flex flex-col md:flex-row h-full ">
+    <!-- Menu vertical à gauche -->
+    <div id="verticalMenu" class="hidden md:block  sm:w-1/3 md:w-1/5 hidden bg-blue-900 opacity-90 text-white p-4 overflow-auto top-2/12">
+        <ul>
+            <a href="./../Users/Aindex.php" > <h1 class="bg-blue-600 w-full rounded underline p-1 m-0 hover:bg-blue-800 "><i class="fas fa-home"></i> Accueil</h1></a>
+            <li><a href="#" class="block p-2 hover:bg-blue-800 rounded"><i class="fas fa-calendar-alt"></i>Évenements</a></li>
+            <li><a href="#" class="block p-2 hover:bg-blue-800 rounded"><i class="fas fa-graduation-cap"></i>Formations</a></li>
+           
+        </ul>
+        <hr>
+        <ul>
+            <h1 class="bg-blue-600 w-full rounded p-1 m-0 hover:bg-blue-800 "><i class="fas fa-user"></i>Utilisateurs</h1>
+            <li><a href="./../Users/addUser.php" class="block p-2 hover:bg-blue-800 rounded"><i class="fas fa-plus"></i>ajouter</a></li>
+            <li><a href="./../Users/directorHead.php" class="block p-2 hover:bg-blue-800 rounded"><i class="fas fa-eye"></i>voir les Utilisateurs</a></li>
+            
+        </ul>
+        <hr>
+        <ul>
+            <h1 class="bg-blue-600 w-full rounded p-1 m-0 hover:bg-blue-800 "><i class="fas fa-graduation-cap"></i>Formation</h1>
+            <li><a href="./../Trainings/addTrainings.php" class="block p-2 hover:bg-blue-800 rounded"><i class="fas fa-plus"></i>ajouter</a></li>
+            <li><a href="./../Trainings/getTrainings.php" class="block p-2 hover:bg-blue-800 rounded"><i class="fas fa-eye"></i>voir les formations</a></li>
+          
+        </ul>
+        <hr>
+        <ul>
+            <h1 class="bg-blue-600 w-full rounded p-1 m-0 hover:bg-blue-800 "><i class="fas fa-graduation-cap"></i>Niveau</h1>
+            <li><a href="./../Level/addLevels.php" class="block p-2 hover:bg-blue-800 rounded"><i class="fas fa-plus"></i>ajouter</a></li>
+                
+        </ul>
+        <hr>
+        <ul>
+            <h1 class="bg-blue-600 w-full rounded p-1 m-0 hover:bg-blue-800 "><i class="fas fa-calendar-alt"></i>Évenements</h1>
+            <li><a href="#" class="block p-2 hover:bg-blue-800 rounded"><i class="fas fa-plus"></i>ajouter</a></li>
+            <li><a href="#" class="block p-2 hover:bg-blue-800 rounded"><i class="fas fa-eye"></i>voir les Évenements</a></li>         
+        </ul>
+    </div>
+
+    <!-- Contenu personnalisé -->
+    <div class="flex-1 bg-gray-200 p-4 relative z-10">
+        <!-- Contenu personnalisé -->
+   
+               <!-- pour le resulat de la requete -->
+       <span id="flashMessage" class="mt-4 flex items-center justify-center text-white font-bold"><?php 
+            if(isset($flashMessage)) {
+                echo ($flashMessage);
+            }
+            if (isset($_SESSION['flashMessage'])) {
+                 unset($_SESSION['flashMessage']); 
+                }?>
+       </span>
 
     <div class="container mx-auto px-4 py-8">
-        <?php if (isset($auth_user)) { ?>
+        <?php if (isset($_SESSION['ArrayAuth']) && is_array($_SESSION['ArrayAuth'])) { ?>
             <span id="flashConnxion"
-                class="hover:bg-blue-300 bg-blue-500 w-1/3 p-2 rounded text-white flex items-center justify-center mx-auto"
-                onclick="closeFlashConnexion()"> <?= ($auth_user) ?></span>
+                class=" flex hover:bg-blue-300 bg-blue-500 w-1/3 p-2 rounded text-white flex items-center justify-center mx-auto"
+                onclick="closeFlashConnexion()"> <?= $_SESSION['ArrayAuth'][1] ?> <span class="text-sm">, vous etes connecter!</span></span>
         <?php } ?>
 
         <?php if (isset($levels) && is_array($levels)) { ?>
@@ -72,14 +164,20 @@ use App\Controller\LevelsController;
 
                                 <td class="py-1 px-1 border-b border-gray-200 text-center">
 
-
+                                    <form action="updateLevel.php" method="post">
+                                   
                                     <?php if ((htmlspecialchars($level->getAvailabilities())) == 'ouvert') { ?>
-                                        <button type="button" class="bg-red-400 hover:bg-red-500 text-white px-3 py-1 rounded"
-                                            onclick="openLevel(<?= $level->getId() ?>,'<?= $level->getAvailabilities() ?>')">Fermer</button>
+                                        <input type="number" class="hidden" name="idUpdateLevel" id="idUpdateLevel" value="<?= $level->getId() ?>">
+                                        <button name="btnCloseLevel" type="submit" class="bg-red-400 hover:bg-red-500 text-white px-3 py-1 rounded"
+                                           ><i class="fas fa-window-close"></i>Fermer</button>
                                     <?php } else { ?>
-                                        <button type="button" class="bg-green-400 hover:bg-green-500 text-white px-3 py-1 rounded"
-                                            onclick="openLevel( <?= $level->getId() ?>,'<?= $level->getAvailabilities() ?>')">Ouvrir</button>
+                                        <input type="number" class="hidden" name="idUpdateLevel" id="idUpdateLevel" value="<?= $level->getId() ?>">
+                                        <button type="submit" name="btnOpenLevel" class="bg-green-400 hover:bg-green-500 text-white px-3 py-1 rounded"
+                                            ><i class="fas fa-unlock"></i>Ouvrir </button>
                                     <?php } ?>
+
+                                    </form>
+                                   
 
                                 </td>
 
@@ -93,80 +191,16 @@ use App\Controller\LevelsController;
                 disponible.</p>
         <?php } ?>
     </div>
+<!--fin Contenu personnalisé -->
+    </div>
+    <!--fin Contenu personnalisé -->
+</div>
 
-    <script>
-
-        function openLevel(level_id, otherVariable) {
-            if (confirm("Voulez-vous vraiment modifier ce niveau ?")) {
-                var xmlhttp = new XMLHttpRequest();
-                var url = "http://localhost/training-manager/src/View/Level/updateLevel.php";
-
-                /* Paramètres POST */
-                var params = "ajax=1&id=" + level_id + "&othervar=" + otherVariable;
-                document.getElementById('response').innerHTML = `
-                <div class="flex flex-col items-center">
-                    <div id="spinner" class="spinner mb-2"></div>
-                    <p class="text-gray-500">Traitement en cours veuillez patienter...</p>
-                </div>
-                `;
-
-                xmlhttp.onreadystatechange = function () {
-                    if (xmlhttp.readyState == 4) {
-                        if (xmlhttp.status == 200) {
-                            
-                                var responseObject = JSON.parse(xmlhttp.responseText);
-                                /* Lecture des données */
-                                var message = responseObject.message; /* Objet message */
-                                var levelData = responseObject.data; /* Objet data */
-                                var levelDescription = responseObject.data.description;
-                                var responseElement = document.getElementById("response");
-                                if(message=='succes'){
-                                    
-                                }
-                                switch (message){
-                                    case 'succes':
-                                        responseElement.textContent = responseObject.data.succes;
-                                        responseElement.classList.add('text-green-500');
-                                        break;
-                                    case 'error':
-                                        responseElement.textContent = responseObject.data.error;
-                                        responseElement.classList.remove('text-green-500');
-                                        responseElement.classList.add('text-red-500');
-                                        break; 
-                                    case 'invalidparameters':
-                                        responseElement.textContent = responseObject.data.invalidparameters;
-                                        responseElement.classList.remove('text-green-500');
-                                        responseElement.classList.add('text-red-500');
-                                        break; 
-                                    case 'invalidrequest':
-                                        responseElement.textContent = responseObject.data.invalidrequest;
-                                        responseElement.classList.remove('text-green-500');
-                                        responseElement.classList.add('text-red-500');
-                                        break;         
-                                    default:
-                                    responseElement.textContent = responseObject.data.error;  
-                                    responseElement.classList.remove('text-green-500');
-                                        responseElement.classList.add('text-red-500');
-                                    break;
-                                }
-                               location.reload();
-                           
-                        } else {
-                            /* Gestion de l'erreur HTTP */
-                            var responseElement = document.getElementById("response");
-                            responseElement.textContent = "Erreur HTTP : " + xmlhttp.status;
-                        }
-                    }
-                };
-
-                xmlhttp.open("POST", url, true);
-                xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                xmlhttp.send(params);
-            }
-        }
+    <script src="./../../../assets/js/scriptMenuTrainings.js" defer></script>
+    <script src="./../../../assets/js/scriptsFormAddTrainings.js" defer></script>
+    <script src="./../../../assets/js/DirectorHead.js"></script>
 
 
-    </script>
+   
 </body>
-
 </html>
