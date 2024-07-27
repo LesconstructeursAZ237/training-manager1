@@ -11,12 +11,15 @@ use App\Service\UsersServices;
 use Core\Auth\Auth;
 use Core\FlashMessages\Flash;
 use App\Entity\User;
+use App\Service\RegistrationServices;
 class UsersController
 {
     private UsersServices $usersServices;
+    private RegistrationServices $registrationServices;
 
     public function __construct(){
         $this->usersServices = new UsersServices();
+        $this->registrationServices = new RegistrationServices();
     }
 
     function index()
@@ -78,135 +81,9 @@ class UsersController
                     </script>';
                 } 
             }
-                /* modification registration number */
-            if(isset($_POST['editMat'])){
-                $newMat = $_POST['newMat'];
-                $Id =intval( $_POST['indentifiantMat']);
-                $newModifiedMat =$_POST['modifiedMatricule'];
-                $newValue = new UsersServices() ;
-                $resquestMat = $newValue->setMatricule($Id, $newMat, $newModifiedMat) ;
-                switch ($resquestMat) {
-                    case 1:
-                        echo '<script> alert("modification reuisssir");
-                         window.location.href = "./../Users/dashboard.php";
-                        </script>';
-                        exit;
-                    case 0:
-                        echo '<script> alert("echec de modification");
-                        window.location.href = "./../Users/dashboard.php";
-                        </script>';               
-                        exit;
-                    //autres cas
-                    default:
-                    echo '<script> alert("echec");
-                    window.location.href = "./../Users/dashboard.php";
-                    </script>';
-                }
-                
-            }
- /* modification email */
- if(isset($_POST['editEmail'])){
-    $newEmail = $_POST['newEmail'];
-    $Id =intval( $_POST['indentifiantEmail']);
-    $modifiedEmail =$_POST['modifiedEmail'];
-    $newValue = new UsersServices() ;
-    $resquestMat = $newValue->editEmail($Id, $newEmail, $modifiedEmail) ;
-    switch ($resquestMat) {
-        case 1:
-            echo '<script> alert("modification reuisssir");
-             window.location.href = "./../Users/dashboard.php";
-            </script>';
-            exit;
-        case 0:
-            echo '<script> alert("echec de modification");
-            window.location.href = "./../Users/dashboard.php";
-            </script>';               
-            exit;
-        //autres cas
-        default:
-        echo '<script> alert("echec");
-        window.location.href = "./../Users/dashboard.php";
-        </script>';
-    }
 
 
-    
-}
-        /* modification phone number */
-        if(isset($_POST['EditPhoneNumber'])){
-            $newPhone = intval($_POST['newPhoneNumber']);
-            $Id =intval( $_POST['indentifiantTelephone']);
-            $modifiedPhone =$_POST['modifiedPhoneNumber'];
-            $newValue = new UsersServices() ; 
-            $resquestPhone = $newValue->editPhoneNumber($Id, $newPhone, $modifiedPhone) ;
-            switch ($resquestPhone) {
-                case 1:
-                    echo '<script> alert("modification reuisssir");
-                     window.location.href = "./../Users/dashboard.php";
-                    </script>';
-                    exit;
-                case 0:
-                    echo '<script> alert("echec de modification");
-                    window.location.href = "./../Users/dashboard.php";
-                    </script>';               
-                    exit;
-                //autres cas
-                default:
-                echo '<script> alert("echec");
-                window.location.href = "./../Users/dashboard.php";
-                </script>';
-            }
-        }
-        /* modification last_name */
-        if(isset($_POST['editPrenom'])){
-            $newPrenom = $_POST['newPrenom'];
-            $Id =intval( $_POST['indentifiantPrenom']);
-            $modifiedPrenom =$_POST['modifiedPrenom'];
-            $newValue = new UsersServices() ; 
-            $resquestPrenom = $newValue->editFirstName($Id, $newPrenom, $modifiedPrenom) ;
-            switch ($resquestPrenom) {
-                case 1:
-                    echo '<script> alert("modification reuisssir");
-                     window.location.href = "./../Users/dashboard.php";
-                    </script>';
-                    exit;
-                case 0:
-                    echo '<script> alert("echec de modification");
-                    window.location.href = "./../Users/dashboard.php";
-                    </script>';               
-                    exit;
-                //autres cas
-                default:
-                echo '<script> alert("echec");
-                window.location.href = "./../Users/dashboard.php";
-                </script>';
-            }
-        }
-        /* modification first_name */
-        if(isset($_POST['editNom'])){
-            $newNom = $_POST['newNom'];
-            $Id =intval( $_POST['indentifiantNom']);
-            $modifiedNom =$_POST['modifiedNom'];
-            $newValue = new UsersServices() ; 
-            $resquestNom = $newValue->editName($Id, $newNom , $modifiedNom) ;
-            switch ($resquestNom) {
-                case 1:
-                    echo '<script> alert("modification reuisssir");
-                     window.location.href = "./../Users/dashboard.php";
-                    </script>';
-                    exit;
-                case 0:
-                    echo '<script> alert("echec de modification");
-                    window.location.href = "./../Users/dashboard.php";
-                    </script>';               
-                    exit;
-                //autres cas
-                default:
-                echo '<script> alert("echec");
-                window.location.href = "./../Users/dashboard.php";
-                </script>';
-            }
-        }
+
   
     }
     public function updateUser(){
@@ -277,7 +154,7 @@ class UsersController
             $mail1 = ($_POST['mail']);
             $phone_number1 = ($_POST['phone_number']);
             $birth_date1 = ($_POST['birth_date']);
-            $photo_user1 = ($_POST['photo_user']);
+            $photo_user1 = $_FILES['photo_user'];
             $created_by = ($_POST['modified']);
             $pwd = ($_POST['pwdUser']);
                 if(!$created_by){
@@ -285,11 +162,22 @@ class UsersController
                 exit;
                 }
 
+              
+                    $savePhoto =  $this->registrationServices->saveImageUsers($_FILES['photo_user']);
+                    if ($savePhoto !== null) {
+                     $photo_user=$savePhoto;
+                  }
+                  else{
+                      $photo_user = stripslashes(strip_tags(trim($photo_user1)));
+                  }
+                
+         
+               
             $name = stripslashes(strip_tags(trim($name1)));
             $firstName = stripslashes(strip_tags(trim($firstName1)));
             $mail = stripslashes(strip_tags(trim($mail1)));
             $phone_number = stripslashes(strip_tags(trim($phone_number1)));
-            $photo_user = stripslashes(strip_tags(trim($photo_user1)));
+            
           
             $utilisateur = new UsersServices();
             $utilisateur1 = $utilisateur->registrationUser($name, $firstName, $mail, $phone_number, $birth_date1, $photo_user, $pwd, $created_by);

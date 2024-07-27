@@ -15,11 +15,7 @@ define('APP', ROOT . DS . APP_DIR . DS);
 define('CONFIG', ROOT . DS . 'config' . DS);
 
 define('CORE_PATH', ROOT . DS . 'Core' . DS);
-
-define('IMG_PATH', ROOT . DS . 'Core' . DS.'Classes'. DS);
 define('ASSETS', ROOT . DS . 'assets' . DS);
-define('ADD_IMG_PATH','./../../../assets/img/');
-
 define('MODEL_PATH', APP . 'Entity' . DS);
 
 define('CONTROLLER_PATH', APP . 'Controller' . DS);
@@ -67,3 +63,7 @@ if (!defined('VENDOR')) {
 if (!defined('PAGINATOR_KEY')) {
     define('PAGINATOR_KEY', "__paginator__");
 }
+define('IMG_PATH_PROJET', '/training-manager/assets/img/');
+define('PATH_DOCUMENTS','/training-manager/assets/img/documents');
+define('USERS_IMG_PATH','/training-manager/assets/img/users/');
+

@@ -62,7 +62,7 @@ class UsersServices
         $phone_number1 = $usersData->getPhone_number();
         $birth_date1 = $usersData->getbirth_date();
         $photo_user1 = $usersData->getPhoto_user();
-        $passwords1 = $usersData->getMail();
+        $passwords1 = $usersData->getPasswords();
         $created_by = $usersData->getCreate_by();
         $passwords = password_hash($passwords1, PASSWORD_DEFAULT);
         $role1 = $usersData->getRole_id(); //role = 1 pour etudiant 
@@ -177,24 +177,36 @@ class UsersServices
 
     }
     // function insert img into img 
-    function saveImg($fileName, $destinationPath)
-    {
-        // Construire le chemin complet du fichier source
-        $sourcePath = __DIR__ . '/' . $fileName;
 
-        // Construire le chemin complet de destination
-        $destinationPath = rtrim($destinationPath, '/') . '/' . $fileName;
-
-        // Vérifier si le fichier source existe
-        if (!file_exists($sourcePath)) {
-            echo "Le fichier source n'existe pas.";
-        }
-
-        // Déplacer le fichier vers le chemin de destination
-        if (rename($sourcePath, $destinationPath)) {
-            echo "Fichier déplacé avec succès.";
+   public function saveImage(array $infoPhoto, $chemin) {
+        // Utiliser le nom de fichier original
+        $nom_de_mon_fichier = basename($infoPhoto["name"]);
+        // Construire le chemin complet du fichier de destination
+        $chemin_destination = $chemin . $nom_de_mon_fichier;
+    
+        // Vérifier si le fichier de destination existe déjà
+        if (file_exists($chemin_destination)) {
+            $dateActuel = date('Y-m-d H:i:s'); 
+            // Concaterner la date au nom du fichier pour créer un nouveau nom unique
+            $date_sans_espacement = str_replace(' ', '', $dateActuel);
+            $date_sans_double_point = str_replace(':', '', $date_sans_espacement);
+            $date_sans_double_tiret = str_replace('-', '', $date_sans_double_point);
+            $nom_fichier_a_sauvegarder = $date_sans_double_tiret . '_' . $nom_de_mon_fichier;
+            $nouveau_chemin_destination = $chemin . $nom_fichier_a_sauvegarder;
+    
+            // Déplacer le fichier téléchargé vers le nouveau chemin de destination
+            if (move_uploaded_file($infoPhoto["tmp_name"], $nouveau_chemin_destination)) {
+                return $nom_fichier_a_sauvegarder;
+            } else {
+                return 'notUploadToNewPath';
+            }
         } else {
-            echo "Erreur lors du déplacement du fichier.";
+            // Déplacer le fichier téléchargé vers le dossier de destination
+            if (move_uploaded_file($infoPhoto["tmp_name"], $chemin_destination)) {
+                return $nom_de_mon_fichier;
+            } else {
+                return 'notUploadToPath';
+            }
         }
     }
 
@@ -211,7 +223,7 @@ class UsersServices
                 WHERE u.statut = :statut AND deleted = :deleted
                 ORDER BY u.first_name ASC";
         $request1 = $this->_pdo->prepare($request);
-        $request1->bindValue(':statut', 'afficher');
+        $request1->bindValue(':statut', 'ajouter');
         $request1->bindValue(':deleted', 0);
         $request1->execute();
         $data = $request1->fetchAll(\PDO::FETCH_ASSOC);
@@ -251,11 +263,12 @@ class UsersServices
         $intput_pass = $user1->getPasswords();
         $mail1 = $user1->getMail();
 
-        $request1 = "SELECT * FROM users WHERE mail = :mail";
+        $request1 = "SELECT * FROM users WHERE mail = :mail AND deleted = :deleted";
 
         $select_request4 = $this->_pdo->prepare($request1); // Préparer la requête
 
         $select_request4->bindParam(':mail', $mail1, \PDO::PARAM_STR);
+        $select_request4->bindValue(':deleted', 0, \PDO::PARAM_STR);
 
         $select_request4->execute();
 
@@ -542,179 +555,10 @@ class UsersServices
 
 
     }
-    /* edit registration number */
-    public function setMatricule(int $id, string $newMat, string $newModified): int
-    {
-
-
-        $currentDate = date('Y-m-d');/* pour stocker la date de modification */
-        $userData = [
-            '_id' => $id,
-            '_registration_number' => $newMat,
-            '_modified_by' => $newModified,
-            '_modified_date' => $currentDate,
-        ];
-        $newMat = new User($userData);
-        global $retourVal;
-        $checkId = $newMat->getId(); /*echo $checkId; die(); IFPLI-24-0027 IFPLI-24-0027*/
-        $InputMat = $newMat->getRegistration_number();// echo $InputMat; die();
-        $newModifiedMat = $newMat->getModified_by();
-        $newCurrentDate = $newMat->getModified_date();
-        $saveNewMat = $this->_pdo->prepare("UPDATE Users 
-        SET registration_number = :registration_number,
-              modifie_by = :modifie_by, 
-              modifie_date = :modifie_date
-          WHERE id = :id");
-        $saveNewMat->bindParam(':id', $checkId, \PDO::PARAM_STR);
-        $saveNewMat->bindParam(':registration_number', $InputMat, \PDO::PARAM_STR);
-        $saveNewMat->bindParam(':modifie_by', $newModifiedMat, \PDO::PARAM_STR);
-        $saveNewMat->bindParam(':modifie_date', $newCurrentDate, \PDO::PARAM_STR);
-        $saveNewMat->execute();
-        if ($saveNewMat) {
-            $retourVal = 1;
-        } else {
-            $retourVal = 0;
-        }
-        return $retourVal;
-    }
-
-    /* edit email */
-    public function editEmail(int $id, string $newMail, string $newModified): int
-    {
-
-
-        $currentDate = date('Y-m-d');/* pour stocker la date de modification */
-        $userData = [
-            '_id' => $id,
-            '_mail' => $newMail,
-            '_modified_by' => $newModified,
-            '_modified_date' => $currentDate,
-        ];
-        $newMail = new User($userData);
-        global $retourVal;
-        $checkId = $newMail->getId();
-        $InputMail = $newMail->getMail();
-        $newModifiedMail = $newMail->getModified_by();
-        $newCurrentDate = $newMail->getModified_date();
-        $saveNewMail = $this->_pdo->prepare("UPDATE Users 
-        SET mail = :mail,
-              modifie_by = :modifie_by, 
-              modifie_date = :modifie_date
-          WHERE id = :id");
-        $saveNewMail->bindParam(':id', $checkId, \PDO::PARAM_STR);
-        $saveNewMail->bindParam(':mail', $InputMail, \PDO::PARAM_STR);
-        $saveNewMail->bindParam(':modifie_by', $newModifiedMail, \PDO::PARAM_STR);
-        $saveNewMail->bindParam(':modifie_date', $newCurrentDate, \PDO::PARAM_STR);
-        $saveNewMail->execute();
-        if ($saveNewMail) {
-            $retourVal = 1;
-        } else {
-            $retourVal = 0;
-        }
-        return $retourVal;
-    }
-    /* edit phone number */
-    public function editPhoneNumber(int $id, int $newPhone, string $newModified): int
-    {
-
-        $currentDate = date('Y-m-d');/* pour stocker la date de modification */
-        $userData = [
-            '_id' => $id,
-            '_phone_number' => $newPhone,
-            '_modified_by' => $newModified,
-            '_modified_date' => $currentDate,
-        ];
-        $newPhoneNumber = new User($userData);
-        global $retourVal;
-        $checkId = $newPhoneNumber->getId();
-        $InputPhoneNumber = $newPhoneNumber->getPhone_number();
-        $newModifiedPhone = $newPhoneNumber->getModified_by();
-        $newCurrentDate = $newPhoneNumber->getModified_date();
-        $saveNewPhone = $this->_pdo->prepare("UPDATE Users 
-        SET phone_number = :phone_number,
-              modifie_by = :modifie_by, 
-              modifie_date = :modifie_date
-          WHERE id = :id");
-        $saveNewPhone->bindParam(':id', $checkId, \PDO::PARAM_STR);
-        $saveNewPhone->bindParam(':phone_number', $InputPhoneNumber, \PDO::PARAM_STR);
-        $saveNewPhone->bindParam(':modifie_by', $newModifiedPhone, \PDO::PARAM_STR);
-        $saveNewPhone->bindParam(':modifie_date', $newCurrentDate, \PDO::PARAM_STR);
-        $saveNewPhone->execute();
-        if ($saveNewPhone) {
-            $retourVal = 1;
-        } else {
-            $retourVal = 0;
-        }
-        return $retourVal;
-    }
-    /* edit last_name */
-    public function editFirstName(int $id, string $newPrenom, string $newModified): int
-    {
-
-        $currentDate = date('Y-m-d');/* pour stocker la date de modification */
-        $userData = [
-            '_id' => $id,
-            '_first_name' => $newPrenom,
-            '_modified_by' => $newModified,
-            '_modified_date' => $currentDate,
-        ];
-        $newPrenom = new User($userData);
-        global $retourVal;
-        $checkId = $newPrenom->getId();
-        $InputPrenom = $newPrenom->getFirst_name();
-        $newModifiedPrenom = $newPrenom->getModified_by();
-        $newCurrentDate = $newPrenom->getModified_date();
-        $saveNewPrenom = $this->_pdo->prepare("UPDATE Users 
-        SET last_name = :last_name,
-              modifie_by = :modifie_by, 
-              modifie_date = :modifie_date
-          WHERE id = :id");
-        $saveNewPrenom->bindParam(':id', $checkId, \PDO::PARAM_STR);
-        $saveNewPrenom->bindParam(':last_name', $InputPrenom, \PDO::PARAM_STR);
-        $saveNewPrenom->bindParam(':modifie_by', $newModifiedPrenom, \PDO::PARAM_STR);
-        $saveNewPrenom->bindParam(':modifie_date', $newCurrentDate, \PDO::PARAM_STR);
-        $saveNewPrenom->execute();
-        if ($saveNewPrenom) {
-            $retourVal = 1;
-        } else {
-            $retourVal = 0;
-        }
-        return $retourVal;
-    }
-    /* edit first_name */
-    public function editName(int $id, string $newNom, string $newModified): int
-    {
-
-        $currentDate = date('Y-m-d');/* pour stocker la date de modification */
-        $userData = [
-            '_id' => $id,
-            '_name' => $newNom,
-            '_modified_by' => $newModified,
-            '_modified_date' => $currentDate,
-        ];
-        $newNom = new User($userData);
-        global $retourVal;
-        $checkId = $newNom->getId();
-        $InputNom = $newNom->getName();
-        $newModifiedNom = $newNom->getModified_by();
-        $newCurrentDate = $newNom->getModified_date();
-        $saveNewNom = $this->_pdo->prepare("UPDATE Users 
-        SET first_name = :first_name,
-              modifie_by = :modifie_by, 
-              modifie_date = :modifie_date
-          WHERE id = :id");
-        $saveNewNom->bindParam(':id', $checkId, \PDO::PARAM_STR);
-        $saveNewNom->bindParam(':first_name', $InputNom, \PDO::PARAM_STR);
-        $saveNewNom->bindParam(':modifie_by', $newModifiedNom, \PDO::PARAM_STR);
-        $saveNewNom->bindParam(':modifie_date', $newCurrentDate, \PDO::PARAM_STR);
-        $saveNewNom->execute();
-        if ($saveNewNom) {
-            $retourVal = 1;
-        } else {
-            $retourVal = 0;
-        }
-        return $retourVal;
-    }
+  
+ 
+  
+  
 
     /* delete user */
     public function deletedUser(int $id, string $modified): int
@@ -734,13 +578,11 @@ class UsersServices
         $newCurrentDate = $Deletet->getModified_date();
 
         $saveDeletedUser = $this->_pdo->prepare("UPDATE Users 
-                SET statut = :statut,
-                    deleted = :deleted,
+                    SET deleted = :deleted,
                       modifie_by = :modifie_by, 
                       modifie_date = :modifie_date
                   WHERE id = :id");
         $saveDeletedUser->bindParam(':id', $checkId, \PDO::PARAM_STR);
-        $saveDeletedUser->bindValue(':statut', 'non', \PDO::PARAM_STR);
         $saveDeletedUser->bindValue(':deleted', 1, \PDO::PARAM_STR);
         $saveDeletedUser->bindParam(':modifie_by', $Modified, \PDO::PARAM_STR);
         $saveDeletedUser->bindParam(':modifie_date', $newCurrentDate, \PDO::PARAM_STR);
@@ -801,19 +643,5 @@ class UsersServices
 
 }
 
-/* $userService = new UsersServices();
 
-// Appeler la méthode getById avec un ID spécifique
-$userA = $userService->getById(24);
-
-if ($userA!== null) {
-    // Afficher les valeurs de l'utilisateur
-    echo "ID: " . $userA->getRole_id() . "<br>";
-    echo "Name: " . $userA->getRole() . "<br>";
-    echo "Name: " . $userA->getRegistration_number() . "<br>";
-    echo "Email: " . $userA->getMail() . "<br>";
-} else {
-    // Gérer le cas où l'utilisateur n'est pas trouvé
-    echo "Utilisateur non trouvé.";
-} */
 

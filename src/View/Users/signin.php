@@ -94,7 +94,7 @@ unset($_SESSION['not_f_user']);
                         </button>
                         <button class="bg-gray-500 sm:text-xs xl:text-xl p-1 h-10 sm:w-2/5 md:w-1/5 hover:bg-red-300 text-white font-bold
                             rounded-md text-center">
-                            <a href="index.php">Anuler</a>
+                            <a href="Aindex.php">Anuler</a>
                         </button><br>
                         <a href="" class="underline text-base hover:bg-blue-300 rounded-sm"> mot de passe oublier?</a>
 

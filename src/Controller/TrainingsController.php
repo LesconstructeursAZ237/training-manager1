@@ -139,8 +139,9 @@ class TrainingsController
                    'durations'=>$_POST['newduree'],
                    'modified'=>$_POST['modifiedVAL'],
                 ];
-                //print_r($data);
-                $trainings = $this->trainingsServices ->update($data); 
+                $tabLevel='';
+            if(isset($_POST['LevelsNotInTraining']) ){
+                $trainings = $this->trainingsServices ->update($data, $_POST['LevelsNotInTraining']); 
                 if($trainings==1){
                     $SE1 = new SessionManager();
                     $SE1->set('flashMessage','mise a jour reuissir!');
@@ -155,24 +156,47 @@ class TrainingsController
                     header("location: ./../Trainings/getTrainings.php");
                     exit;  
                 }
-
-
+            }else{
+                                
+           $trainings = $this->trainingsServices ->update($data); 
+                if($trainings==1){
+                    $SE1 = new SessionManager();
+                    $SE1->set('flashMessage','mise a jour reuissir!');
+                    $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+                    header("location: ./../Trainings/getTrainings.php");
+                    exit;   
                 }
-          
-        }
-    
+                else{
+                    $SE1 = new SessionManager();
+                    $SE1->set('flashMessage','échec de modification!');
+                    $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+                    header("location: ./../Trainings/getTrainings.php");
+                    exit;  
+                }
+            } 
+             }
+        
+            }
+            if (isset($_POST['btnModifier'])) {
+            
+                $idTraining = $_POST['idSelectModifiedTraining'];
+                $arrayTrainintg=explode(',', $idTraining);
+                $_SESSION['arrayTrainintg'] = $arrayTrainintg;
+                header("location: ./../Trainings/updateTrainings.php");
+
+                $LevelsNotInTraining = $this->trainingsServices->getLevelsNotInTraining(intval($arrayTrainintg[0]));
+                
+                if (!empty($LevelsNotInTraining)) {
+                    $_SESSION['LevelsNotInTraining'] = $LevelsNotInTraining; 
+                }     
+               
+            }
+     
+   
 }
 
-         
-                
+              
           
-         
-    
-        
-
-        
-
-
     public function delete(){
 
         if(isset($_POST['btnDeleteTraining'])){

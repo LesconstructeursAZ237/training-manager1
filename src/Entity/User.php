@@ -21,6 +21,9 @@ class User {
     private $_pdo;
     private $_role_id;
     private $_role;
+    private $trainingwithLevel;
+    private $codeTraining;
+    private $nameLevel;
 
     // Constructeur
    public function __construct(array $userData = [])
@@ -42,8 +45,11 @@ class User {
         $this->_modified_date = $userData['_modified_date'] ?? null;
         $this->_deleted = $userData['_deleted'] ?? null;
         $this->_pdo = $userData['_pdo'] ?? null;
-        $this->_role_id = $userData['_role_id'] ?? 1;
+        $this->_role_id = $userData['_role_id'] ?? 5;
         $this->_role = $userData['_role'] ?? null;
+        $this->trainingwithLevel = $userData['trainingwithLevel'] ?? null;
+        $this->codeTraining = $userData['codeTraining'] ?? null;
+        $this->nameLevel = $userData['nameLevel'] ?? null;
     }
 }
 
@@ -161,5 +167,72 @@ class User {
     }
     public function setRole($_role) {
         $this->_role = $_role;
+    }
+
+    /**
+     * Get the value of trainingwithLevel
+     */ 
+    public function getTrainingwithLevel()
+    {
+        return $this->trainingwithLevel;
+    }
+
+    /**
+     * Set the value of trainingwithLevel
+     *
+     * @return  self
+     */ 
+    public function setTrainingwithLevel($trainingwithLevel)
+    {
+        $this->trainingwithLevel = $trainingwithLevel;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of codeTraining
+     */ 
+    public function getCodeTraining()
+    {
+        return $this->codeTraining;
+    }
+
+    /**
+     * Set the value of codeTraining
+     *
+     * @return  self
+     */ 
+
+
+    /**
+     * Set the value of codeTraining
+     *
+     * @return  self
+     */ 
+    public function setCodeTraining($codeTraining)
+    {
+        $this->codeTraining = $codeTraining;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of nameLevel
+     */ 
+    public function getNameLevel()
+    {
+        return $this->nameLevel;
+    }
+
+    /**
+     * Set the value of nameLevel
+     *
+     * @return  self
+     */ 
+    public function setNameLevel($nameLevel)
+    {
+        $this->nameLevel = $nameLevel;
+
+        return $this;
     }
 }

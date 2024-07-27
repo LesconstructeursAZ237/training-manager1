@@ -14,13 +14,4 @@ document.getElementById('verticalMenu').addEventListener('click', function(event
     document.getElementById('verticalMenu').classList.toggle('hidden');
 });
 
-/* open form add training */
-function AUser(){
-    ouvrirUnModal('formAddUser');
-}
-/* open form add user */
-function AddUser(){
-    ouvrirUnModal('formAddUser');
-}
 
-/* FORM add user */

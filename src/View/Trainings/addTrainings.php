@@ -41,12 +41,12 @@ use App\Controller\TrainingsController;
         
         <!-- Navigation Links -->
         <div class="hidden md:flex space-x-4 items-center">
-            <button class="text-white hover:bg-blue-400 p-2 rounded"><i class="fas fa-user"></i>Utilisateurs</button>
-            <button class="text-white hover:bg-blue-400 p-2 rounded"><i class="fas fa-graduation-cap"></i>Formations</button>
-            <button class="text-white hover:bg-blue-400 p-2 rounded"><i class="fas fa-calendar-alt"></i>Évènements</button>
-            <button class="text-white hover:bg-blue-400 p-2 rounded" ><i class="fas fa-graduation-cap"></i>Niveau</button>
-            <button class="text-white hover:bg-blue-400 p-2 rounded"><i class="fas fa-user-graduate"></i>Étudiants</button>
-            <button class="text-white hover:bg-blue-400 p-2 rounded"><i class="fas fa-home"></i>Accueil</button>
+            <button class="text-white hover:bg-blue-400 p-2 rounded"><i class="fas fa-user px-2"></i>Utilisateurs</button>
+            <button class="text-white hover:bg-blue-400 p-2 rounded"><i class="fas fa-graduation-cap px-2"></i>Formations</button>
+            <button class="text-white hover:bg-blue-400 p-2 rounded"><i class="fas fa-calendar-alt px-2"></i>Évènements</button>
+            <button class="text-white hover:bg-blue-400 p-2 rounded" ><i class="fas fa-graduation-cap px-2"></i>Niveau</button>
+            <button class="text-white hover:bg-blue-400 p-2 rounded"><i class="fas fa-user-graduate px-2"></i>Étudiants</button>
+            <button class="text-white hover:bg-blue-400 p-2 rounded"><i class="fas fa-home px-2"></i>Accueil</button>
         </div>
 
         <!-- Search Bar -->
@@ -55,14 +55,15 @@ use App\Controller\TrainingsController;
                 <input type="text" id="search" name="search" placeholder="Entrez votre recherche"
                     class="w-full px-4 py-2 h-full border rounded-l-lg">
                 <button type="submit"
-                    class="bg-blue-800 text-white px-5 py-2 rounded-r-lg hover:bg-blue-700 focus:outline-none">Search</button>
+                    class="bg-blue-800 text-white px-5 py-2 rounded-r-lg hover:bg-blue-700 focus:outline-none"><i
+                    class="fas fa-search px-2"></i></button>
             </form>
         </div>
 
         <!-- Profile Button -->
         <div class="flex items-center space-x-4">
             <button class="text-white p-2 rounded ml-2 mr-0 hover:bg-blue-500">Profil</button>
-            <button id="btnOpenVerticalMenu" onclick="openVerticalMenu()" class="lg:hidden text-white p-2 rounded ml-2 mr-0 hover:bg-blue-500"><i class="fas fa-align-justify"></i>Menu</button>
+            <button id="btnOpenVerticalMenu" onclick="openVerticalMenu()" class="lg:hidden text-white p-2 rounded ml-2 mr-0 hover:bg-blue-500"><i class="fas fa-align-justify px-2"></i>Menu</button>
         </div>
     </div>
 
@@ -72,37 +73,37 @@ use App\Controller\TrainingsController;
     
 <div class="flex flex-col md:flex-row h-full ">
     <!-- Menu vertical à gauche -->
-    <div id="verticalMenu" class="hidden md:block  sm:w-1/3 md:w-1/5 hidden bg-blue-900 opacity-90 text-white p-4 overflow-auto top-2/12">
+    <div id="verticalMenu" class="hidden md:block  sm:w-1/3 md:w-1/5 hidden bg-white text-black opacity-90  p-4  overflow-auto top-2/12">
         <ul>
-            <a href="./../Users/Aindex.php" > <h1 class="bg-blue-600 w-full rounded underline p-1 m-0 hover:bg-blue-800 "> Accueil</h1></a>
-            <li><a href="#" class="block p-2 hover:bg-blue-800 rounded">Évenements</a></li>
-            <li><a href="#" class="block p-2 hover:bg-blue-800 rounded">Formations</a></li>
+            <a href="./../Users/Aindex.php" > <h1 class=" w-full text-blue-700 font-bold rounded p-2 m-0 hover:bg-blue-800 hover:text-white hover:underline"></i>Accueil</h1></a>
+            <li><a href="#" class="block p-2 hover:bg-blue-800  hover:text-white rounded">  <i class="fas fa-calendar-alt px-2"></i>Évenements</a></li>
+            <li><a href="#" class="block p-2 hover:bg-blue-800  hover:text-white rounded">  <i class="fas fa-graduation-cap px-2"></i>Formations</a></li>
            
         </ul>
         <hr>
         <ul>
-            <h1 class="bg-blue-600 w-full rounded p-1 m-0 hover:bg-blue-800 ">Utilisateurs</h1>
-            <li><a href="./../Users/addUser.php" class="block p-2 hover:bg-blue-800 rounded"><i class="fas fa-user-plus"></i>ajouter</a></li>
-            <li><a href="./../Users/directorHead.php" class="block p-2 hover:bg-blue-800 rounded"><i class="fas fa-user"></i>voir les Utilisateurs</a></li>
+            <h1 class="text-blue-700 font-bold w-full rounded p-1 m-0 "><i class="fas fa-user px-2"></i>Utilisateurs</h1>
+            <li><a href="./../Users/addUser.php" class="block p-2 hover:bg-blue-800  hover:text-white rounded"><i class="fas fa-user-plus"></i>ajouter</a></li>
+            <li><a href="./../Users/directorHead.php" class="block p-2 hover:bg-blue-800  hover:text-white rounded"><i class="fas fa-user"></i>voir les Utilisateurs</a></li>
             
         </ul>
         <hr>
         <ul>
-            <h1 class="bg-blue-600 w-full rounded p-1 m-0 hover:bg-blue-800 ">Formation</h1>
-            <li><a href="getTrainings.php" class="block p-2 hover:bg-blue-800 rounded">voir les formations</a></li>
+            <h1 class="text-blue-700 font-bold w-full rounded p-1 m-0 ">Formation</h1>
+            <li><a href="getTrainings.php" class="block p-2 hover:bg-blue-800  hover:text-white rounded">voir les formations</a></li>
             
         </ul>
         <hr>
         <ul>
-            <h1 class="bg-blue-600 w-full rounded p-1 m-0 hover:bg-blue-800 ">Niveau</h1>
-            <li><a href="./../Level/addLevels.php" class="block p-2 hover:bg-blue-800 rounded">ajouter</a></li>
-            <li><a href="./../Level/getLevels.php" class="block p-2 hover:bg-blue-800 rounded">voir les Niveaux</a></li>         
+            <h1 class="text-blue-700 font-bold w-full rounded p-1 m-0 ">Niveau</h1>
+            <li><a href="./../Level/addLevels.php" class="block p-2 hover:bg-blue-800  hover:text-white rounded">ajouter</a></li>
+            <li><a href="./../Level/getLevels.php" class="block p-2 hover:bg-blue-800  hover:text-white rounded">voir les Niveaux</a></li>         
         </ul>
         <hr>
         <ul>
-            <h1 class="bg-blue-600 w-full rounded p-1 m-0 hover:bg-blue-800 ">Évenements</h1>
-            <li><a href="#" class="block p-2 hover:bg-blue-800 rounded">ajouter</a></li>
-            <li><a href="#" class="block p-2 hover:bg-blue-800 rounded">voir les Évenements</a></li>         
+            <h1 class="text-blue-700 font-bold w-full rounded p-1 m-0 ">Évenements</h1>
+            <li><a href="#" class="block p-2 hover:bg-blue-800  hover:text-white rounded">ajouter</a></li>
+            <li><a href="#" class="block p-2 hover:bg-blue-800  hover:text-white rounded">voir les Évenements</a></li>         
         </ul>
     </div>
 

@@ -71,7 +71,7 @@ use App\Controller\UsersController;
                         </button>
                         <button class="bg-gray-500 sm:text-xs xl:text-xl p-1 h-10 sm:w-2/5 md:w-1/5 hover:bg-red-300 text-white font-bold
                             rounded-md text-center">
-                            <a href="index.php">Non</a>
+                            <a href="Aindex.php">Non</a>
                         </button><br>
                        
                     </div>

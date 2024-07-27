@@ -25,6 +25,7 @@ class Training{
             $this->_level = $trainingData['level'] ?? null;
             $this->_levelAvailabilities = $trainingData['levelAvailabilities'] ?? null;
             $this->_levelName = $trainingData['levelName'] ?? null;
+         
         
            
         }
