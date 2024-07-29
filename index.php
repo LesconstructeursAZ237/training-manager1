@@ -1,13 +1,5 @@
 <?php
 
-/**
- * PHP Skeleton app
- * Minimum structure for native PHP web apps development
- * 
- * @copyright Copyright (c) Silevester D. (https://github.com/SilverD3)
- * @link      https://github.com/devacademia/php-skeleton-ap PHP Skeleton App
- * @since     v1.0 (2024)
- */
 
 // These directives override the PHP default config
 ini_set('display_errors', 1);

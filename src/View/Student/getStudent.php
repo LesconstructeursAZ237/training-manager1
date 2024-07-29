@@ -8,15 +8,15 @@ use App\Controller\RegistrationController;
 
 /**
  * @var array<\App\Entity\User> $students
- * @var array<\App\Controller\UsersController> $auth_user  
- * @var string<\App\Controller\UsersController> $flasMessage  
+ * @var array<\App\Entity\User> $roles
+ * @var array<\App\Controller\UsersController> $auth_user   
  * @var array<\App\Entity\User> $auth
  */
 
-  if(!($_SESSION['ArrayAuth'])){  
+if (!($_SESSION['ArrayAuth'])) {
 
-     header("location: ./../Users/signin.php");
-     } 
+    header("location: ./../Users/signin.php");
+}
 ?>
 
 <!DOCTYPE html>
@@ -110,7 +110,8 @@ use App\Controller\RegistrationController;
                 </h1>
                 <li><a href="./../Users/addUser.php" class="block p-2 hover:bg-blue-800 hover:text-white rounded "><i
                             class="fas fa-plus px-2"></i> Ajouter</a></li>
-                <li><a href="./../Users/directorHead.php" class="block p-2 hover:bg-blue-800 hover:text-white rounded"><i
+                <li><a href="./../Users/directorHead.php"
+                        class="block p-2 hover:bg-blue-800 hover:text-white rounded"><i
                             class="fas fa-eye px-2 px-2"></i>
                         voir les
                         Utilisateurs</a></li>
@@ -206,7 +207,7 @@ use App\Controller\RegistrationController;
                 <?php if (isset($_SESSION['ArrayAuth']) && is_array($_SESSION['ArrayAuth'])) { ?>
                     <span id="flashConnxion"
                         class="hover:bg-blue-300 bg-blue-500 w-1/3 p-2 rounded text-white  items-center justify-center  m-auto"
-                        onclick="closeFlashConnexion()"> <?=  $_SESSION['ArrayAuth'][1] . ', vous ete connecter' ?></span>
+                        onclick="closeFlashConnexion()"> <?= $_SESSION['ArrayAuth'][1] . ', vous ete connecter' ?></span>
                 <?php } ?>
 
                 <span id="flashMessage" class="mt-4 flex place-items-center text-red-500"><?php
@@ -225,9 +226,9 @@ use App\Controller\RegistrationController;
                                 <a href="?page=<?= $page - 1 ?>" class="w-full h-full block">Précédent</a>
                             </button>
                         <?php else: ?>
-                            
+
                         <?php endif; ?>
-                        
+
                         <?php if ($page < $totalPages): ?>
                             <!-- Lien vers la page suivante -->
                             <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
@@ -237,9 +238,10 @@ use App\Controller\RegistrationController;
                             <div></div>
                         <?php endif; ?>
                     </div>
-                    
-                    <table class="w-full flex-1 ">
-                        <h2 class="text-2xl font-bold  p-4 mt-16  mx-auto "><?= $studentsList ?> </h2><div class="text-blue-500 underline">Page :<?= $page  ?></div>
+
+                    <table class="w-full flex-1 overflow-auto">
+                        <h2 class="text-2xl font-bold  p-4 mt-16  mx-auto "><?= $studentsList ?> </h2>
+                        <div class="text-blue-500 underline">Page :<?= $page ?></div>
                         <thead>
                             <tr class="bg-blue-700">
 
@@ -260,6 +262,9 @@ use App\Controller\RegistrationController;
                                     Numéro de téléphone</th>
                                 <th
                                     class="text-center py-2 px-4 border-b-2 border-gray-200 text-white text-left text-xs leading-4 font-medium uppercase tracking-wider">
+                                    role</th>
+                                <th
+                                    class="text-center py-2 px-4 border-b-2 border-gray-200 text-white text-left text-xs leading-4 font-medium uppercase tracking-wider">
                                     Filiere-Niveau</th>
                                 <th
                                     class="text-center py-2 px-4 border-b-2 border-gray-200 text-white text-left text-xs leading-4 font-medium uppercase tracking-wider">
@@ -267,6 +272,9 @@ use App\Controller\RegistrationController;
                                 <th
                                     class="text-center py-2 px-4 border-b-2 border-gray-200 text-white text-left text-xs leading-4 font-medium uppercase tracking-wider">
                                     Action</th>
+                                <th
+                                    class="text-center py-2 px-4 border-b-2 border-gray-200 text-white text-left text-xs leading-4 font-medium uppercase tracking-wider">
+                                    nommer admin?</th>
                             </tr>
                         </thead>
                         <tbody class="text-sm">
@@ -289,7 +297,9 @@ use App\Controller\RegistrationController;
                                     <td class="py-2 px-4 border-b border-gray-200 text-center">
                                         <?= htmlspecialchars($student->getPhone_number()) ?>
                                     </td>
-
+                                    <td class="py-2 px-4 border-b border-gray-200 text-center">
+                                    <?= htmlspecialchars($student->getRole()) ?>
+                                    </td>
 
                                     <td>
                                         <select class="py-2 px-4 border-b border-gray-200">
@@ -321,26 +331,70 @@ use App\Controller\RegistrationController;
 
                                             <i class="fas fa-user-edit "></i>
                                         </button>
-                                               <!-- delete modal -->
-            <div id="deleteModalStudent" class="absolute p-4 rounded-lg bg-red-200 flex flex-col items-center justify-center h-1/3 w-1/4 lg:w-2/5 m-auto fixed z-10 inset-0 overflow-y-auto hidden">
-        <form class="w-full flex flex-col items-center" method="post" action="deleteStudent.php">
-            <h3 class="text-center mb-4">Voulez-vous supprimer <span id="DeleteNom" class="font-bold"> </span>?</h3>
-            <div class="mb-4 w-full">
-                <?php if (isset( $_SESSION['ArrayAuth'])): ?>
-                    <input required type="texte" id="deletedU" name="deletedU" value="<?php echo  $_SESSION['ArrayAuth'][0].' '. $_SESSION['ArrayAuth'][1]; ?>" class="">
-                <?php endif; ?>
-                <input type="texte" id="idStudent" name="idStudent" class="border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="<?= $student->getId() ?>">
-            </div>
-            <div class="flex space-x-2">
-                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded focus:outline-none focus:shadow-outline" name="btnDeleteUser">Confirmer</button>
-                <button type="button" id="closeModalButton" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-1 px-4 rounded focus:outline-none focus:shadow-outline" >Quitter</button>
-            </div>
-        </form>
-    </div>
-            <!--end delete modal -->
+                                        <!-- delete modal -->
+                                        <div id="deleteModalStudent"
+                                            class="absolute p-4 rounded-lg bg-red-200 flex flex-col items-center justify-center h-1/3 w-1/4 lg:w-2/5 m-auto fixed z-10 inset-0 overflow-y-auto hidden">
+                                            <form class="w-full flex flex-col items-center" method="post"
+                                                action="deleteStudent.php">
+                                                <h3 class="text-center mb-4">Voulez-vous supprimer <span id="DeleteNom"
+                                                        class="font-bold"> </span>?</h3>
+                                                <div class="mb-4 w-full">
+                                                    <?php if (isset($_SESSION['ArrayAuth'])): ?>
+                                                        <input  type="hidden" id="deletedU" name="deletedU"
+                                                            value="<?php echo $_SESSION['ArrayAuth'][0] . ' ' . $_SESSION['ArrayAuth'][1]; ?>"
+                                                            class="">
+                                                    <?php endif; ?>
+                                                    <input type="hidden" id="idStudent" name="idStudent"
+                                                        class="border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                                        value="<?= $student->getId() ?>">
+                                                </div>
+                                                <div class="flex space-x-2">
+                                                    <button type="submit"
+                                                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded focus:outline-none focus:shadow-outline"
+                                                        name="btnDeleteUser">Confirmer</button>
+                                                    <button type="button" id="closeModalButton"
+                                                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-1 px-4 rounded focus:outline-none focus:shadow-outline">Quitter</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <!--end delete modal -->
                                         <button class="bg-red-300 hover:bg-red-400 text-white px-3 py-1 rounded"
-                                            onclick="openDeleteModalStudent(<?= $student->getId() ?>)"><i class="fa fa-trash" aria-hidden="true"></i>
+                                            onclick="openDeleteModalStudent(<?= $student->getId() ?>)"><i class="fa fa-trash"
+                                                aria-hidden="true"></i>
                                         </button>
+                                    </td>
+                                    <td>
+                                        <?php if ((isset($roles)) && is_array($roles)) {
+
+                                            ?>
+                                            <button type="submit" id="btnChangerRole"
+                                                class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                onclick="openFormChangeROle(<?= $student->getId() ?>)">nommer admin?</button>
+
+                                            <form action="updateStudent.php" id="formChangeRole" method="post" class="bg-white hidden">
+                                                <input type="text" id="idUser" name="idUser" value="">
+                                                    <?php if (isset($_SESSION['ArrayAuth'])): ?>
+                                                        <input  type="texte" id="modifiedRoleStudent" name="modifiedRoleStudent"
+                                                            value="<?php echo $_SESSION['ArrayAuth'][0] . ' ' . $_SESSION['ArrayAuth'][1]; ?>"
+                                                            class="">
+                                                    <?php endif; ?>
+                                                <select name="idRole" class="py-2 px-4 border-b border-gray-200">
+                                                    <?php
+
+                                                    foreach ($roles as $rol): ?>
+                                                        <option value="<?= $rol->getId() ?>">
+                                                            <?= htmlspecialchars($rol->getRole()); ?></option>
+                                                    <?php endforeach;
+                                        } ?>
+                                            </select>
+                                            <div class="flex justify-between">
+                                                <button type="submit" name="changerRole"
+                                                    class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">✔</button>
+                                                <button id="closeModalChangeRole" type="button"
+                                                    class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                                                    onclick="closeFormChangerRole()">X</button>
+                                            </div>
+                                        </form>
                                     </td>
                                 </tr>
                             <?php endforeach;
@@ -356,7 +410,7 @@ use App\Controller\RegistrationController;
             </div>
 
 
-     
+
 
             <!-- fin Contenu personnalisé -->
         </div>
@@ -368,12 +422,12 @@ use App\Controller\RegistrationController;
     <script src="./../../../assets/js/EditUserdirectorHead.js" defer></script>
     <script>
         function openDeleteModalStudent(idStudent) {
-          
+
             document.getElementById('idStudent').value = idStudent;
             document.getElementById('deleteModalStudent').classList.toggle('hidden');
 
         }
-        document.getElementById('deleteModalStudent').addEventListener('click',()=>{
+        document.getElementById('deleteModalStudent').addEventListener('click', () => {
             document.getElementById('deleteModalStudent').classList.add('hidden');
         });
 
@@ -388,6 +442,19 @@ use App\Controller\RegistrationController;
         function quitterMenuProfil() {
             const dropdown = document.getElementById('profileUser');
             dropdown.classList.toggle('hidden');
+        }
+    </script>
+    <!-- change role of student -->
+    <script>
+        function openFormChangeROle(idStudent) {
+            document.getElementById('btnChangerRole').classList.add('hidden');
+            document.getElementById('idUser').value=idStudent;
+            document.getElementById('formChangeRole').classList.remove('hidden');
+           
+        }
+        function closeFormChangerRole(){
+            document.getElementById('formChangeRole').classList.add('hidden');  
+            document.getElementById('btnChangerRole').classList.remove('hidden');  
         }
     </script>
 

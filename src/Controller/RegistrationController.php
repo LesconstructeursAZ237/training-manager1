@@ -103,7 +103,7 @@ class RegistrationController
 
             $registration = $this->registrationServices->registrationStudent($personalData, $documentData, $_POST['training'], $_POST['level']);
             if ($registration == 'succes') {
-                echo $registration;
+    
                 $SE1 = new SessionManager();
                 $SE1->set('flashMessage', 'Ajout d\'étudiant reuissir');
                 $_SESSION['flashMessage'] = $SE1->get('flashMessage');
@@ -111,23 +111,38 @@ class RegistrationController
                 exit;
 
             } else {
-                echo $registration;
-                die();
+                $SE1 = new SessionManager();
+                $SE1->set('flashMessage', 'Echec : '.$registration);
+                $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+                header("location: ./../Student/getStudent.php");
+                exit;
             }
-            /*  $training = $_POST['training'];
-            $level = $_POST['level'];
-            foreach ($training as $trainingIndex => $trainingCode) {
-             
-                    foreach ($level[$trainingIndex] as $levelIndex => $levelName) {
-                        echo "Niveau sélectionné pour $trainingCode : $levelName<br>";
-                    }
-                
-            } */
-
-
         }
 
 
+    }
+    public function updateStudent(){
+
+        /* change role user start*/
+        if(isset($_POST['changerRole'])){
+            print_r ($_POST);
+          
+            $newRole = $this->usersServices->setRoleUser(intval($_POST['idRole']),intval($_POST['idUser']),$_POST['modifiedRoleStudent']);
+            if($newRole===1){
+                $SE1 = new SessionManager();
+                $SE1->set('flashMessage', 'Changement du role reuissir.');
+                $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+                header("location: ./../Student/getStudent.php");
+                exit;
+            }
+            else{
+                $SE1 = new SessionManager();
+                $SE1->set('flashMessage', $newRole);
+                $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+                header("location: ./../Student/getStudent.php");
+                exit; 
+            }
+        }   /* change role user end*/
     }
     public function delete(){
 
@@ -190,6 +205,9 @@ class RegistrationController
         $students = $this->registrationServices->getAll($page, $numberOfStudentPerPage);
         $GLOBALS['students'] = $students;
 
+        /* obtenir les roles */
+        $roles=$this->registrationServices->getAllRole();
+        $GLOBALS['roles'] = $roles;
     }
     public function update()
     {

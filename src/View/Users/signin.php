@@ -6,6 +6,11 @@ require_once dirname(dirname(dirname(__DIR__))) . DIRECTORY_SEPARATOR . 'autoloa
 use App\Controller\UsersController;
 (new UsersController())->signin();
 
+if (isset($_SESSION['ArrayAuth'])) {
+
+    header("location: ./../Users/directorHead.php");
+    exit;
+}
 $error_message = isset($_SESSION['not_f_user']) ? $_SESSION['not_f_user'] : '';
 //print_r($error_message); die();
 unset($_SESSION['not_f_user']);

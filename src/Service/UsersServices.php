@@ -318,95 +318,65 @@ class UsersServices
      * 
      * @return int tableau d'objets User.
      */
-    public function setNewRole(int $id, string $newRole, string $newModified): int
-    {
-        function getNewValueRoleId(string $chaine): int
-        {
-            switch ($chaine) {
-                case 'visitor':
-                    return 4;
-                case 'student':
-                    return 1;
-                case 'secretary':
-                    return 2;
-                default:
-                    return 4;
-            }
+    public function setRoleUser(int $idRole,int $idUser, string $newModified): int|string
+    {/*   check if it is director role */
+        if ($idRole === 3) {
+            return 0;
         }
 
         $currentDate = date('Y-m-d');/* pour stocker la date de modification */
-        $roleId = getNewValueRoleId($newRole);
         $userData = [
-            '_id' => $id,
-            '_role_id' => $roleId,
+            '_role_id' => $idRole,
+            '_id' => $idUser, 
             '_modified_by' => $newModified,
             '_modified_date' => $currentDate,
         ];
-
+      
         $userNewRole = new User($userData);
 
-        $checkId = $userNewRole->getId();
+        $idUser = $userNewRole->getId();
         $InputRole = $userNewRole->getRole_id();
         $newModified = $userNewRole->getModified_by();
         $newCurrentDate = $userNewRole->getModified_date();
-        /*   check if it is the same role */
-        $request1 = "SELECT * FROM users WHERE id = :ID AND role_id =:role_id";
 
-        $select_request4 = $this->_pdo->prepare($request1); // Préparer la requête
-
-        $select_request4->bindParam(':ID', $checkId, \PDO::PARAM_STR);
-        $select_request4->bindParam(':role_id', $InputRole, \PDO::PARAM_STR);
-
-        $select_request4->execute();
-        global $retourVal;
-        $rowCount = $select_request4->rowCount();
-        if ($rowCount > 0) {
-            $retourVal = 1;
-        }
-        $request2 = "SELECT role_id FROM users WHERE id = :ID ";
-
-        $select_request2 = $this->_pdo->prepare($request2); // Préparer la requête
-
-        $select_request2->bindParam(':ID', $checkId, \PDO::PARAM_STR);
-
-        $select_request2->execute();
-
-
-        while ($row1 = $select_request2->fetch(\PDO::FETCH_ASSOC)) {
-            $table1 = $row1;
-            // utiliser les éléments du tableau
-            $values = array_values($table1);
-            /* check if role is director */
-            if (isset($values[0])) {
-                $val = $values[0];
-                if ($val == 3) {
-                    $retourVal = 0;
-                } else {
-
+        /* if user is allready retrated */
+        try {
+            $sql = "SELECT * FROM registrations WHERE student_id = :userId";
+            $userRegistrate = $this->_pdo->prepare($sql);
+            $userRegistrate->bindParam(':userId', $idUser, \PDO::PARAM_STR);
+            
+            if ($userRegistrate->execute()) {
+                /* Vérifier si des résultats ont été trouvés*/
+                if ($userRegistrate->fetch(\PDO::FETCH_ASSOC)) {
+                    
                     $saveNewRole = $this->_pdo->prepare("UPDATE Users 
                                               SET role_id = :role_id,
                                                     modifie_by = :modifie_by, 
                                                     modifie_date = :modifie_date
                                                 WHERE id = :id");
-                    $saveNewRole->bindParam(':id', $checkId, \PDO::PARAM_STR);
+                    $saveNewRole->bindParam(':id', $idUser, \PDO::PARAM_STR);
                     $saveNewRole->bindParam(':role_id', $InputRole, \PDO::PARAM_STR);
                     $saveNewRole->bindParam(':modifie_by', $newModified, \PDO::PARAM_STR);
                     $saveNewRole->bindParam(':modifie_date', $newCurrentDate, \PDO::PARAM_STR);
                     $saveNewRole->execute();
                     if ($saveNewRole) {
-                        $retourVal = 1;
+                        return 1;
                     } else {
-                        $retourVal = 0;
+                        return 'erreur de mise a jour';
                     }
+                } else {
+                    
+                  return 'aucun resultat trouver';
                 }
-
-
             } else {
-                $retourVal = 0;
+         
+                return 'echec d\'execution de la requete';
             }
+        } catch (\PDOException $e) {
+           return "Erreur : " . $e->getMessage();
         }
+        
 
-        return $retourVal;
 
     }
     public function updateUser(array $userData): int

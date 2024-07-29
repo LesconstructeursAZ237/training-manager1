@@ -205,12 +205,12 @@ use App\Controller\UsersController;
                 } ?>
                 </span>
                 <!-- Bouton de téléchargement CSV -->
-        <div class="mb-4">
+      <!--   <div class="mb-4">
             <a href="download_csv.php" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                 Télécharger la liste
             </a>
         </div>
-
+ -->
                 <table class="w-full flex-1 bg-white m-auto mb-8"> <?php if (isset($users) && is_array($users)) { ?>
                         <h2 class="text-2xl font-bold lg:ml-64 p-4 mt-16  mx-auto "><?= $listUser ?></h2>
                         <thead>

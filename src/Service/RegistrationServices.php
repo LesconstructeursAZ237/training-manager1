@@ -463,31 +463,34 @@ class RegistrationServices
     
         // Requête SQL pour récupérer les utilisateurs et leurs formations associées avec pagination
         $reqst = "SELECT
-            u.id AS usersId,
-            u.last_name AS UsersLastNames,
-            u.first_name AS UsersFirstNames,
-            u.mail AS UsersMail,
-            u.phone_number AS UsersPhone,
-            u.photo_user AS UsersPhoto,
-            u.registration_number AS matriculeStudent,
-            GROUP_CONCAT(
-                DISTINCT CONCAT(t.code, ' - ', l.names) 
-                ORDER BY t.code, l.names 
-                SEPARATOR ', '
-            ) AS trainingsWithLevels
-        FROM 
-            users u
-            INNER JOIN registrations r ON u.id = r.student_id
-            INNER JOIN registration_trainings rt ON r.id = rt.registration_id
-            LEFT JOIN trainings t ON rt.training_id = t.id
-            LEFT JOIN levels l ON rt.level_id = l.id
-        WHERE 
-            u.deleted = :parameter
-        GROUP BY 
-            u.id
-        ORDER BY 
-            u.id ASC
-        LIMIT :limit OFFSET :offset";
+        u.id AS usersId,
+        u.last_name AS UsersLastNames,
+        u.first_name AS UsersFirstNames,
+        u.mail AS UsersMail,
+        u.phone_number AS UsersPhone,
+        u.photo_user AS UsersPhoto,
+        u.registration_number AS matriculeStudent,
+        r.name AS RoleName,
+        GROUP_CONCAT(
+            DISTINCT CONCAT(t.code, ' - ', l.names) 
+            ORDER BY t.code, l.names 
+            SEPARATOR ', '
+        ) AS trainingsWithLevels
+    FROM 
+        users u
+        INNER JOIN registrations reg ON u.id = reg.student_id
+        INNER JOIN registration_trainings rt ON reg.id = rt.registration_id
+        LEFT JOIN trainings t ON rt.training_id = t.id
+        LEFT JOIN levels l ON rt.level_id = l.id
+        LEFT JOIN roles r ON u.role_id = r.id
+    WHERE 
+        u.deleted = :parameter
+    GROUP BY 
+        u.id, u.last_name, u.first_name, u.mail, u.phone_number, u.photo_user, u.registration_number, r.name
+    ORDER BY 
+        u.id ASC
+    LIMIT :limit OFFSET :offset";
+
     
         try {
             $getStudent = $this->_pdo->prepare($reqst);
@@ -502,6 +505,7 @@ class RegistrationServices
             foreach ($allStudent as $al) {
                 $user = new User([
                     '_id' => $al['usersId'],
+                    '_role' => $al['RoleName'],
                     '_name' => $al['UsersLastNames'],
                     '_first_name' => $al['UsersFirstNames'],
                     '_mail' => $al['UsersMail'],
@@ -637,6 +641,31 @@ class RegistrationServices
                 return null;
             }
         }
+    }
+    public function getAllRole(): null|array|string
+    {   $sql="SELECT id, name FROM roles WHERE name!='director' AND id !=3";
+        try{
+            $allRoles=$this->_pdo->prepare($sql);
+            $allRoles->execute();
+           $result= $allRoles->fetchAll(\PDO::FETCH_ASSOC);
+           $Roles = [];
+    
+           foreach ($result as $rol) {
+               $role = new User([
+                   '_id' => $rol['id'],
+                   '_role' => $rol['name'],
+               
+               ]);
+   
+               $Roles[] = $role;
+           }
+           return $Roles;
+        }
+        catch (\PDOException $e) {
+            // Gestion des erreurs
+            return "Erreur : " . $e->getMessage();
+        }
+      
     }
     
         public function getNotRegisteredTrainings($userId) {
