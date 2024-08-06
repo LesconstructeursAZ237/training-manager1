@@ -48,7 +48,7 @@ class User {
         $this->_modified_date = $userData['_modified_date'] ?? null;
         $this->_deleted = $userData['_deleted'] ?? null;
         $this->_pdo = $userData['_pdo'] ?? null;
-        $this->_role_id = $userData['_role_id'] ?? 5;
+        $this->_role_id = $userData['_role_id'] ?? 1;
         $this->_role = $userData['_role'] ?? null;
         $this->trainingwithLevel = $userData['trainingwithLevel'] ?? null;
         $this->codeTraining = $userData['codeTraining'] ?? null;
