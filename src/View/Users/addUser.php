@@ -11,6 +11,10 @@ use App\Controller\UsersController;
  * @var array<\App\Controller\UsersController> $auth_user 
  * @var array<\App\Service\UsersServices>  $auth  
  */
+if(!($_SESSION['ArrayAuth'])){  
+
+    header("location: ./../Users/signin.php");
+    } 
 ?>
 
 <!DOCTYPE html>
@@ -43,6 +47,15 @@ use App\Controller\UsersController;
             <button class="text-white hover:bg-blue-400 p-2 rounded" ><i class="fas fa-graduation-cap px-2"></i>Niveau</button>
             <button class="text-white hover:bg-blue-400 p-2 rounded"><i class="fas fa-user-graduate px-2"></i>Étudiants</button>
             <button class="text-white hover:bg-blue-400 p-2 rounded"><i class="fas fa-home px-2"></i>Accueil</button>
+            <?php if (isset($_SESSION['ArrayAuth'])) { ?>
+                       <form action="signOut.php" method="post">
+                       <button type="sumbit" class="text-white hover:bg-blue-400 p-2 rounded
+                             " name="signout" id="btn_signout">
+                             Deconnexion
+                        </button>
+                       </form>
+                            
+                    <?php }  ?>
         </div>
 
 
@@ -79,7 +92,7 @@ use App\Controller\UsersController;
         <hr>
         <ul>
             <h1 class="text-blue-700 font-bold w-full rounded p-1 m-0 "><i class="fas fa-user px-2"></i>Utilisateurs</h1>
-            <li><a href="#" class="block p-2 hover:bg-blue-800 hover:text-white rounded "><i class="fas fa-eye px-2"></i>voir les Utilisateurs</a></li>
+            <li><a href="directorHead.php" class="block p-2 hover:bg-blue-800 hover:text-white rounded "><i class="fas fa-eye px-2"></i>voir les Utilisateurs</a></li>
             
         </ul>
         <hr>
@@ -95,6 +108,16 @@ use App\Controller\UsersController;
             <li><a href="./../Level/addLevels.php" class="block p-2 hover:bg-blue-800 hover:text-white rounded "><i class="fas fa-plus px-2"></i>ajouter</a></li>
             <li><a href="./../Level/getLevels.php" class="block p-2 hover:bg-blue-800 hover:text-white rounded "><i class="fas fa-eye px-2"></i>voir les Niveaux</a></li>         
         </ul>
+        <ul>
+                <h1 class="text-blue-700 font-bold w-full rounded p-1 m-0  "><i class="fas fa-graduation-cap"></i>
+                    Etudiant</h1>
+                <li><a href="./../Student/addStudent.php"
+                        class="block p-2 hover:bg-blue-800 hover:text-white  rounded"><i class="fas fa-plus"></i>
+                        ajouter</a></li>
+                <li><a href="./../Student/getStudent.php"
+                        class="block p-2 hover:bg-blue-800 hover:text-white  rounded"><i class="fas fa-eye"></i> voir
+                        les Étudiants</a></li>
+            </ul>
         <hr>
         <ul>
             <h1 class="text-blue-700 font-bold w-full rounded p-1 m-0 "><i class="fas fa-calendar-alt"></i>Évenements</h1>
@@ -112,7 +135,7 @@ use App\Controller\UsersController;
     
     <!-- add an User -->
      <!-- form -->
-    <div id="formAddUser" class="absolute inset-10 flex sm:text-xs text-center m-auto rounded-lg sm:w-10/12 md:w-96 lg:w-1/2 xl:w-1/2 lg:text-xl md:text-lg 2xl:bg-red-200 overflow-auto ">
+    <div id="formAddUser" class="absolute inset-10 flex sm:text-xs text-center m-auto rounded-lg sm:w-10/12 md:w-96 lg:w-1/2 xl:w-1/2 lg:text-xl md:text-lg  overflow-auto ">
     <form action="addUser.php" class="m-auto xl:w-full 2xl:w-full" id="registrationForm" method="post" enctype="multipart/form-data">
     <div class=" bg-white text-white overflow-auto rounded-lg m-auto text-base">
         <h1 class="text-black p-2 sm:text-xs md:text-base lg:text-lg xl:text-xl 2xl:text-2xl m-auto capitalize font-bold">

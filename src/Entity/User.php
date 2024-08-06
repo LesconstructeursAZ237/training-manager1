@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use DateTime;
+
 class User {
     private $_id;
     private $_name;
@@ -24,6 +26,7 @@ class User {
     private $trainingwithLevel;
     private $codeTraining;
     private $nameLevel;
+    private $nomdiplome;
 
     // Constructeur
    public function __construct(array $userData = [])
@@ -50,6 +53,7 @@ class User {
         $this->trainingwithLevel = $userData['trainingwithLevel'] ?? null;
         $this->codeTraining = $userData['codeTraining'] ?? null;
         $this->nameLevel = $userData['nameLevel'] ?? null;
+        $this->nomdiplome = $userData['nomdiplome'] ?? null;
     }
 }
 
@@ -232,6 +236,26 @@ class User {
     public function setNameLevel($nameLevel)
     {
         $this->nameLevel = $nameLevel;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of nomdiplome
+     */ 
+    public function getNomdiplome()
+    {
+        return $this->nomdiplome;
+    }
+
+    /**
+     * Set the value of nomdiplome
+     *
+     * @return  self
+     */ 
+    public function setNomdiplome($nomdiplome)
+    {
+        $this->nomdiplome = $nomdiplome;
 
         return $this;
     }

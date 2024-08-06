@@ -11,6 +11,8 @@ class Registration
     private $entranceDegree;
     private $nomDiplome;
     private $createBy;
+    private $modifiedBy;
+
     public function __construct(array $registrationData = [])
     {
         if (!empty($registrationData)) {
@@ -20,6 +22,7 @@ class Registration
             $this->entranceDegree = $registrationData['entranceDegree'] ?? null;
             $this->nomDiplome = $registrationData['nomDiplome'] ?? null;
             $this->createBy = $registrationData['createBy'] ?? null;
+            $this->modifiedBy = $registrationData['modifiedBy'] ?? null;
         }
     }
 
@@ -141,6 +144,26 @@ class Registration
     public function setCreateBy($createBy)
     {
         $this->createBy = $createBy;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of modifiedBy
+     */ 
+    public function getModifiedBy()
+    {
+        return $this->modifiedBy;
+    }
+
+    /**
+     * Set the value of modifiedBy
+     *
+     * @return  self
+     */ 
+    public function setModifiedBy($modifiedBy)
+    {
+        $this->modifiedBy = $modifiedBy;
 
         return $this;
     }

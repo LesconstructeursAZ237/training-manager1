@@ -13,6 +13,7 @@ use App\Entity\Training;
 use App\Controller\RegistrationController;
 use App\Entity\Registration;
 use App\Entity\Role;
+use App\Entity\Sessions;
 use Core\FlashMessages\Flash;
 use App\Service\UsersServices;
 
@@ -28,7 +29,121 @@ class RegistrationServices
         $this->_pdo = $connectionManager->getConnection();
 
     }
+    public function updateTableRegistrations(array $data, $idStudent){
 
+        $studentData = new Registration($data);
+
+        $cniEtudiant = $studentData->getCniEtudiant();
+        $birthCertificate = $studentData->getBirthCertificate();
+        $entranceDegree = $studentData->getEntranceDegree();
+        $nomDiplome = $studentData->getNomDiplome();
+        $modifiedBy = $studentData->getmodifiedBy();
+      
+
+        $dateModified= date('Y-m-d H:i:s');
+
+       try{
+        $updatval1 = $this->_pdo->prepare("UPDATE registrations 
+        SET   cni_student = :cni_student,
+              name_of_diploma = :nomDuDiplome, 
+              entrance_degree = :entrance_degree, 
+              birth_cetificate = :birth_cetificate, 
+              modified_by = :modified_by,
+              modified_date = :modified_date
+           
+          WHERE student_id = :student_id AND deleted=0");
+           $updatval1->bindParam(':student_id', $idStudent, \PDO::PARAM_INT);
+           $updatval1->bindParam(':cni_student', $cniEtudiant, \PDO::PARAM_STR);
+           $updatval1->bindParam(':nomDuDiplome', $nomDiplome, \PDO::PARAM_STR);
+           $updatval1->bindParam(':entrance_degree', $entranceDegree, \PDO::PARAM_STR);
+           $updatval1->bindParam(':birth_cetificate', $birthCertificate, \PDO::PARAM_STR);
+           $updatval1->bindParam(':modified_by', $modifiedBy, \PDO::PARAM_STR);
+           $updatval1->bindParam(':modified_date', $dateModified, \PDO::PARAM_STR);
+           if($updatval1->execute()){
+            
+            return true;
+           }
+          
+       }catch (\PDOException $e) {
+     
+         echo "Erreur : " . $e->getMessage();
+    }
+
+
+    }
+public function getPhotoProfil(int $idUser): string | null{
+
+    $user= new User(['_id'=>$idUser],);
+    $id=intval($user->getId());
+    $sql="SELECT photo_user FROM users WHERE id=$id AND deleted=0";
+    $query=$this->_pdo->prepare($sql);
+    $query->execute();
+    $result= $query->fetch(\PDO::FETCH_ASSOC);
+    
+    if(!empty($result)){
+        return $result['photo_user'];
+    }
+    return null;
+
+}
+public function getDateNaisUser(int $idUser): string | null{
+
+    $user= new User(['_id'=>$idUser],);
+    $id=$user->getId();
+    $sql="SELECT birth_date FROM users WHERE id=$id AND deleted=0";
+    $query=$this->_pdo->prepare($sql);
+    $query->execute();
+    $result= $query->fetch(\PDO::FETCH_ASSOC);
+    if(!empty($result)){
+        return $result['birth_date'];
+    }
+    return null;
+
+}
+public function getCniStudent(int $idUser): string | null{
+
+    $user= new User(['_id'=>$idUser],);
+    $id=intval($user->getId());
+    $sql="SELECT cni_student FROM registrations WHERE student_id=$id AND deleted=0";
+    $query=$this->_pdo->prepare($sql);
+    $query->execute();
+    $result= $query->fetch(\PDO::FETCH_ASSOC);
+    
+    if(!empty($result)){
+        return $result['cni_student'];
+    }
+    return null;
+
+}
+public function getActeStudent(int $idUser): string | null{
+
+    $user= new User(['_id'=>$idUser],);
+    $id=intval($user->getId());
+    $sql="SELECT birth_cetificate FROM registrations WHERE student_id=$id AND deleted=0";
+    $query=$this->_pdo->prepare($sql);
+    $query->execute();
+    $result= $query->fetch(\PDO::FETCH_ASSOC);
+    
+    if(!empty($result)){
+        return $result['birth_cetificate'];
+    }
+    return null;
+}
+public function getDiplomeStudent(int $idUser): string | null{
+
+    $user= new User(['_id'=>$idUser],);
+    $id=intval($user->getId());
+    $sql="SELECT entrance_degree FROM registrations WHERE student_id=$id AND deleted=0";
+    $query=$this->_pdo->prepare($sql);
+    $query->execute();
+    $result= $query->fetch(\PDO::FETCH_ASSOC);
+    
+    if(!empty($result)){
+        return $result['entrance_degree'];
+    }
+    return null;
+
+}
 
     public function getTrainingsOPen(): ?array
     {
@@ -49,8 +164,8 @@ class RegistrationServices
     LEFT JOIN 
         levels l ON tl.level_id = l.id
     WHERE 
-        t.id > :parameter AND l.availabilities =:availabilities
-    AND delete_training=:deleteT
+       l.availabilities =:availabilities 
+    AND delete_training=:deleteT AND  l.deleted =:deleted AND statut =:statut 
     GROUP BY 
         t.id, t.code, t.descriptions, t.durations, t.price
     ORDER BY 
@@ -59,9 +174,10 @@ class RegistrationServices
 
 
         $getTraining = $this->_pdo->prepare($reqst);
-        $getTraining->bindValue(':parameter', 0);
         $getTraining->bindValue(':deleteT', 0);
+        $getTraining->bindValue(':deleted', 0);
         $getTraining->bindValue(':availabilities', 'ouvert');
+        $getTraining->bindValue(':statut', 'ouvert');
         $getTraining->execute();
 
         $allTrainings = $getTraining->fetchAll(\PDO::FETCH_ASSOC);
@@ -92,8 +208,7 @@ class RegistrationServices
     }
     public function addTotableUser(array $personalInformation): int|string
     {
-        //print_r($firstName);  die();
-
+       
 
         $usersData = new User($personalInformation);
         $name1 = $usersData->getName();
@@ -140,11 +255,12 @@ class RegistrationServices
             $saveUser->bindParam(':ROLEID', $role1);   //role = 1 pour etudiant  
 
             if ($saveUser->execute()) {
-                $request2 = "SELECT id FROM users WHERE mail = :mail AND phone_number = :phone";
+                $request2 = "SELECT id FROM users WHERE mail = :mail AND phone_number = :phone AND deleted=:deleted";
                 $select_request2 = $this->_pdo->prepare($request2);
 
                 $select_request2->bindParam(':mail', $mail1);
                 $select_request2->bindParam(':phone', $phone_number1);
+                $select_request2->bindValue(':deleted', 0);
 
                 $value_id = $select_request2->execute();
                 // Récupérer le nombre de lignes renvoyées par la requête
@@ -228,7 +344,128 @@ class RegistrationServices
 
 
     }
-    public function addToTableRegistration(array $documnetRequired, $studentIs): int|string
+    public function getIdRegistrations(int $idstudent): ?int
+    {
+
+        $sql1 = "SELECT id FROM registrations WHERE student_id = :student_id AND deleted=0";
+        $req = $this->_pdo->prepare($sql1);
+
+        $req->bindParam(':student_id', $idstudent);
+        $req->execute();
+        if ($req->execute()) {
+            $result = $req->fetch(\PDO::FETCH_ASSOC);
+            return intval($result['id']);
+        } else {
+            return null;
+        }
+
+    }
+    public function addNewTrainingRegistration($idTraining, $idLevel,$idRegistration): bool|string{
+        try {
+            // Préparer et exécuter la requête d'insertion
+            $registration = $this->_pdo->prepare(
+                "INSERT INTO registration_trainings(registration_id, training_id, level_id)
+                    VALUES (:registration_id, :training_id, :level_id)"
+            );
+            $idNiveau=intval($idLevel);
+            $idFormation=intval($idTraining);
+            $registration->bindParam(':registration_id', $idRegistration, \PDO::PARAM_INT);
+            $registration->bindParam(':training_id', $idFormation, \PDO::PARAM_INT);
+            $registration->bindParam(':level_id', $idNiveau, \PDO::PARAM_INT);
+
+            if ($registration->execute()) {
+               
+                return true;
+            } 
+        } catch (\PDOException $e) {
+            return "Erreur : " . $e->getMessage();
+        }
+        return false;
+    }
+ 
+
+    function splitTextWithPlus(string $text, int $charsPerSegment = 16): string {
+        // Étape 1: Supprimer les espaces et les signes '+'
+        $text = str_replace(['+', ' '], '', $text);
+        
+        // Étape 2: Diviser le texte en segments de taille $charsPerSegment
+        $segments = [];
+        $totalLength = strlen($text);
+        
+        for ($i = 0; $i < $totalLength; $i += $charsPerSegment) {
+            // Extraire un segment de texte
+            $segment = substr($text, $i, $charsPerSegment);
+            // Ajouter un '+' à la fin du segment
+            $segments[] = $segment . '+';
+        }
+        
+        // Étape 3: Combiner tous les segments en une seule chaîne
+        return implode('', $segments);
+    }
+
+    public function addEditStudentToTraining(array $Training_level, int $idStudent){
+    
+        $length = strlen((string)$idStudent);
+        global $L1;
+        switch ($length) {
+            case 1:
+                $L1 = '000' . $idStudent;
+                break;
+            case 2:
+                $L1 = '00' . $idStudent;
+                break;
+            case 3:
+                $L1 = '0' . $idStudent;
+                break;
+            case 4:
+                $L1 = $idStudent;
+                break;
+            case $length > 4:
+                $L1 = substr((string)$idStudent, -4);
+                break;
+            // autre cas
+            // autre cas
+            default:
+                $L1 = substr((string)$idStudent, -4);
+                break;
+        }
+        $actual_year1 = strval(date("Y")); // l'annee en cours
+        $actual_year2 = substr($actual_year1, -2); // extraire les 2 derniere chiffres de l'annee en cours
+        
+        $nouveauMAtricule = '';
+       
+        /* find corresponding id student to the same table registration */
+        $idRegistration=$this->getIdRegistrations(intval($idStudent));
+        foreach($Training_level as $idTraining => $idLevel){
+            $stringNameLevel = explode('-', $this->getNameLevel(intval($idLevel)));
+            $indexLevel = $stringNameLevel[1];
+            $nouveauMAtricule = $nouveauMAtricule . 'IFPLI-' . $actual_year2 . $this->getCodeTrainings($idTraining) . $indexLevel . '-' . $L1 . '+';
+           
+              $this->addNewTrainingRegistration($idTraining, $idLevel,$idRegistration);
+        }
+        /* last registration number */
+        $lastMatricule=$this->getRegistrationNUmberUser($idStudent);
+        $MatriculeMiseAjour=$this->splitTextWithPlus($nouveauMAtricule.$lastMatricule);
+        $updateMatricule = $this->_pdo->prepare("UPDATE Users 
+        SET registration_number = :Mat,
+            statut = :statut
+          WHERE id = :id AND deleted=0"); 
+
+    $updateMatricule->bindParam(':id', $idStudent, \PDO::PARAM_STR);
+    $updateMatricule->bindParam(':Mat', $MatriculeMiseAjour, \PDO::PARAM_STR);
+    $updateMatricule->bindValue(':statut','enregistrer', \PDO::PARAM_STR);
+
+    $updateMatricule->execute();
+    if ($updateMatricule) { /* echo($MatriculeMiseAjour); die(); */
+        // Si tout s'est bien passé
+        return 'success';
+    } else {
+        // Si tout s'est bien passé
+        return 'echecToUpdateMatricule';
+    }
+
+    }
+    public function addToTableRegistration(array $documnetRequired, $studentIs, $idSessionsStudent): int|string
     {
 
         $studentData = new Registration($documnetRequired);
@@ -239,11 +476,15 @@ class RegistrationServices
         $nomDiplome = $studentData->getNomDiplome();
         $accademicYear = date('y');
         $createBy = $studentData->getCreateBy();
+        $SessionsStudent= new Sessions([
+            'id'=>$idSessionsStudent,
+        ]);
+        $sessions_id=$SessionsStudent->getId();
 
         try {
             $registration = $this->_pdo->prepare("INSERT INTO registrations(cni_student,name_of_diploma, entrance_degree, birth_cetificate, 
-            created_by ,accademic_year, student_id)
-                        value(:cniEtudiant, :name_of_diploma, :entrance_degree, :birth_cetificate, :created_by, :accademic_year, :student_id)");
+            created_by ,accademic_year, student_id, sessions_id)
+                        value(:cniEtudiant, :name_of_diploma, :entrance_degree, :birth_cetificate, :created_by, :accademic_year, :student_id, :sessions_id)");
             $registration->bindParam(':cniEtudiant', $cniEtudiant);
             $registration->bindParam(':name_of_diploma', $nomDiplome);
             $registration->bindParam(':entrance_degree', $entranceDegree);
@@ -251,11 +492,13 @@ class RegistrationServices
             $registration->bindParam(':created_by', $createBy);
             $registration->bindParam(':accademic_year', $accademicYear);
             $registration->bindParam(':student_id', $studentIs);
+            $registration->bindParam(':sessions_id', $sessions_id);
             if ($registration->execute()) {
-                $sql1 = "SELECT id FROM registrations WHERE student_id = :parameter";
+                $sql1 = "SELECT id FROM registrations WHERE student_id = :parameter AND deleted=:deleted";
                 $req = $this->_pdo->prepare($sql1);
                 $id = null;
                 $req->bindParam(':parameter', $studentIs);
+                $req->bindValue(':deleted', 0);
 
                 if ($req->execute()) {
                     $result = $req->fetch(\PDO::FETCH_ASSOC);
@@ -302,11 +545,11 @@ class RegistrationServices
             $result = $req->fetch(\PDO::FETCH_ASSOC);
             return $result['code'];
         } else {
-            return null;
+            return '';
         }
 
     }
-    public function getNameLeval($idLevel): ?string
+    public function getNameLevel($idLevel): ?string
     {
 
         $sql1 = "SELECT names FROM levels WHERE id = :parameter";
@@ -322,54 +565,88 @@ class RegistrationServices
         }
 
     }
-    public function registrationStudent(array $personalInformation, array $documnet, array $training, array $Level)
+    public function registrationStudent(int $idSessionsStudent, array $personalInformation, array $documnet, array $training, array $Level)
     {
 
         $idTableUsers = $this->addTotableUser($personalInformation);
         if (is_int($idTableUsers)) {
-
-            $idTableRegist = $this->addToTableRegistration($documnet, $idTableUsers);
+            $idTableRegist = $this->addToTableRegistration($documnet, $idTableUsers, $idSessionsStudent); 
             if (is_int($idTableRegist)) {
-                $lastRegistrationNumber = $this->getRegistrationNUmberUser($idTableUsers);
+    
+                $final_value_id = strval($idTableUsers);// convertir en chaine de carracte
+    
+                $L = strlen($final_value_id);
+                global $L1;
+                switch ($L) {
+                    case 1:
+                        $L1 = '000' . $final_value_id;
+                        break;
+                    case 2:
+                        $L1 = '00' . $final_value_id;
+                        break;
+                    case 3:
+                        $L1 = '0' . $final_value_id;
+                        break;
+                    case 4:
+                        $L1 = $final_value_id;
+                        break;
+                    case $L > 4:
+                        $L1 = substr($final_value_id, -4);
+                        break;
+                    // autre cas
+                    // autre cas
+                    default:
+                        $L1 = substr($final_value_id, -4);
+                        break;
+                }
+                $actual_year1 = strval(date("Y")); // l'annee en cours
+                $actual_year2 = substr($actual_year1, -2); // extraire les 2 derniere chiffres de l'annee en cours
+                $lastRegistrationNumber = 'IFPLI' . '-' . $actual_year2 . '-' . $L1; // concatenation pour obtenir le matricule
+                
                 $nouveauMAtricule = ''; /* pour stoker le matricule sous forme de chaine de carracetere concatener*/
-                foreach ($training as $trainingIndex => $trainingID) {
-
-                    foreach ($Level[$trainingIndex] as $levelIndex => $levelID) {
-                        $nameLevel = $this->getNameLeval($levelID);
-
-                        $stringNameLevel = explode('-', $nameLevel);
+                foreach ($training as $index => $trainingId) {
+                    // Vérifiez si un niveau a été sélectionné pour cette formation
+                    if (isset( $Level[$index]) && !empty($Level[$index])) {
+                   
+                        $levelId = $Level[$index];
+                        // Traitement des données
+                     
+                        $stringNameLevel = explode('-', $this->getNameLevel($levelId));
                         $indexLevel = $stringNameLevel[1];
                         $Matricule = explode('-', $lastRegistrationNumber);
-
+    
                         $Year = $Matricule[1];
                         $numericLetter = $Matricule[2];
-                        $nouveauMAtricule = $nouveauMAtricule . 'IFPLI-' . $Year . $this->getCodeTrainings($trainingID) . $indexLevel . '-' . $numericLetter . '+';
-
-                        try {
+                        $nouveauMAtricule = $nouveauMAtricule . 'IFPLI-' . $Year . $this->getCodeTrainings($trainingId) . $indexLevel . '-' . $numericLetter . '+';
+                          try {
                             // Préparer et exécuter la requête d'insertion
                             $registration = $this->_pdo->prepare(
                                 "INSERT INTO registration_trainings(registration_id, training_id, level_id)
-                                VALUES (:registration_id, :training_id, :level_id)"
+                                    VALUES (:registration_id, :training_id, :level_id)"
                             );
                             $registration->bindParam(':registration_id', $idTableRegist, \PDO::PARAM_INT);
-                            $registration->bindParam(':training_id', $trainingID, \PDO::PARAM_INT);
-                            $registration->bindParam(':level_id', $levelID, \PDO::PARAM_INT);
-
+                            $registration->bindParam(':training_id', $trainingId, \PDO::PARAM_INT);
+                            $registration->bindParam(':level_id', $levelId, \PDO::PARAM_INT);
+    
                             if (!$registration->execute()) {
-                                return 'echecExecutedRequest';
-                            }
+                               
+                                return 'notRegistratedTrainingToRegistration';
+                            } 
                         } catch (\PDOException $e) {
                             return "Erreur : " . $e->getMessage();
                         }
                     }
                 }
-
+              
                 $updateMatricule = $this->_pdo->prepare("UPDATE Users 
-                SET registration_number = :Mat
-                  WHERE id = :id");
-                $updateMatricule->bindParam(':id', $idTableUsers, \PDO::PARAM_STR);
+                    SET registration_number = :Mat,
+                        statut = :statut
+                      WHERE id = :id");
+    
+                $updateMatricule->bindParam(':id', $idUser, \PDO::PARAM_STR);
                 $updateMatricule->bindParam(':Mat', $nouveauMAtricule, \PDO::PARAM_STR);
-
+                $updateMatricule->bindValue(':statut','enregistrer', \PDO::PARAM_STR);
+    
                 $updateMatricule->execute();
                 if ($updateMatricule) {
                     // Si tout s'est bien passé
@@ -378,16 +655,129 @@ class RegistrationServices
                     // Si tout s'est bien passé
                     return 'echecToUpdateMatricule';
                 }
-
-
-
+              
+    
             } else {
                 return $idTableRegist;
             }
-
         } else {
             return $idTableUsers;
         }
+
+    }
+    public function changeUserToStudent(int $idSessionsStudent, int $idUser, array $documnet, array $training, array $Level)
+    {
+        $request1 = "SELECT student_id FROM registrations WHERE student_id = :student_id AND deleted=:deleted";
+        $select_request1 = $this->_pdo->prepare($request1);
+
+        $select_request1->bindParam(':student_id', $idUser);
+        $select_request1->bindValue(':deleted', 0);
+
+        $select_request1->execute();
+
+        // Récupérer le nombre de lignes renvoyées par la requête
+        $rowCount = $select_request1->rowCount();
+        if ($rowCount > 0) {
+            return 2;
+        } 
+
+        $idTableRegist = $this->addToTableRegistration($documnet, $idUser, $idSessionsStudent); 
+        if (is_int($idTableRegist)) {
+
+            $final_value_id = strval($idUser);// convertir en chaine de carracte
+
+            $L = strlen($final_value_id);
+            global $L1;
+            switch ($L) {
+                case 1:
+                    $L1 = '000' . $final_value_id;
+                    break;
+                case 2:
+                    $L1 = '00' . $final_value_id;
+                    break;
+                case 3:
+                    $L1 = '0' . $final_value_id;
+                    break;
+                case 4:
+                    $L1 = $final_value_id;
+                    break;
+                case $L > 4:
+                    $L1 = substr($final_value_id, -4);
+                    break;
+                // autre cas
+                // autre cas
+                default:
+                    $L1 = substr($final_value_id, -4);
+                    break;
+            }
+            $actual_year1 = strval(date("Y")); // l'annee en cours
+            $actual_year2 = substr($actual_year1, -2); // extraire les 2 derniere chiffres de l'annee en cours
+            $lastRegistrationNumber = 'IFPLI' . '-' . $actual_year2 . '-' . $L1; // concatenation pour obtenir le matricule
+            
+            $nouveauMAtricule = ''; /* pour stoker le matricule sous forme de chaine de carracetere concatener*/
+            foreach ($training as $index => $trainingId) {
+                // Vérifiez si un niveau a été sélectionné pour cette formation
+                if (isset( $Level[$index]) && !empty($Level[$index])) {
+               
+                    $levelId = $Level[$index];
+                    // Traitement des données
+                    echo "Training ID: " . htmlspecialchars($trainingId) . "<br>";
+                    echo "Level ID: " . htmlspecialchars($levelId) . "<br>";
+                    $stringNameLevel = explode('-', $this->getNameLevel($levelId));
+                    $indexLevel = $stringNameLevel[1];
+                    $Matricule = explode('-', $lastRegistrationNumber);
+
+                    $Year = $Matricule[1];
+                    $numericLetter = $Matricule[2];
+                    $nouveauMAtricule = $nouveauMAtricule . 'IFPLI-' . $Year . $this->getCodeTrainings($trainingId) . $indexLevel . '-' . $numericLetter . '+';
+                      try {
+                        // Préparer et exécuter la requête d'insertion
+                        $registration = $this->_pdo->prepare(
+                            "INSERT INTO registration_trainings(registration_id, training_id, level_id)
+                                VALUES (:registration_id, :training_id, :level_id)"
+                        );
+                        $registration->bindParam(':registration_id', $idTableRegist, \PDO::PARAM_INT);
+                        $registration->bindParam(':training_id', $trainingId, \PDO::PARAM_INT);
+                        $registration->bindParam(':level_id', $levelId, \PDO::PARAM_INT);
+
+                        if (!$registration->execute()) {
+                           
+                            return 'notRegistratedTrainingToRegistration';
+                        } 
+                    } catch (\PDOException $e) {
+                        return "Erreur : " . $e->getMessage();
+                    }
+                }
+            }
+          
+            $updateMatricule = $this->_pdo->prepare("UPDATE Users 
+                SET registration_number = :Mat,
+                    statut = :statut,
+                    role_id = :role_id
+                  WHERE id = :id");
+
+            $updateMatricule->bindParam(':id', $idUser, \PDO::PARAM_STR);
+            $updateMatricule->bindParam(':Mat', $nouveauMAtricule, \PDO::PARAM_STR);
+            $updateMatricule->bindValue(':statut','enregistrer', \PDO::PARAM_STR);
+            $updateMatricule->bindValue(':role_id',1, \PDO::PARAM_INT);
+
+            $updateMatricule->execute();
+            if ($updateMatricule) {
+                // Si tout s'est bien passé
+                return 'succes';
+            } else {
+                // Si tout s'est bien passé
+                return 'echecToUpdateMatricule';
+            }
+         
+
+
+
+        } else {
+            return $idTableRegist;
+        }
+
+
 
     }
 
@@ -456,11 +846,11 @@ class RegistrationServices
             throw new \Exception("Erreur lors de la récupération des utilisateurs: " . $e->getMessage());
         }
     }
-    
+
     public function getAll($page = 1, $usersPerPage = 5)
     {
         $offset = ($page - 1) * $usersPerPage;
-    
+
         // Requête SQL pour récupérer les utilisateurs et leurs formations associées avec pagination
         $reqst = "SELECT
         u.id AS usersId,
@@ -471,6 +861,7 @@ class RegistrationServices
         u.photo_user AS UsersPhoto,
         u.registration_number AS matriculeStudent,
         r.name AS RoleName,
+        reg.name_of_diploma AS nomdiplome,
         GROUP_CONCAT(
             DISTINCT CONCAT(t.code, ' - ', l.names) 
             ORDER BY t.code, l.names 
@@ -491,17 +882,17 @@ class RegistrationServices
         u.id ASC
     LIMIT :limit OFFSET :offset";
 
-    
+
         try {
             $getStudent = $this->_pdo->prepare($reqst);
             $getStudent->bindValue(':parameter', 0, \PDO::PARAM_INT);
             $getStudent->bindValue(':limit', $usersPerPage, \PDO::PARAM_INT);
             $getStudent->bindValue(':offset', $offset, \PDO::PARAM_INT);
             $getStudent->execute();
-    
+
             $allStudent = $getStudent->fetchAll(\PDO::FETCH_ASSOC);
             $users = [];
-    
+
             foreach ($allStudent as $al) {
                 $user = new User([
                     '_id' => $al['usersId'],
@@ -513,56 +904,57 @@ class RegistrationServices
                     '_photo_user' => $al['UsersPhoto'],
                     '_registration_number' => $al['matriculeStudent'],
                     'trainingwithLevel' => $al['trainingsWithLevels'],
+                    'nomdiplome' => $al['nomdiplome'],
                 ]);
-    
+
                 $users[] = $user;
             }
-    
+
             return $users;
         } catch (\PDOException $e) {
             return "Erreur : " . $e->getMessage();
         }
     }
     public function getTotalStudents()
-{
-    $totalStudentsReq = $this->_pdo->query("
+    {
+        $totalStudentsReq = $this->_pdo->query("
         SELECT COUNT(DISTINCT u.id) AS total
         FROM users u
         INNER JOIN registrations r ON u.id = r.student_id
         INNER JOIN registration_trainings rt ON r.id = rt.registration_id
         WHERE u.deleted = 0
     ");
-    return $totalStudentsReq->fetchColumn();
-}
+        return $totalStudentsReq->fetchColumn();
+    }
 
-    
-    public function saveImageUsers(array $infoPhoto) {
+
+    public function saveImageUsers(array $infoPhoto)
+    {
 
         define('IMG_USERS_PATH', __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'img' . DIRECTORY_SEPARATOR . 'users' . DIRECTORY_SEPARATOR);
-    
+
 
         $nom_de_mon_fichier = basename($infoPhoto["name"]);
-    
+
 
         $chemin_destination = IMG_USERS_PATH . $nom_de_mon_fichier;
 
         if (file_exists($chemin_destination)) {
-            $dateActuel = date('Y-m-d H:i:s'); 
-     
+            $dateActuel = date('Y-m-d H:i:s');
+
             $date_sans_espacement = str_replace(' ', '', $dateActuel);
             $date_sans_double_point = str_replace(':', '', $date_sans_espacement);
             $date_sans_double_tiret = str_replace('-', '', $date_sans_double_point);
             $nom_fichier_a_sauvegarder = $date_sans_double_tiret . '_' . $nom_de_mon_fichier;
             $nouveau_chemin_destination = IMG_USERS_PATH . $nom_fichier_a_sauvegarder;
-    
-  
+
             if (move_uploaded_file($infoPhoto["tmp_name"], $nouveau_chemin_destination)) {
                 return $nom_fichier_a_sauvegarder;
             } else {
                 return null;
             }
         } else {
-         
+
             if (move_uploaded_file($infoPhoto["tmp_name"], $chemin_destination)) {
                 return $nom_de_mon_fichier;
             } else {
@@ -570,36 +962,37 @@ class RegistrationServices
             }
         }
     }
-    public function saveDocumentUsers(array $infoPhoto) {
+    public function saveDocumentUsers(array $infoPhoto)
+    {
 
         if (!defined('DOCUMENT_ALL_PATH')) {
-        define('DOCUMENT_ALL_PATH', __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'img' . DIRECTORY_SEPARATOR . 'documents' . DIRECTORY_SEPARATOR);
+            define('DOCUMENT_ALL_PATH', __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'img' . DIRECTORY_SEPARATOR . 'documents' . DIRECTORY_SEPARATOR);
 
         }
-    
+
 
         $nom_de_mon_fichier = basename($infoPhoto["name"]);
-    
+
 
         $chemin_destination = DOCUMENT_ALL_PATH . $nom_de_mon_fichier;
 
         if (file_exists($chemin_destination)) {
-            $dateActuel = date('Y-m-d H:i:s'); 
-     
+            $dateActuel = date('Y-m-d H:i:s');
+
             $date_sans_espacement = str_replace(' ', '', $dateActuel);
             $date_sans_double_point = str_replace(':', '', $date_sans_espacement);
             $date_sans_double_tiret = str_replace('-', '', $date_sans_double_point);
             $nom_fichier_a_sauvegarder = $date_sans_double_tiret . '_' . $nom_de_mon_fichier;
             $nouveau_chemin_destination = DOCUMENT_ALL_PATH . $nom_fichier_a_sauvegarder;
-    
-  
+
+
             if (move_uploaded_file($infoPhoto["tmp_name"], $nouveau_chemin_destination)) {
                 return $nom_fichier_a_sauvegarder;
             } else {
                 return null;
             }
         } else {
-         
+
             if (move_uploaded_file($infoPhoto["tmp_name"], $chemin_destination)) {
                 return $nom_de_mon_fichier;
             } else {
@@ -607,34 +1000,35 @@ class RegistrationServices
             }
         }
     }
-    
-    public function saveImgProjet(array $infoPhoto) {
-   
+
+    public function saveImgProjet(array $infoPhoto)
+    {
+
 
         define('IMG_PROJET_PAHT', __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'img' . DIRECTORY_SEPARATOR . 'projet' . DIRECTORY_SEPARATOR);
 
         $nom_de_mon_fichier = basename($infoPhoto["name"]);
-    
 
-        $chemin_destination = IMG_PROJET_PAHT. $nom_de_mon_fichier;
+
+        $chemin_destination = IMG_PROJET_PAHT . $nom_de_mon_fichier;
 
         if (file_exists($chemin_destination)) {
-            $dateActuel = date('Y-m-d H:i:s'); 
-     
+            $dateActuel = date('Y-m-d H:i:s');
+
             $date_sans_espacement = str_replace(' ', '', $dateActuel);
             $date_sans_double_point = str_replace(':', '', $date_sans_espacement);
             $date_sans_double_tiret = str_replace('-', '', $date_sans_double_point);
             $nom_fichier_a_sauvegarder = $date_sans_double_tiret . '_' . $nom_de_mon_fichier;
             $nouveau_chemin_destination = IMG_PROJET_PAHT . $nom_fichier_a_sauvegarder;
-    
-  
+
+
             if (move_uploaded_file($infoPhoto["tmp_name"], $nouveau_chemin_destination)) {
                 return $nom_fichier_a_sauvegarder;
             } else {
                 return null;
             }
         } else {
-         
+
             if (move_uploaded_file($infoPhoto["tmp_name"], $chemin_destination)) {
                 return $nom_de_mon_fichier;
             } else {
@@ -643,39 +1037,40 @@ class RegistrationServices
         }
     }
     public function getAllRole(): null|array|string
-    {   $sql="SELECT id, name FROM roles WHERE name!='director' AND id !=3";
-        try{
-            $allRoles=$this->_pdo->prepare($sql);
+    {
+        $sql = "SELECT id, name FROM roles WHERE name!='director' AND id !=3";
+        try {
+            $allRoles = $this->_pdo->prepare($sql);
             $allRoles->execute();
-           $result= $allRoles->fetchAll(\PDO::FETCH_ASSOC);
-           $Roles = [];
-    
-           foreach ($result as $rol) {
-               $role = new User([
-                   '_id' => $rol['id'],
-                   '_role' => $rol['name'],
-               
-               ]);
-   
-               $Roles[] = $role;
-           }
-           return $Roles;
-        }
-        catch (\PDOException $e) {
+            $result = $allRoles->fetchAll(\PDO::FETCH_ASSOC);
+            $Roles = [];
+
+            foreach ($result as $rol) {
+                $role = new User([
+                    '_id' => $rol['id'],
+                    '_role' => $rol['name'],
+
+                ]);
+
+                $Roles[] = $role;
+            }
+            return $Roles;
+        } catch (\PDOException $e) {
             // Gestion des erreurs
             return "Erreur : " . $e->getMessage();
         }
-      
+
     }
-    
-        public function getNotRegisteredTrainings($userId) {
+
+    public function getNotRegisteredTrainings($userId)
+    {
         try {
             // Requête pour obtenir toutes les formations
             $allTrainingsReq = "SELECT id, code FROM trainings";
             $getAllTrainings = $this->_pdo->prepare($allTrainingsReq);
             $getAllTrainings->execute();
             $allTrainings = $getAllTrainings->fetchAll(\PDO::FETCH_ASSOC);
-    
+
             // Requête pour obtenir les formations auxquelles l'utilisateur est inscrit
             $userTrainingsReq = "SELECT DISTINCT t.id, t.code 
                 FROM trainings t
@@ -686,23 +1081,23 @@ class RegistrationServices
             $getUserTrainings->bindValue(':userId', $userId, \PDO::PARAM_INT);
             $getUserTrainings->execute();
             $userTrainings = $getUserTrainings->fetchAll(\PDO::FETCH_ASSOC);
-    
+
             // Convertir les résultats en tableaux associatifs pour un accès plus facile
             $userTrainingCodes = array_column($userTrainings, 'code');
             $userTrainingIds = array_column($userTrainings, 'id');
-    
+
             // Filtrer les formations disponibles en excluant celles auxquelles l'utilisateur est inscrit
             $notRegisteredTrainings = array_filter($allTrainings, function ($training) use ($userTrainingIds) {
                 return !in_array($training['id'], $userTrainingIds);
             });
-    
+
             return $notRegisteredTrainings;
-    
+
         } catch (\PDOException $e) {
             // Gestion des erreurs
             return "Erreur : " . $e->getMessage();
         }
     }
-    
+
 
 }

@@ -103,6 +103,7 @@ class TrainingsController
     }
       
     }
+  
 
     public function getTrainings(){
         
@@ -142,9 +143,16 @@ class TrainingsController
                 $tabLevel='';
             if(isset($_POST['LevelsNotInTraining']) ){
                 $trainings = $this->trainingsServices ->update($data, $_POST['LevelsNotInTraining']); 
-                if($trainings==1){
+                if($trainings===1){
                     $SE1 = new SessionManager();
                     $SE1->set('flashMessage','mise a jour reuissir!');
+                    $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+                    header("location: ./../Trainings/getTrainings.php");
+                    exit;   
+                }
+                if($trainings==2){
+                    $SE1 = new SessionManager();
+                    $SE1->set('flashMessage','une formation du meme code existe déja!');
                     $_SESSION['flashMessage'] = $SE1->get('flashMessage');
                     header("location: ./../Trainings/getTrainings.php");
                     exit;   
@@ -162,6 +170,13 @@ class TrainingsController
                 if($trainings==1){
                     $SE1 = new SessionManager();
                     $SE1->set('flashMessage','mise a jour reuissir!');
+                    $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+                    header("location: ./../Trainings/getTrainings.php");
+                    exit;   
+                }
+                if($trainings==2){
+                    $SE1 = new SessionManager();
+                    $SE1->set('flashMessage','une formation du meme code existe déja!');
                     $_SESSION['flashMessage'] = $SE1->get('flashMessage');
                     header("location: ./../Trainings/getTrainings.php");
                     exit;   
@@ -190,6 +205,29 @@ class TrainingsController
                     $_SESSION['LevelsNotInTraining'] = $LevelsNotInTraining; 
                 }     
                
+            }
+
+            if(isset($_POST['btnCloseOpenTraining'])){
+                $data=[
+                    'id'=>intval($_POST['idEditTraining']),
+                ];
+             
+                $closeOpenT=$this->trainingsServices->openAndCloseTraining($data);
+                if($closeOpenT===1){
+                    $SE1 = new SessionManager();
+                    $SE1->set('flashMessage','modification reuissir!');
+                    $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+                    header("location: ./../Trainings/getTrainings.php");
+                    exit; 
+                }
+                else{
+                    $SE1 = new SessionManager();
+                    $SE1->set('flashMessage','échec de modification!');
+                    $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+                    header("location: ./../Trainings/getTrainings.php");
+                    exit; 
+                }
+
             }
      
    

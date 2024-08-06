@@ -38,8 +38,9 @@ class LevelServices
         $levelGrade = $LevelDatas->getGradeLevel();
         $availabitlityL = $LevelDatas->getAvailabilities();
 
-        $sql = $this->_pdo->prepare("SELECT * FROM levels WHERE names =:names");
+        $sql = $this->_pdo->prepare("SELECT * FROM levels WHERE names =:names AND deleted=:deleted");
         $sql->bindParam(':names', $levelGrade);
+        $sql->bindValue(':deleted', 0);
 
         $sql->execute();
 
@@ -68,10 +69,31 @@ class LevelServices
       
 
     }
+    public function delete(int $idLevel): int{
+        $LevelData = [
+            '_id' => $idLevel
+
+        ];
+        $LevelDatas = new Level($LevelData);
+        $checkId = intval($LevelDatas->getId());
+
+        $delet = $this->_pdo->prepare("UPDATE levels 
+        SET deleted = :deleted             
+        WHERE id = :id");
+          $delet->bindParam(':id', $checkId, \PDO::PARAM_STR);
+          $delet->bindValue(':deleted',1 , \PDO::PARAM_STR);
+          if($delet->execute()){
+            return 1;
+        }
+        else{
+            return 0;
+        }
+    }
     public function getLevel(): ? array
     {
-        $sql = $this->_pdo->prepare("SELECT * FROM levels WHERE id > :id    ORDER BY names ASC");
+        $sql = $this->_pdo->prepare("SELECT * FROM levels WHERE id > :id AND deleted=:deleted  ORDER BY names ASC");
         $sql->bindValue(':id', 0);
+        $sql->bindValue(':deleted', 0);
 
         $sql->execute();
         $allLevels = $sql->fetchAll(\PDO::FETCH_ASSOC);

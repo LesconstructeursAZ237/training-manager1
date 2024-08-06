@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
         { id: 'firstName', errorId: 'firstNameError', minLength: 2, type: 'text' },
         { id: 'mail', errorId: 'mailError', minLength: 5, type: 'email' },
         { id: 'phoneNumber', errorId: 'phoneNumberError', minLength: 9, type: 'number' },
-        { id: 'matriculeUser', errorId: 'matriculeUserError', minLength: 13, type: 'texte' },
+    
     ];
 
     fields.forEach(field => {
@@ -35,15 +35,7 @@ document.addEventListener('DOMContentLoaded', function () {
            }
            
         }
-        else if(field.id === 'matriculeUser'){
-            if (value.length < field.minLength) {
-                errorMessage = "Minimum"+field.minLength+"caractères requis.";
-            }
-            else if(!matriculeRegex.test(value)){
-                errorMessage = "format incorect, Ex: IFPLI-25-0052 ou ifpli-20dA-2602";
-                }
-
-        } else if (field.type === 'email') {
+     else if (field.type === 'email') {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
             if (!emailRegex.test(value)) {
@@ -94,14 +86,18 @@ function openEditUser(button) {
     const userEmail = button.getAttribute('data-email');
     const userTelephone = button.getAttribute('data-telephone');
     const userIdUser = button.getAttribute('data-IdUser');
-    const matricule = button.getAttribute('data-registrationNumber');
+    const roleUser = button.getAttribute('data-nomDuRole');
+    const idDurole = button.getAttribute('data-idDuRole');
+
    
  
      document.getElementById('firstName').value=userName;
     document.getElementById('name').value=userFistName;
     document.getElementById('mail').value=userEmail;
     document.getElementById('phoneNumber').value=userTelephone;  
-    document.getElementById('matriculeUser').value=matricule; 
+    document.getElementById('roleUser').innerText=roleUser;  
+    document.getElementById('roleUser').value=idDurole;  
+
     document.getElementById('idUser').value=userIdUser; 
    
    document.getElementById('formEditUser').classList.toggle('hidden');

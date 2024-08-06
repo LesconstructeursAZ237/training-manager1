@@ -47,6 +47,15 @@ use App\Controller\LevelsController;
             <button class="text-white hover:bg-blue-400 p-2 rounded" ><i class="fas fa-graduation-cap px-2"></i>Niveau</button>
             <button class="text-white hover:bg-blue-400 p-2 rounded"><i class="fas fa-user-graduate px-2"></i>Étudiants</button>
             <button class="text-white hover:bg-blue-400 p-2 rounded"><i class="fas fa-home px-2"></i>Accueil</button>
+            <?php if (isset($_SESSION['ArrayAuth'])) { ?>
+                       <form action="../Users/signOut.php" method="post">
+                       <button type="sumbit" class="text-white hover:bg-blue-400 p-2 rounded
+                             " name="signout" id="btn_signout">
+                             Deconnexion
+                        </button>
+                       </form>
+                            
+                    <?php }  ?>
         </div>
 
         <!-- Search Bar -->
@@ -98,7 +107,17 @@ use App\Controller\LevelsController;
         <ul>
             <h1 class="text-blue-700 font-bold w-full rounded p-1 m-0 "><i class="fas fa-graduation-cap px-2"></i>Niveau</h1>
             <li><a href="./../Level/getLevels.php" class="block p-2 hover:bg-blue-800  hover:text-white rounded"><i class="fas fa-eye px-2"></i>voir les Niveaux</a></li>         
-        </ul>
+        </ul><hr>
+        <ul>
+                <h1 class="text-blue-700 font-bold w-full rounded p-1 m-0  "><i class="fas fa-graduation-cap"></i>
+                    Etudiant</h1>
+                <li><a href="./../Student/addStudent.php"
+                        class="block p-2 hover:bg-blue-800 hover:text-white  rounded"><i class="fas fa-plus"></i>
+                        ajouter</a></li>
+                <li><a href="./../Student/getStudent.php"
+                        class="block p-2 hover:bg-blue-800 hover:text-white  rounded"><i class="fas fa-eye"></i> voir
+                        les Étudiants</a></li>
+            </ul>
         <hr>
         <ul>
             <h1 class="text-blue-700 font-bold w-full rounded p-1 m-0 "><i class="fas fa-calendar-alt px-2"></i>Évenements</h1>

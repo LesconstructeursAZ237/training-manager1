@@ -13,6 +13,7 @@ class Training{
     private $_levelName;
     private $_level_id;
     private $_training_id;
+    private $statut;
     public function __construct(array $trainingData = []) {
       
         if (!empty($trainingData)) {
@@ -25,6 +26,8 @@ class Training{
             $this->_level = $trainingData['level'] ?? null;
             $this->_levelAvailabilities = $trainingData['levelAvailabilities'] ?? null;
             $this->_levelName = $trainingData['levelName'] ?? null;
+            $this->statut = $trainingData['statut'] ?? null;
+            $this->_level_id = $trainingData['_level_id'] ?? null;
          
         
            
@@ -167,6 +170,26 @@ class Training{
     public function setTraining_id($_training_id)
     {
         $this->_training_id = $_training_id;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of statut
+     */ 
+    public function getStatut()
+    {
+        return $this->statut;
+    }
+
+    /**
+     * Set the value of statut
+     *
+     * @return  self
+     */ 
+    public function setStatut($statut)
+    {
+        $this->statut = $statut;
 
         return $this;
     }

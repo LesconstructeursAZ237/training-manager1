@@ -57,6 +57,15 @@ if (!($_SESSION['ArrayAuth'])) {
                         class="fas fa-user-graduate px-2"></i>Étudiants</button>
                 <button class="text-white hover:bg-blue-400 p-2 rounded"><i
                         class="fas fa-home px-2"></i>Accueil</button>
+                        <?php if (isset($_SESSION['ArrayAuth'])) { ?>
+                       <form action="../Users/signOut.php" method="post">
+                       <button type="sumbit" class="text-white hover:bg-blue-400 p-2 rounded
+                             " name="signout" id="btn_signout">
+                             Deconnexion
+                        </button>
+                       </form>
+                            
+                    <?php }  ?>
             </div>
 
             <!-- Search Bar -->
@@ -147,10 +156,7 @@ if (!($_SESSION['ArrayAuth'])) {
                 <li><a href="./../Student/addStudent.php"
                         class="block p-2 hover:bg-blue-800 hover:text-white  rounded"><i class="fas fa-plus px-2"></i>
                         ajouter</a></li>
-                <li><a href="./../Student/getStudent.php"
-                        class="block p-2 hover:bg-blue-800 hover:text-white  rounded"><i class="fas fa-eye px-2"></i>
-                        voir
-                        les Étudiants</a></li>
+               
             </ul>
             <hr>
             <ul>
@@ -203,7 +209,7 @@ if (!($_SESSION['ArrayAuth'])) {
 
             <!-- pour le resulat de la requete -->
             <!-- list of users -->
-            <div class="flex-1 z-10  w-full m-auto">
+            <div class="flex-1 z-10  w-full overflow-auto">
                 <?php if (isset($_SESSION['ArrayAuth']) && is_array($_SESSION['ArrayAuth'])) { ?>
                     <span id="flashConnxion"
                         class="hover:bg-blue-300 bg-blue-500 w-1/3 p-2 rounded text-white  items-center justify-center  m-auto"
@@ -213,10 +219,8 @@ if (!($_SESSION['ArrayAuth'])) {
                 <span id="flashMessage" class="mt-4 flex place-items-center text-red-500"><?php
                 if (isset($_SESSION['flashMessage'])) {
                     echo $_SESSION['flashMessage'];
-                }
-                if (isset($_SESSION['flashMessage'])) {
-                    unset($_SESSION['flashMessage']);
                 } ?>
+            
                 </span>
                 <?php if (isset($students) && is_array($students) && (!empty($students))) { ?>
                     <div class="pagination w-full flex justify-between ">
@@ -272,16 +276,14 @@ if (!($_SESSION['ArrayAuth'])) {
                                 <th
                                     class="text-center py-2 px-4 border-b-2 border-gray-200 text-white text-left text-xs leading-4 font-medium uppercase tracking-wider">
                                     Action</th>
-                                <th
-                                    class="text-center py-2 px-4 border-b-2 border-gray-200 text-white text-left text-xs leading-4 font-medium uppercase tracking-wider">
-                                    nommer admin?</th>
+                      
                             </tr>
                         </thead>
                         <tbody class="text-sm">
                             <?php foreach ($students as $student): ?>
-                                <tr>
+                                <tr class="text-sm">
                                     <td class="py-2 px-4  border-b border-gray-200 text-center">
-                                        <img src="<?php echo IMG_PATH_PROJET ?>/logo1.png "
+                                        <img src="<?php echo USERS_IMG_PATH.$student->getPhoto_user() ?> "
                                             alt=" <?= 'photo de :' . htmlspecialchars($student->getFirst_name()) ?>"
                                             class="w-12 h-12 rounded-full object-contain">
                                     </td>
@@ -292,7 +294,9 @@ if (!($_SESSION['ArrayAuth'])) {
                                         <?= htmlspecialchars($student->getName()) ?>
                                     </td>
                                     <td class="py-2 px-4 border-b border-gray-200 text-center">
-                                        <?= htmlspecialchars($student->getMail()) ?>
+                                    <?php 
+                                       echo wordwrap(htmlspecialchars($student->getMail()), 15, "<br>", true);
+                                        ?>
                                     </td>
                                     <td class="py-2 px-4 border-b border-gray-200 text-center">
                                         <?= htmlspecialchars($student->getPhone_number()) ?>
@@ -314,6 +318,7 @@ if (!($_SESSION['ArrayAuth'])) {
                                         </select>
                                     </td>
                                     <td>
+
                                         <select class="py-2 px-4 border-b border-gray-200">
                                             <?php
                                             $matricule = explode('+', $student->getRegistration_number());
@@ -323,14 +328,14 @@ if (!($_SESSION['ArrayAuth'])) {
                                         </select>
                                     </td>
                                     <td class="p-4 border-b border-gray-200 flex justify-between items-center">
-                                        <form action="updateStudent.php" class="hidden">
-                                            <input type="text" name="studentId"
-                                                value="<?= htmlspecialchars($student->getId()) ?>">
-                                        </form>
-                                        <button class="bg-blue-400 hover:bg-blue-500 text-white px-3 py-1 rounded">
-
-                                            <i class="fas fa-user-edit "></i>
+                                        
+                                    
+                                        
+                                        <button type="button" name="btnEditGetStudent" class="bg-blue-400 hover:bg-blue-500 text-white px-3 py-1 rounded">
+                                        <?php $TabInfoSdudent1=htmlspecialchars($student->getId()).','.htmlspecialchars($student->getFirst_name()).','.htmlspecialchars($student->getName()).','.htmlspecialchars($student->getMail()).','.htmlspecialchars($student->getPhone_number()).','.htmlspecialchars($student->getNomdiplome()).','.htmlspecialchars($student->getRole()).','.$student->getRegistration_number(); ?>
+                                            <a href="updateStudent.php?tabInfoSdudent=<?php echo$TabInfoSdudent1?>"><i class="fas fa-user-edit "></i></a>
                                         </button>
+                                       
                                         <!-- delete modal -->
                                         <div id="deleteModalStudent"
                                             class="absolute p-4 rounded-lg bg-red-200 flex flex-col items-center justify-center h-1/3 w-1/4 lg:w-2/5 m-auto fixed z-10 inset-0 overflow-y-auto hidden">
@@ -363,39 +368,7 @@ if (!($_SESSION['ArrayAuth'])) {
                                                 aria-hidden="true"></i>
                                         </button>
                                     </td>
-                                    <td>
-                                        <?php if ((isset($roles)) && is_array($roles)) {
-
-                                            ?>
-                                            <button type="submit" id="btnChangerRole"
-                                                class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                onclick="openFormChangeROle(<?= $student->getId() ?>)">nommer admin?</button>
-
-                                            <form action="updateStudent.php" id="formChangeRole" method="post" class="bg-white hidden">
-                                                <input type="text" id="idUser" name="idUser" value="">
-                                                    <?php if (isset($_SESSION['ArrayAuth'])): ?>
-                                                        <input  type="texte" id="modifiedRoleStudent" name="modifiedRoleStudent"
-                                                            value="<?php echo $_SESSION['ArrayAuth'][0] . ' ' . $_SESSION['ArrayAuth'][1]; ?>"
-                                                            class="">
-                                                    <?php endif; ?>
-                                                <select name="idRole" class="py-2 px-4 border-b border-gray-200">
-                                                    <?php
-
-                                                    foreach ($roles as $rol): ?>
-                                                        <option value="<?= $rol->getId() ?>">
-                                                            <?= htmlspecialchars($rol->getRole()); ?></option>
-                                                    <?php endforeach;
-                                        } ?>
-                                            </select>
-                                            <div class="flex justify-between">
-                                                <button type="submit" name="changerRole"
-                                                    class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">✔</button>
-                                                <button id="closeModalChangeRole" type="button"
-                                                    class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
-                                                    onclick="closeFormChangerRole()">X</button>
-                                            </div>
-                                        </form>
-                                    </td>
+                                
                                 </tr>
                             <?php endforeach;
 
@@ -403,7 +376,7 @@ if (!($_SESSION['ArrayAuth'])) {
                         </tbody>
                     </table>
                     <p class="text-blue-500  w-full p-2 rounded text-white flex items-center justify-center mx-auto">
-                        Aucun utilisateur
+                        Aucun étudiant
                         trouvé.</p>
                 <?php } ?>
 
@@ -411,7 +384,9 @@ if (!($_SESSION['ArrayAuth'])) {
 
 
 
-
+            <?php   if (isset($_SESSION['flashMessage'])) {
+                    unset($_SESSION['flashMessage']);
+                } ?>
             <!-- fin Contenu personnalisé -->
         </div>
         <!--fin Contenu personnalisé -->
@@ -444,19 +419,7 @@ if (!($_SESSION['ArrayAuth'])) {
             dropdown.classList.toggle('hidden');
         }
     </script>
-    <!-- change role of student -->
-    <script>
-        function openFormChangeROle(idStudent) {
-            document.getElementById('btnChangerRole').classList.add('hidden');
-            document.getElementById('idUser').value=idStudent;
-            document.getElementById('formChangeRole').classList.remove('hidden');
-           
-        }
-        function closeFormChangerRole(){
-            document.getElementById('formChangeRole').classList.add('hidden');  
-            document.getElementById('btnChangerRole').classList.remove('hidden');  
-        }
-    </script>
+  
 
 
 </body>

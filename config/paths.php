@@ -63,7 +63,10 @@ if (!defined('VENDOR')) {
 if (!defined('PAGINATOR_KEY')) {
     define('PAGINATOR_KEY', "__paginator__");
 }
-define('IMG_PATH_PROJET', '/training-manager/assets/img/');
+
+define('IMG_PATH_PROJET',  __DIR__ . '/src/View/Users/');
+define('PATH_PROJET_TO_USERS', '/training-manager/src/View/Users/');
 define('PATH_DOCUMENTS','/training-manager/assets/img/documents');
 define('USERS_IMG_PATH','/training-manager/assets/img/users/');
+define('USERS_TO_IMG_PATH','./../../../assets/img/');
 

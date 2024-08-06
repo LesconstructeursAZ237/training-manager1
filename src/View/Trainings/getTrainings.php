@@ -13,6 +13,10 @@ use App\Controller\TrainingsController;
  * @var string<\App\Controller\TrainingsController> $flasMessage  
 
  */
+if(!($_SESSION['ArrayAuth'])){  
+
+    header("location: ./../Users/signin.php");
+    }
 ?>
 
 <!DOCTYPE html>
@@ -45,6 +49,15 @@ use App\Controller\TrainingsController;
             <button class="text-white hover:bg-blue-400 p-2 rounded" ><i class="fas fa-graduation-cap px-2"></i>Niveau</button>
             <button class="text-white hover:bg-blue-400 p-2 rounded"><i class="fas fa-user-graduate px-2"></i>Étudiants</button>
             <button class="text-white hover:bg-blue-400 p-2 rounded"><i class="fas fa-home px-2"></i>Accueil</button>
+            <?php if (isset($_SESSION['ArrayAuth'])) { ?>
+                       <form action="../Users/signOut.php" method="post">
+                       <button type="sumbit" class="text-white hover:bg-blue-400 p-2 rounded
+                             " name="signout" id="btn_signout">
+                             Deconnexion
+                        </button>
+                       </form>
+                            
+                    <?php }  ?>
         </div>
 
             <!-- Search Bar -->
@@ -99,6 +112,16 @@ use App\Controller\TrainingsController;
                 <h1 class="text-blue-700 font-bold w-full rounded p-1 m-0 "><i class="fas fa-graduation-cap px-2"></i>Niveau</h1>
                 <li><a href="./../level/addLevels.php" class="block p-2 hover:bg-blue-800 hover:text-white rounded"><i class="fas fa-plus px-2"></i>ajouter</a></li>
                 <li><a href="./../level/getLevels.php" class="block p-2 hover:bg-blue-800 hover:text-white rounded"><i class="fas fa-eye px-2"></i>voir les Niveaux</a></li>
+            </ul><hr>
+            <ul>
+                <h1 class="text-blue-700 font-bold w-full rounded p-1 m-0  "><i class="fas fa-graduation-cap"></i>
+                    Etudiant</h1>
+                <li><a href="./../Student/addStudent.php"
+                        class="block p-2 hover:bg-blue-800 hover:text-white  rounded"><i class="fas fa-plus"></i>
+                        ajouter</a></li>
+                <li><a href="./../Student/getStudent.php"
+                        class="block p-2 hover:bg-blue-800 hover:text-white  rounded"><i class="fas fa-eye"></i> voir
+                        les Étudiants</a></li>
             </ul>
             <hr>
             <ul>
@@ -155,7 +178,10 @@ use App\Controller\TrainingsController;
                                     <th
                                         class="text-center py-2 px-4 border-b-2 border-gray-200 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
                                         Nom du niveau</th>
-                                    <th
+                                        <th
+                                        class="text-center py-2 px-4 border-b-2 border-gray-200 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                    ouvrir/fermer</th>
+                                        <th
                                         class="text-center py-2 px-4 border-b-2 border-gray-200 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
                                         Action</th>
                                 </tr>
@@ -166,7 +192,7 @@ use App\Controller\TrainingsController;
                                 <?php foreach ($trainings as $training){ ?>
                                    
                                     <tr>
-                                        <td class="py-2 px-4 border-b border-gray-200 text-center"><?= $training->getCode() ?>
+                                        <td class=" <?php if($training->getStatut()==='ouvert'){ echo'py-2 px-4 border-b border-gray-200 text-green-400 font-bold text-center'; } else{ echo'py-2 px-4 border-b border-gray-200 text-red-400 font-bold  text-center';}?>"><?= $training->getCode() ?>
                                         </td>
                                         <td class="py-2 px-4 border-b border-gray-200 text-center">
                                             <?= $training->getDescriptions() ?>
@@ -190,7 +216,20 @@ use App\Controller\TrainingsController;
                                             </select>
                                            
                                         </td>
- 
+                                            <td class="  p-auto border-b border-gray-200 text-center justify-between items-center p-2">
+                                                <form action="updateTrainings.php" method="post">
+                                                <input type="hidden" id="idEditTraining" class="" name="idEditTraining" value="<?php echo$training->getId();?>">                                                
+                                                  <?php if($training->getStatut()==='ouvert'){ ?>
+                                                    <button type="submit" name="btnCloseOpenTraining"
+                                                    class="bg-red-400 hover:bg-red-500 text-white rounded p-2"><i
+                                                    class="fas fa-window-close"></i>femer</button>
+                                                    <?php } else{?>
+                                                        <button type="submit" name="btnCloseOpenTraining"
+                                                        class="bg-green-400 hover:bg-green-500 text-white rounded p-2"><i
+                                                        class="fas fa-unlock"></i>ouvrir</button>
+                                                        <?php } ?>
+                                                </form>
+                                            </td>
                                         <td class=" flex p-auto border-b border-gray-200 text-center justify-between items-center p-2">
                                             <form action="updateTrainings.php" method="post" id="formSelectLevelNotInTraining">
                                                 <input type="text" class="hidden" name="idSelectModifiedTraining" value="<?php echo$training->getId().','.$training->getCode().','.

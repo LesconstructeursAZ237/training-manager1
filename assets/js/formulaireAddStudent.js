@@ -1,3 +1,11 @@
+/* cliker sur une formation pour afficher les niveaux 
+
+function voirLesNiveaux(levelsContainerId) {
+    var levelsContainer = document.getElementById(levelsContainerId);
+    levelsContainer.classList.toggle('hidden');
+}*/
+
+
 document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('formAddStudent');
 
@@ -152,46 +160,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 isValid = false;
             }
         }
+                       /* Fonction pour vérifier si au moins une formation est cochée*/
+                  // Obtenir tous les checkboxes de formation
+    var trainingCheckboxes = document.querySelectorAll(".training-checkbox");
+    
+    // Vérifier si au moins un checkbox est coché
+    var isAnyTrainingChecked = Array.from(trainingCheckboxes).some(checkbox => checkbox.checked);
 
-        // Validation des checkboxes
-        const trainingCheckboxes = document.querySelectorAll('.training-checkbox');
-        const selectedLevels = new Set();
-
-        trainingCheckboxes.forEach(function (checkbox, index) {
-            const levelCheckboxes = document.querySelectorAll(`.training-${index}-level-checkbox`);
-            const checkedLevels = document.querySelectorAll(`.training-${index}-level-checkbox:checked`).length;
-
-            if (checkbox.checked && checkedLevels === 0) {
-                document.getElementById('partie3Error').innerText = 'Veuillez sélectionner au moins un niveau pour chaque formation sélectionnée.';
-                isValid = false;
-            }
-
-            if (checkbox.checked && checkedLevels > 1) {
-                document.getElementById('partie3Error').innerText = 'Veuillez sélectionner un niveau par formation.';
-                isValid = false;
-            }
-
-            if (!checkbox.checked && checkedLevels > 0) {
-                document.getElementById('partie3Error').innerText = 'Désélectionnez les niveaux pour les formations non sélectionnées.';
-                isValid = false;
-            }
-          
-                /* Fonction pour vérifier si au moins une formation est cochée*/
-                function isAtLeastOneTrainingChecked() {
-                    const trainingCheckboxes = document.querySelectorAll('.training-checkbox');
-                    for (let i = 0; i < trainingCheckboxes.length; i++) {
-                        if (trainingCheckboxes[i].checked) {
-                            return true;
-                        }
-                    }
-                    return false;
-                }
-            
-                    /* Vérifier si au moins une formation est cochée*/
-                    if (!isAtLeastOneTrainingChecked()) {
-                        document.getElementById('partie3Error').innerText = 'Veuillez sélectionner au moins une formation.';
-                        isValid = false;
-                    }
+   
+    if (!isAnyTrainingChecked) {
+        isValid = false;  
+        document.getElementById("partie3Error").textContent = "Veuillez  cocher au moins une formation.";
+    }
+        
             /* validate date */
             const birthDateInput = document.getElementById('dateNaissance');
             const birthDateValue = new Date(birthDateInput.value);
@@ -212,8 +193,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (!isValid) {
                         e.preventDefault();
                     }
-            
-        });
+       
 
         if (!isValid) {
             e.preventDefault();

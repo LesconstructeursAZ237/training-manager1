@@ -14,7 +14,10 @@ if (isset($_SESSION['ArrayAuth'])) {
 $error_message = isset($_SESSION['not_f_user']) ? $_SESSION['not_f_user'] : '';
 //print_r($error_message); die();
 unset($_SESSION['not_f_user']);
+if(isset($_SESSION['ArrayAuth'])){  
 
+    header("location: ./directorHead.php");
+    }
 ?>
 
 
@@ -69,8 +72,8 @@ unset($_SESSION['not_f_user']);
             <button id="next"
                 class=" absolute rounded-lg  right-4 top-1/2 transform -translate-y-1/2 bg-gray-500 text-white p-2  hover:bg-sky-400">Next</button>
 
-            <div class="absolute inset-0 flex mt-8 mb-8 sm:text-xs text-center m-auto shadow-xl rounded-lg sm:w-10/12   md:w-96 lg:w-96  xl:w-96 lg:text-xl md:text-lg 
-                2xl:bg-red-200 overflow-hidden border border-gray-800">
+            <div class="absolute inset-0 flex mt-8 mb-8 sm:text-xs text-center m-auto shadow-xl rounded-lg sm:w-10/12 top-1/4   md:w-96 lg:w-96 h-1/2 xl:w-96 lg:text-xl md:text-lg 
+                 ">
 
                 <form action="" class=" m-auto  xl:w-96 2xl:w-96 "
                     id="log_in_form" method="post">

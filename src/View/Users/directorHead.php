@@ -8,10 +8,15 @@ use App\Controller\UsersController;
 
 /**
  * @var array<\App\Entity\User> $users
+ * @var array<\App\Entity\User> $roles
  * @var array<\App\Controller\UsersController> $auth_user  
  * @var string<\App\Controller\UsersController> $flasMessage  
  * @var array<\App\Entity\User> $auth
  */
+if(!($_SESSION['ArrayAuth'])){  
+
+    header("location: ./../Users/signin.php");
+    } 
 ?>
 
 <!DOCTYPE html>
@@ -50,9 +55,19 @@ use App\Controller\UsersController;
                         class="fas fa-graduation-cap px-2"></i>Niveau</button>
                 <button class="text-white hover:bg-blue-400 p-2 rounded"><i
                         class="fas fa-user-graduate px-2"></i>Étudiants</button>
-                <button class="text-white hover:bg-blue-400 p-2 rounded"><i class="fas fa-home px-2"></i>Accueil</button>
+                <button class="text-white hover:bg-blue-400 p-2 rounded"><i
+                        class="fas fa-home px-2"></i>Accueil</button>
+                        <?php if (isset($_SESSION['ArrayAuth'])) { ?>
+                       <form action="signOut.php" method="post">
+                       <button type="sumbit" class="text-white hover:bg-blue-400 p-2 rounded
+                             " name="signout" id="btn_signout">
+                             Deconnexion
+                        </button>
+                       </form>
+                            
+                    <?php }  ?>
             </div>
-
+           
             <!-- Search Bar -->
             <div class=" m-2 rounded-lg w-full max-w-md flex items-center justify-center h-full">
                 <form action="" method="post" class="w-full flex">
@@ -99,11 +114,13 @@ use App\Controller\UsersController;
             </ul>
             <hr>
             <ul>
-                <h1 class="text-blue-700 font-bold w-full rounded p-1 m-0  "><i class="fas fa-user px-2"></i> Utilisateurs
+                <h1 class="text-blue-700 font-bold w-full rounded p-1 m-0  "><i class="fas fa-user px-2"></i>
+                    Utilisateurs
                 </h1>
                 <li><a href="addUser.php" class="block p-2 hover:bg-blue-800 hover:text-white rounded "><i
                             class="fas fa-plus px-2"></i> Ajouter</a></li>
-                <li><a href="#" class="block p-2 hover:bg-blue-800 hover:text-white rounded"><i class="fas fa-eye px-2"></i>
+                <li><a href="#" class="block p-2 hover:bg-blue-800 hover:text-white rounded"><i
+                            class="fas fa-eye px-2"></i>
                         voir les
                         Utilisateurs</a></li>
 
@@ -197,15 +214,14 @@ use App\Controller\UsersController;
                 <?php } ?>
 
                 <span id="flashMessage" class="mt-4 flex place-items-center text-red-500"><?php
-                if (isset($flashMessage)) {
-                    echo ($flashMessage);
+                if (isset($_SESSION['flasMessage'])) {
+                    echo $_SESSION['flasMessage'];
+                    unset($_SESSION['flasMessage']);
                 }
-                if (isset($_SESSION['flashMessage'])) {
-                    unset($_SESSION['flashMessage']);
-                } ?>
+                ?>
                 </span>
                 <!-- Bouton de téléchargement CSV -->
-      <!--   <div class="mb-4">
+                <!--   <div class="mb-4">
             <a href="download_csv.php" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                 Télécharger la liste
             </a>
@@ -235,10 +251,10 @@ use App\Controller\UsersController;
                                     Numéro de téléphone</th>
                                 <th
                                     class="text-center py-2 px-4 border-b-2 border-gray-200 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                                    Matricule</th>
+                                    Action</th>
                                 <th
                                     class="text-center py-2 px-4 border-b-2 border-gray-200 bg-gray-100 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                                    Action</th>
+                                    inscrire</th>
                             </tr>
                         </thead>
                         <tbody class="text-sm">
@@ -280,20 +296,24 @@ use App\Controller\UsersController;
                                     <td class="py-2 px-4 border-b border-gray-200  justify-center items-center">
                                         <?= ($user->getPhone_number()) ?>
                                     </td>
-                                    <td class="py-2 px-4 border-b border-gray-200  justify-center items-center">
-                                        <?= htmlspecialchars($user->getRegistration_number()) ?>
-                                    </td>
+                                   
                                     <td class="p-4 border-b border-gray-200 flex justify-between items-center">
                                         <button class="bg-blue-400 hover:bg-blue-500 text-white px-3 py-1 rounded"
                                             data-FistName="<?= $user->getFirst_name() ?>" data-name="<?= $user->getName() ?>"
                                             data-email="<?= $user->getMail() ?>"
                                             data-telephone="<?= $user->getPhone_number() ?>"
-                                            data-registrationNumber="<?= $user->getRegistration_number() ?>"
+                                            data-nomDuRole="<?= $user->getRole() ?>"
+                                            data-idDuRole="<?= $user->getRole_id() ?>"
                                             data-IdUser="<?= $user->getId() ?>" onclick="openEditUser(this)">
                                             <i class="fas fa-user-edit "></i></button>
                                         <button class="bg-red-300 hover:bg-red-400 text-white px-3 py-1 rounded"
                                             data-nom_1="<?= $user->getId() ?>" onclick="openDeleteModal(this)"><i
                                                 class="fa fa-trash" aria-hidden="true"></i></button>
+                                    </td>
+                                    <td class="py-2 px-4 border-b border-gray-200  justify-center items-center">
+                                    <a href="./../Student/changeUserToStudent.php?iduser=<?= $user->getId() ?>"><button class="bg-green-500 hover:bg-green-700 text-white px-3 py-1 rounded"
+                                             ><i
+                                                class="fas fa-graduation-cap" aria-hidden="true"></i> </button></a>
                                     </td>
 
                                 </tr>
@@ -310,7 +330,8 @@ use App\Controller\UsersController;
             <!-- End users list -->
 
             <!-- delete modal -->
-            <div id="deleteModal" class="container lg:w-2/5 flex-1  mx-auto fixed z-10 inset-0 overflow-y-auto hidden">
+            <div id="deleteModal"
+                class="container lg:w-2/5 flex-1 mt-20 mx-auto fixed z-10 inset-0 overflow-y-auto hidden">
                 <form class="bg-red-200 p-8 rounded-lg shadow-md w-full max-w-md " method="post" action="delete.php">
                     <h3>voulez-vous Supprimer <span id="DeleteNom" class="font-bold"> </span>?</h3>
 
@@ -387,7 +408,7 @@ use App\Controller\UsersController;
                             </div>
                             <div class="w-full">
                                 <label for="matriculeUser" class="text-black font-bold">Matricule: <br>
-                                    <input required type="text" placeholder="matricule" id="matriculeUser"
+                                    <input  type="text" placeholder="matricule" id="matriculeUser"
                                         name="matriculeUser"
                                         class="text-black font-normal rounded-md text-center sm:h-5 xl:h-10 lg:h-10 md:h-10 w-full placeholder-gray-400 border border-gray-400">
                                     <span id="matriculeUserError" class="text-red-500 text-xs"></span>
@@ -407,6 +428,26 @@ use App\Controller\UsersController;
                                     <span id="photoUserError" class="text-red-500 text-xs"></span>
                                 </label>
                             </div>
+                            <div class="w-full">
+                                <label for="photo_user" class="text-black font-bold">Nommer admin? <br>
+                                    <button type="button" id="btnOpenChangeRole" onclick="openChangeRole()"
+                                        class="bg-blue-500 sm:text-xs xl:text-xl p-1 h-10 w-1/3 hover:bg-blue-700 text-white font-bold rounded-md text-center">
+                                        <a href=""><i class="fas fa-graduation-cap"></i></a>
+                                    </button>
+                                    <?php if ((isset($roles)) && is_array($roles)) {?>
+                                    <select id="idRole" name="idRole" class="hidden py-2 px-4 border-b border-gray-200">
+                                        <option value="" id="roleUser"></option>
+                                        <?php
+
+                                        foreach ($roles as $rol): ?>
+                                            <option value="<?= $rol->getId() ?>">
+                                                <?= htmlspecialchars($rol->getRole()); ?>
+                                            </option>
+                                        <?php endforeach; }?>
+                                    </select>
+                            </div>
+                            </label>
+
 
                             <div class="w-full md:col-span-2">
                                 <?php if (isset($_SESSION['ArrayAuth'])): ?>
@@ -477,6 +518,12 @@ use App\Controller\UsersController;
         document.getElementById('imageModal').addEventListener('click', function () {
             document.getElementById('imageModal').classList.add('hidden');
         });
+    </script>
+    <script>
+        function openChangeRole(){
+            document.getElementById('idRole').classList.remove('hidden');
+            document.getElementById('btnOpenChangeRole').classList.add('hidden');
+        }
     </script>
 
 </body>

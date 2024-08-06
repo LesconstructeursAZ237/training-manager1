@@ -37,14 +37,19 @@ use App\Controller\UsersController;
                 alt=" logo">
 
             <span class="mt-8 text-justify capitalize font-serif text-white text-opacity-100 font-bold text-xl"
-                id="texte-start1">CENTRE DE FORMATION PROFESSIONNELLE LE LEADER EN INFORMATIQUE</span>
+                id="texte-start">CENTRE DE FORMATION PROFESSIONNELLE LE LEADER EN INFORMATIQUE</span>
             <ul class=" font-medium  flex flex-row items-center justify-center mt-4 overflow-hidden">
 
-                <li class="hover:bg-black  hover:text-white rounded-lg p-4 bg-blue-500 opacity-100">
+                <li class="hover:bg-black  hover:text-white rounded-lg p-4 ">
                     <?php if (isset($_SESSION['ArrayAuth'])) { ?>
-                        <button>
-                            <a href="signOut.php" class="text-white font-bold ">Deconnexion</a>
+                        
+                       <form action="signOut.php" method="post">
+                       <button type="sumbit" class="text-white hover:bg-blue-400 p-2 rounded
+                             " name="signout" id="btn_signout">
+                             Deconnexion
                         </button>
+                       </form>
+                    
                     <?php } else { ?>
                         <button>
                             <a href="signin.php" class="text-white font-bold ">Connexion</a>
@@ -57,7 +62,7 @@ use App\Controller\UsersController;
             <button id="main_nav" class=" justify-between ">
 
                 <span
-                    class="text-white font-bold bg-blue-400 opacity-70 hover:bg-black  hover:text-white  rounded-lg p-4">
+                    class="text-white font-bold bg-black hover:bg-blue-500  hover:text-white  rounded-lg p-4">
                     MENU
                 </span>
 
@@ -67,23 +72,23 @@ use App\Controller\UsersController;
 
                 <ul class=" font-medium flex flex-row justify-between ">
 
-                    <li class=" hover:bg-black  hover:text-white  rounded-lg p-4 bg-blue-500 opacity-100">
+                    <li class="  rounded-lg p-4  hover:bg-black  hover:text-white ">
                         <a href="#" class="text-white font-bold ">FORMATIONS</a>
                     </li>
 
-                    <li class="  hover:bg-black  hover:text-white  rounded-lg p-4 bg-blue-500 opacity-100">
+                    <li class="   rounded-lg p-4 hover:bg-black  hover:text-white ">
                         <a href="#" class="text-white font-bold">EVENEMENTS</a>
                     </li>
 
-                    <li class="  hover:bg-black  hover:text-white  rounded-lg p-4 bg-blue-500 opacity-100">
+                    <li class="  rounded-lg p-4 hover:bg-black  hover:text-white ">
                         <a href="#" class="text-white font-bold">ETUDIANTS</a>
                     </li>
 
-                    <li class="  hover:bg-black  hover:text-white  rounded-lg p-4 bg-blue-500 opacity-100">
+                    <li class=" rounded-lg p-4 hover:bg-black  hover:text-white ">
                         <a href="#" class="text-white font-bold">ENSEIGNANTS</a>
                     </li>
 
-                    <li class="  hover:bg-black  hover:text-white  rounded-lg p-4 bg-blue-500 opacity-100">
+                    <li class=" rounded-lg p-4 hover:bg-black  hover:text-white ">
                         <a href="#" class="text-white font-bold">autre</a>
                     </li>
 
@@ -97,14 +102,14 @@ use App\Controller\UsersController;
     <div class=" flex float-none items-center justify-center h-screen col-start-2 col-span-4 overflow-hidden">
         <div id="slider" class=" bg-white p-4 relative float">
 
-            <img src="<?= IMG_PATH_PROJET . 'equipefootball2.jpg' ?>" alt="Image 1"
+            <img src="<?= USERS_TO_IMG_PATH.'equipefootball2.jpg' ?>" alt="Image 1"
                 class="w-full h-full object-contain hidden">
 
-            <img src="./../../../assets/img/cotidiene2.jpg" alt="Image 1" class="w-full h-full object-contain hidden">
+            <img src="<?= USERS_TO_IMG_PATH . 'cotidiene2.jpg' ?>" alt="Image 1" class="w-full h-full object-contain hidden">
 
-            <img src="./../../../assets/img/aceuil3.jpg" alt="Image 1" class="w-full h-full object-contain hidden">
+            <img src="<?= USERS_TO_IMG_PATH.'aceuil3.jpg' ?>" alt="Image 1" class="w-full h-full object-contain hidden">
 
-            <img src="./../../../assets/img/acceuil4.jpg" alt="Image 1" class="w-full h-full object-contain hidden">
+            <img src="<?= USERS_TO_IMG_PATH.'acceuil4.jpg' ?>" alt="Image 1" class="w-full h-full object-contain hidden">
             <div
                 class="absolute inset-0 flex text-6xl text-center top-1/2  capitalize font-serif text-white text-opacity-100">
                 devenez <br>leader <br> dans un domaine.
@@ -148,7 +153,7 @@ use App\Controller\UsersController;
 
 
         <div class="overflow-auto p-1 bg-white shadow-2xl rounded-md text-center">
-            <img src="./../../../assets/img/acceuil2.jpg" class="w-full h-3/4 float-left object-cover rounded-md"
+            <img src="<?= USERS_TO_IMG_PATH .'acceuil2.jpg' ?>" class="w-full h-3/4 float-left object-cover rounded-md"
                 alt="">
             <h1 class="font-bold text-center">Filiere: Developpement d'application (DA)</h1>
             <h4>Prix: 200Fcrs <br>

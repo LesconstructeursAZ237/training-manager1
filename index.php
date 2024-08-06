@@ -14,4 +14,4 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'autoload.php';
 /**
  * Redirect to the main view of your app
  */
-require_once APP_DIR . DS . 'View' . DS . 'Users' . DS . 'index.php';
+require_once APP_DIR . DS . 'View' . DS . 'Users' . DS . 'Aindex.php';

@@ -31,6 +31,109 @@ class TrainingsServices
             return "<div class='alert alert-danger'> Cannot connect to database. Reason : <span class='fw-bold'> " . $connectionManager->getError() . "</div>";
         }
     }
+     //*  etape 1 : Méthode pour obtenir les training_id des formations déjà inscrites pour un etudiant*/
+public function getTrainingsForStudent(int $studentId): ?array
+{
+    // Exécution de la première requête pour obtenir les training_id
+    $sql1 = "SELECT rt.training_id
+             FROM registration_trainings rt
+             INNER JOIN registrations r ON rt.registration_id = r.id
+             WHERE r.student_id = :student_id";
+
+    $st1 = $this->_pdo->prepare($sql1);
+    $st1->bindValue(':student_id', $studentId, \PDO::PARAM_INT);
+    $st1->execute();
+    $result = $st1->fetchAll(\PDO::FETCH_ASSOC);
+
+    // Convertir les résultats en un tableau de valeurs
+    $trainingIds = [];
+    foreach ($result as $row) {
+        $trainingIds[] = (int) $row['training_id'];
+    }
+
+    // Si le tableau est vide, définir une valeur qui ne correspondra à aucun ID
+    if (empty($trainingIds)) {
+        return NULL;
+    } else {
+        return $trainingIds;
+    }
+}
+/* Étape 3 : Méthode pour obtenir les formations dont l\'etudiant n\'est pas encore inscrite*/
+public function getNewTrainingsForStudent( string $chaine): ?array
+    {
+
+        $reqst = "SELECT 
+        t.id AS training_id,
+        t.code,
+        t.descriptions,
+        t.durations,
+        t.price,
+        t.statut,
+        GROUP_CONCAT(DISTINCT l.id SEPARATOR ', ') AS level_ids,
+        GROUP_CONCAT(DISTINCT l.names SEPARATOR ', ') AS levels,
+        l.availabilities
+        
+    FROM 
+        trainings t
+    LEFT JOIN 
+        training_levels tl ON t.id = tl.training_id
+    LEFT JOIN 
+        levels l ON tl.level_id = l.id
+    WHERE 
+       t.id NOT IN ($chaine)
+    AND delete_training=:deleteT AND l.availabilities='ouvert' AND t.statut='ouvert'
+
+    GROUP BY 
+        t.id, t.code, t.descriptions, t.durations, t.price
+    ORDER BY 
+        l.names ASC";
+  
+
+        $getTraining = $this->_pdo->prepare($reqst);
+        $getTraining->bindValue(':deleteT', 0);
+        $getTraining->execute();
+
+        $allTrainings = $getTraining->fetchAll(\PDO::FETCH_ASSOC);
+        $trainings = [];
+        foreach ($allTrainings as $al) {
+            $training = new Training([
+                'id' => $al['training_id'], // Utiliser l'alias 'training_id' pour 'id'
+                'levelName' => $al['levels'], // Utiliser l'alias 'levels' pour 'levelName'
+                'code' => $al['code'],
+                'levelAvailabilities' => $al['availabilities'], // Utiliser 'availabilities' pour 'levelAvailabilities'
+                'descriptions' => $al['descriptions'],
+                'durations' => $al['durations'],
+                'price' => $al['price'],
+                'statut' => $al['statut'],
+                '_level_id' => $al['level_ids'],
+
+            ]);
+            $trainings[] = $training;
+        }
+       
+        return $trainings;
+        
+    }
+
+public function getAvailableTrainingsForStudent(int $studentId): ?array
+{
+ 
+    $trainingIds = $this->getTrainingsForStudent($studentId);   
+
+    if (is_null($trainingIds)) {
+        // Si l'utilisateur n'est inscrit à aucune formation, retourner toutes les formations
+       
+        return $this->getTrainings();
+    } else {
+        // Convertir le tableau en une chaîne de caractères compatible avec SQL
+        $trainingIdsString = implode(', ', $trainingIds); 
+      
+        return $this->getNewTrainingsForStudent($trainingIdsString);
+        // Utiliser cette chaîne de caractères dans la clause NOT IN de la deuxième requête
+
+    }
+}
+ 
     public function getIdOneElement($tableName, $columName, $close): ?int
     {
 
@@ -90,10 +193,11 @@ class TrainingsServices
         $durations1 = $trainingDatas->getDurations();
         $modified1 = $trainingDatas->getModified();
 
-        $sql = "SELECT code FROM trainings WHERE code = :CODE ";
+        $sql = "SELECT code FROM trainings WHERE code = :CODE AND delete_training=:delete_training ";
         $request = $this->_pdo->prepare($sql);
 
         $request->bindParam(':CODE', $code1);
+        $request->bindValue(':delete_training', 0);
 
         $request->execute();
         /* Récupérer le nombre de lignes renvoyées par la requête*/
@@ -149,8 +253,10 @@ class TrainingsServices
         t.descriptions,
         t.durations,
         t.price,
+        t.statut,
         GROUP_CONCAT(DISTINCT l.names SEPARATOR ', ') AS levels,
         l.availabilities
+        
     FROM 
         trainings t
     LEFT JOIN 
@@ -159,7 +265,8 @@ class TrainingsServices
         levels l ON tl.level_id = l.id
     WHERE 
         t.id > :parameter
-    AND delete_training=:deleteT
+    AND delete_training=:deleteT 
+
     GROUP BY 
         t.id, t.code, t.descriptions, t.durations, t.price
     ORDER BY 
@@ -183,6 +290,7 @@ class TrainingsServices
                 'descriptions' => $al['descriptions'],
                 'durations' => $al['durations'],
                 'price' => $al['price'],
+                'statut' => $al['statut'],
 
             ]);
             $trainings[] = $training;
@@ -223,7 +331,25 @@ class TrainingsServices
 
     public function update(array $data, array $tabLevel=null): int
     {
+      
         
+    $code1 = (new Training($data))->getCode(); 
+    $id1 = (int)(new Training($data))->getId(); 
+    $sql = "SELECT code FROM trainings WHERE code =:code AND id!=:id AND delete_training=:delete_training";
+    $request = $this->_pdo->prepare($sql);
+
+    $request->bindParam(':id', $id1,\PDO::PARAM_INT);
+    $request->bindValue(':delete_training', 0,\PDO::PARAM_INT);
+    $request->bindParam(':code', $code1,\PDO::PARAM_STR);
+
+    $request->execute();
+    /* Récupérer le nombre de lignes renvoyées par la requête*/
+    $rowCount = $request->rowCount();
+    if ($rowCount > 0) {
+
+        return 2;   /*formation existe deja existe deja*/
+    }
+    
 if(empty($tabLevel)){
     
     $trainingDatas = new Training($data);
@@ -234,6 +360,7 @@ if(empty($tabLevel)){
     $price = $trainingDatas->getPrice();
     $modified = $trainingDatas->getModified();
     $id = intval($trainingDatas->getId());
+
 
     // print_r($trainingDatas);  die();
 
@@ -369,5 +496,44 @@ if(empty($tabLevel)){
 
     }
 
+    public function openAndCloseTraining(array $idTraining){
 
+        
+        $trainingDatas = new Training($idTraining);
+        $checkId = intval($trainingDatas->getId());
+        $sql1 = "SELECT statut FROM trainings WHERE id= :paramet ";
+        $req = $this->_pdo->prepare($sql1);
+
+        $req->bindParam(':paramet', $checkId);
+        $req->execute();
+
+        $result = $req->fetch(\PDO::FETCH_ASSOC);
+        $defaultAvailabilities = $result['statut'];
+            if($defaultAvailabilities=='ouvert'){
+                $updateL = $this->_pdo->prepare("UPDATE trainings 
+                SET statut = :statut             
+                WHERE id = :id");
+                  $updateL->bindParam(':id', $checkId, \PDO::PARAM_STR);
+                  $updateL->bindValue(':statut', 'fermer', \PDO::PARAM_STR);
+                  if($updateL->execute()){
+                    return 1;
+                }
+                else{
+                    return 0;
+                } 
+            }
+            else{
+                $updateL = $this->_pdo->prepare("UPDATE trainings 
+                SET statut = :statut             
+                WHERE id = :id");
+                  $updateL->bindParam(':id', $checkId, \PDO::PARAM_STR);
+                  $updateL->bindValue(':statut', 'ouvert', \PDO::PARAM_STR);
+                  if($updateL->execute()){
+                    return 1;
+                }
+                else{
+                    return 0;
+                }
+            }
+    }
 }

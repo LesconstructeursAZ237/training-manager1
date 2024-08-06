@@ -9,9 +9,9 @@ use App\Controller\RegistrationController;
 
 /**
  * @var string<\App\Controller\UsersController> $auth_user 
- * @var array<\App\Entity\Level> $levels
+ * @var array<\App\Entity\Level> $levels 
  * @var string<\App\Controller\TrainingsController> $flasMessage  
-
+ * @var array<\App\Entity\Sessions> $sessionsProject  
  */
 
  if(!($_SESSION['ArrayAuth'])){  
@@ -57,6 +57,15 @@ use App\Controller\RegistrationController;
                 <button class="text-white hover:bg-blue-400 p-2 rounded"><i
                         class="fas fa-user-graduate px-2"></i>Étudiants</button>
                 <button class="text-white hover:bg-blue-400 p-2 rounded"><i class="fas fa-home px-2"></i>Accueil</button>
+                <?php if (isset($_SESSION['ArrayAuth'])) { ?>
+                       <form action="../Users/signOut.php" method="post">
+                       <button type="sumbit" class="text-white hover:bg-blue-400 p-2 rounded
+                             " name="signout" id="btn_signout">
+                             Deconnexion
+                        </button>
+                       </form>
+                            
+                    <?php }  ?>
             </div>
 
             <!-- Search Bar -->
@@ -122,6 +131,16 @@ use App\Controller\RegistrationController;
                 </li>
             </ul>
             <hr>
+            <ul>
+                <h1 class="text-blue-700 font-bold w-full rounded p-1 m-0  "><i
+                        class="fas fa-graduation-cap px-2"></i></i>
+                    Etudiant</h1>
+              
+                <li><a href="./../Student/getStudent.php"
+                        class="block p-2 hover:bg-blue-800 hover:text-white  rounded"><i class="fas fa-eye px-2"></i>
+                        voir
+                        les Étudiants</a></li>
+            </ul> <hr>
             <ul>
                 <h1 class="text-blue-700 font-bold w-full rounded p-1 m-0  "><i
                 class="fas fa-calendar-alt px-2"></i>Évenements</h1>
@@ -260,39 +279,42 @@ use App\Controller\RegistrationController;
                         <h2 class="text-lg font-bold mb-6 text-blue-500">Partie 3: Choix de la/des formation(s) et
                             niveau(x)</h2>
 
-
+                            <span id="partie3Error" class="text-red-500 text-sm"></span>
                         <?php if (isset($trainings) && is_array($trainings) && !empty($trainings)) { ?>
-
                             <?php foreach ($trainings as $index => $training) { ?>
-                                <div class="flex space-x-4">
+                                <div class="flex space-x-4 mb-4">
                                     <label class="block text-gray-700 text-md font-bold mb-2 uppercase">
-                                        <?= $training->getDescriptions() ?> (<?= $training->getCode() ?>):
+                                        <?= htmlspecialchars($training->getDescriptions()) ?>
+                                        (<?= htmlspecialchars($training->getCode()) ?>):
                                         <input type="checkbox" id="training-<?= $index ?>" class="training-checkbox mr-2"
-                                            name="training[<?= $index ?>]" value="<?= $training->getId() ?>">
+                                            name="training[<?= $index ?>]" value="<?= htmlspecialchars($training->getId()) ?>"
+                                            onclick="voirLesNiveaux('training-<?= $index ?>-levels')">
                                     </label>
                                 </div>
-
-                                <?php
-                           
-                                ?>
-
-                                <span id="partie3Error" class="text-red-500 text-sm"></span>
-                                <div class="overflow-x-auto">
-                                    <div class="flex space-x-4">
+                                <div id="training-<?= $index ?>-levels" class="levels-container hidden mb-4">
+                                    <select name="level[<?= $index ?>]"
+                                        class="block w-1/2 bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline">
+                                      
                                         <?php foreach ($training->getLevel() as $levelIndex => $levelName) { ?>
-                                            <div class="flex items-center">
-                                                <input type="checkbox" id="level-<?= $index ?>-<?= $levelIndex ?>"
-                                                    class="level-checkbox training-<?= $index ?>-level-checkbox mr-2"
-                                                    name="level[<?= $index ?>][<?= $levelIndex ?>]" value="<?=  $levelIndex ?>">
-                                                <label for="level-<?= $index ?>-<?= $levelIndex ?>"
-                                                    class="text-gray-700"><?= htmlspecialchars($levelName)?> </label>
-                                            </div>
+                                            <option value="<?= htmlspecialchars($levelIndex) ?>"><?= htmlspecialchars($levelName) ?>
+                                            </option>
                                         <?php } ?>
-                                    </div>
+                                    </select>
                                 </div>
                             <?php } ?>
-
                         <?php } ?>
+                        <h2 class="text-lg font-bold mb-6 text-blue-500">Partie 4: Choix de la  sessions
+                            </h2>
+                            <div id="" class=" mb-4">
+                                    <select name="sessionsStudent"
+                                        class="block w-1/2 bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline">
+                                      
+                                        <?php foreach ($sessionsProject as $sessionsP) { ?>
+                                            <option value="<?=$sessionsP->getId() ?>"><?=$sessionsP->getAccademic_year() ?>
+                                            </option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
 
                         <div class="flex justify-between align-items-center space-x-4">
                             <button type="submit" name="btnAddStudent" id="btnAddStudent"
@@ -309,8 +331,15 @@ use App\Controller\RegistrationController;
 
 
         <script src="./../../../assets/js/DirectorHead.js"></script>
-        <script src="./../../../assets/js/formAddStudent.js"></script>
+        <script src="./../../../assets/js/formulaireAddStudent.js"></script>
 
+        <script>
+            /* cliker sur une formation pour afficher les niveaux */
+        function voirLesNiveaux(levelsContainerId) {
+            var levelsContainer = document.getElementById(levelsContainerId);
+            levelsContainer.classList.toggle('hidden');
+        }
+    </script>
 
 
 </body>

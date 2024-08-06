@@ -192,3 +192,6 @@ INNER JOIN registrations r 	ON u.id=r.student_id
 INNER JOIN registration_trainings rt On r.id=rt.registration_id
 INNER JOIN trainings t ON rt.training_id=t.id
 INNER JOIN levels l ON rt.level_id=l.id"
+
+
+ 

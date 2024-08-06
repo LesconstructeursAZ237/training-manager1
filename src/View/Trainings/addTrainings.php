@@ -13,6 +13,10 @@ use App\Controller\TrainingsController;
  * @var string<\App\Controller\TrainingsController> $flasMessage  
 
  */
+if(!($_SESSION['ArrayAuth'])){  
+
+    header("location: ./../Users/signin.php");
+    }
 ?>
 
 
@@ -47,6 +51,15 @@ use App\Controller\TrainingsController;
             <button class="text-white hover:bg-blue-400 p-2 rounded" ><i class="fas fa-graduation-cap px-2"></i>Niveau</button>
             <button class="text-white hover:bg-blue-400 p-2 rounded"><i class="fas fa-user-graduate px-2"></i>Étudiants</button>
             <button class="text-white hover:bg-blue-400 p-2 rounded"><i class="fas fa-home px-2"></i>Accueil</button>
+            <?php if (isset($_SESSION['ArrayAuth'])) { ?>
+                       <form action="../Users/signOut.php" method="post">
+                       <button type="sumbit" class="text-white hover:bg-blue-400 p-2 rounded
+                             " name="signout" id="btn_signout">
+                             Deconnexion
+                        </button>
+                       </form>
+                            
+                    <?php }  ?>
         </div>
 
         <!-- Search Bar -->
@@ -98,7 +111,17 @@ use App\Controller\TrainingsController;
             <h1 class="text-blue-700 font-bold w-full rounded p-1 m-0 ">Niveau</h1>
             <li><a href="./../Level/addLevels.php" class="block p-2 hover:bg-blue-800  hover:text-white rounded">ajouter</a></li>
             <li><a href="./../Level/getLevels.php" class="block p-2 hover:bg-blue-800  hover:text-white rounded">voir les Niveaux</a></li>         
-        </ul>
+        </ul><hr>
+        <ul>
+                <h1 class="text-blue-700 font-bold w-full rounded p-1 m-0  "><i class="fas fa-graduation-cap"></i>
+                    Etudiant</h1>
+                <li><a href="./../Student/addStudent.php"
+                        class="block p-2 hover:bg-blue-800 hover:text-white  rounded"><i class="fas fa-plus"></i>
+                        ajouter</a></li>
+                <li><a href="./../Student/getStudent.php"
+                        class="block p-2 hover:bg-blue-800 hover:text-white  rounded"><i class="fas fa-eye"></i> voir
+                        les Étudiants</a></li>
+            </ul>
         <hr>
         <ul>
             <h1 class="text-blue-700 font-bold w-full rounded p-1 m-0 ">Évenements</h1>

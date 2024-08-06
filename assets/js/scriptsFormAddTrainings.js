@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('TrainingsAdd');
 
     const fields = [
-        { id: 'codes', minLength: 2, maxLength: 4, type: 'text' },
+        { id: 'codes', minLength: 2, maxLength: 2, type: 'text' },
         { id: 'descriptions', minLength: 5, maxLength: 50, type: 'text' },
         { id: 'prices', minValue: 5000, type: 'number' },
         { id: 'durations', minValue: 1,maxLength: 8, type: 'number' }
@@ -27,7 +27,15 @@ document.addEventListener('DOMContentLoaded', function () {
         const value = input.value.trim();
         const errorElement = document.getElementById(field.id + 'Error');
 
-        if (field.type === 'text') {
+        if ((field.type === 'text') && (field.id === 'codes') ){
+            if (value.length < field.minLength) {
+                errorMessage = `Minimum ${field.minLength} caractères requis.`;
+            } else if (value.length > field.maxLength) {
+                errorMessage = `Maximum ${field.maxLength} caractères autorisés.`;
+            }
+
+        }
+        else if ((field.type === 'text') && (field.id === 'descriptions') ){
             if (value.length < field.minLength) {
                 errorMessage = `Minimum ${field.minLength} caractères requis.`;
             } else if (value.length > field.maxLength) {
@@ -67,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('TrainingsAdd');
 
     const fields = [
-        { id: 'codes', minLength: 2, maxLength: 4, type: 'text' },
+        { id: 'codes', minLength: 2, maxLength: 2, type: 'text' },
         { id: 'descriptions', minLength: 5, maxLength: 50, type: 'text' },
         { id: 'prices', minValue: 5000, type: 'number' },
         { id: 'durations', minValue: 1, maxLength: 8, type: 'number' }
@@ -85,13 +93,22 @@ document.addEventListener('DOMContentLoaded', function () {
         const value = input.value.trim();
         const errorElement = document.getElementById(field.id + 'Error');
 
-        if (field.type === 'text') {
+        if ((field.type === 'text') && (field.id === 'codes') ) {
             if (value.length < field.minLength) {
                 errorMessage = `Minimum ${field.minLength} caractères requis.`;
             } else if (value.length > field.maxLength) {
                 errorMessage = `Maximum ${field.maxLength} caractères autorisés.`;
             }
-        } else if (field.type === 'number') {
+        }
+        if ((field.type === 'text') && (field.id === 'descriptions') ) {
+            if (value.length < field.minLength) {
+                errorMessage = `Minimum ${field.minLength} caractères requis.`;
+            } else if (value.length > field.maxLength) {
+                errorMessage = `Maximum ${field.maxLength} caractères autorisés.`;
+            }
+        }
+        
+        else if (field.type === 'number') {
             const numberValue = parseFloat(value);
             if (field.id === 'durations') {
                 if (isNaN(numberValue) || numberValue < field.minValue) {
@@ -130,8 +147,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (!codes || !descript || !prix || !duree) {
             errorMessage = 'Veuillez remplir tous les champs.';
-        } else if (codes.length < 2 || codes.length > 4) {
-            errorMessage = 'Le champ code doit contenir entre 2 et 4 caractères.';
+        } else if (codes.length < 2 || codes.length > 2) {
+            errorMessage = 'Le champ code doit contenir 2 caractères.';
         } else if (!regexCodes.test(codes)) {
             errorMessage = 'Le champ code ne doit contenir que des caractères alphabétiques.';
         } else if (descript.length < 5) {
@@ -143,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function () {
         } else if (!regexPrix.test(prix)) {
             errorMessage = 'Le champ prix doit être un nombre valide.';
         } else if (duree < 1 || duree > 8) {
-            errorMessage = 'La durée doit être comprise entre 1 et 7.';
+            errorMessage = 'La durée doit être comprise entre 1 et 7ans.';
         } else if (!regexDuree.test(duree)) {
             errorMessage = 'La durée doit être comprise entre 1 et 7.';
         }

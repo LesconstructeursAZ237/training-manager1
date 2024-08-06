@@ -73,6 +73,24 @@ class LevelsController
     
   
  }
+ public function delete(){
+    if(isset($_POST['btndeleteLevel'])){
+    
+        $deleted = $this->levelServices ->delete(intval($_POST['iddeleteLevel'])); 
+        if($deleted===1){
+            $SE1 = new SessionManager();
+            $SE1->set('flashMessage','suppression reuissir!');
+            $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+            header("location: ./../Level/getLevels.php");
+        }
+        else{
+            $SE1 = new SessionManager();
+            $SE1->set('flashMessage','echec de suppression!');
+            $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+            header("location: ./../Level/getLevels.php");
+        }
+    }
+ }
  public function update(){
     
     if(isset($_SESSION['flashMessage'])){
@@ -85,12 +103,18 @@ class LevelsController
                   /*  echo $level_id; die(); */
             $updateLevel =  $this->levelServices->closeAndOpenLevel($level_id);
 
-            if ($updateLevel==1) {
+            if ($updateLevel===1) {
                
                     $SE1 = new SessionManager();
                     $SE1->set('flashMessage','mise a jour reuissir!');
                     $_SESSION['flashMessage'] = $SE1->get('flashMessage');
                     header("location: ./../Level/getLevels.php");
+            }
+            else{
+                $SE1 = new SessionManager();
+                $SE1->set('flashMessage','mise a jour echouer!');
+                $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+                header("location: ./../Level/getLevels.php");
             }
 
     

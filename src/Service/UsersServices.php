@@ -39,7 +39,7 @@ class UsersServices
 
 
 
-    public function registrationUser(string $name, string $firstName, string $mail, string $phone_number, $birth_date, string $photo_user, string $pwd, $created_by): int
+    public function registrationUser(string $name, string $firstName, string $mail, string $phone_number, $birth_date, string $photo_user, string $pwd, $created_by): int|string
     {
         //print_r($firstName);  die();
 
@@ -70,7 +70,7 @@ class UsersServices
         global $var_retour;
 
 
-        $request1 = "SELECT mail, phone_number FROM users WHERE mail = :mail AND deleted=:deleted";
+        $request1 = "SELECT mail FROM users WHERE mail = :mail AND deleted=:deleted";
         $select_request1 = $this->_pdo->prepare($request1);
 
         $select_request1->bindParam(':mail', $mail1);
@@ -98,79 +98,11 @@ class UsersServices
             $saveUser->bindParam(':CREAT', $created_by);
             $saveUser->bindParam(':ROLEID', $role1);   //role = 1 pour etudiant  
 
-            if ($saveUser->execute()) {
-                $request2 = "SELECT id FROM users WHERE mail = :mail AND phone_number = :phone";
-                $select_request2 = $this->_pdo->prepare($request2);
-
-                $select_request2->bindParam(':mail', $mail1);
-                $select_request2->bindParam(':phone', $phone_number1);
-
-                $value_id = $select_request2->execute();
-                // Récupérer le nombre de lignes renvoyées par la requête
-                $rowCount1 = $select_request2->rowCount();
-                if ($rowCount1 > 0) {
-                    $result3 = $select_request2->fetchAll();
-                    foreach ($result3 as $row3) {
-                        $val0 = $row3['id'];
-                        //$val1 = substr($val0, -4);
-
-                    }
-                }
-                if ($rowCount1 > 0) {
-                    $final_value_id = strval($val0);// convertir en chaine de carracte
-
-                    $L = strlen($final_value_id);
-                    global $L1;
-                    switch ($L) {
-                        case 1:
-                            $L1 = '000' . $final_value_id;
-                            break;
-                        case 2:
-                            $L1 = '00' . $final_value_id;
-                            break;
-                        case 3:
-                            $L1 = '0' . $final_value_id;
-                            break;
-                        case 4:
-                            $L1 = $final_value_id;
-                            break;
-                        case $L > 4:
-                            $L1 = substr($final_value_id, -4);
-                            break;
-                        // autre cas
-                        // autre cas
-                        default:
-                            $L1 = substr($final_value_id, -4);
-                            break;
-                    }
-                    $actual_year1 = strval(date("Y")); // l'annee en cours
-                    $actual_year2 = substr($actual_year1, -2); // extraire les 2 derniere chiffres de l'annee en cours
-                    $registration_number10 = 'IFPLI' . '-' . $actual_year2 . '-' . $L1; // concatenation pour obtenir le matricule
-
-                    $saveRegistNumber = $this->_pdo->prepare("UPDATE Users 
-                                          SET registration_number = :REG 
-                                          WHERE mail = :mail AND phone_number = :phone"); // requete pour enregistrer le matricule
-
-                    $saveRegistNumber->bindParam(':REG', $registration_number10);
-                    $saveRegistNumber->bindParam(':mail', $mail1);
-                    $saveRegistNumber->bindParam(':phone', $phone_number1);
-
-                    $saveRegistNumber->execute();
-                    if ($saveRegistNumber) {
-                        return 1; // enregistrement success
-
-                    } else {
-                        return 2;// echec matricule 
-
-                    }
-
-                } else {
-                    return 22;// echec sur recuperation id 
-
-                }
+            if ($saveUser->execute()) {               
+                    return 1;
 
             } else {
-                $var_retour = 21;//echec d'eregistrement premier champs  
+                $var_retour = 'echec d\'insertion de l\'utilisateur';//echec d'eregistrement premier champs  
             }
         }
         return $var_retour;
@@ -242,6 +174,7 @@ class UsersServices
             $user->setPhone_number($userData['phone_number']);
             $user->setRegistration_number($userData['registration_number']);
             $user->setRole($userData['name']);
+            $user->setRole_id($userData['role_id']);
             $users[] = $user;
         }
 
@@ -379,12 +312,105 @@ class UsersServices
 
 
     }
+    public function verifieUniqueEmail($idUser, $email) : bool{
+        $request1 = "SELECT mail FROM users WHERE mail = :mail AND deleted=:deleted AND id!=:id";
+        $select_request1 = $this->_pdo->prepare($request1);
+    
+        $select_request1->bindParam(':mail', $email);
+        $select_request1->bindValue(':deleted', 0);
+        $select_request1->bindParam(':id', $idUser);
+    
+        $select_request1->execute();
+    
+        /*Récupérer le nombre de lignes renvoyées par la requête*/
+        $rowCount = $select_request1->rowCount();
+        if ($rowCount >0) {
+    
+            return true;   /* un utilisateur a deja cette adresse email*/
+    
+        }
+        return false; 
+    }
+   
+    public function updateNewUser(array $data): int{
+        $updatval = new User($data);
+        $tPhoto=$updatval->getPhoto_user();
+        $tDate=$updatval->getBirth_date();
+        $roleId=intval($updatval->getRole_id()); 
+        $mail = $updatval->getMail();
+        $id = $updatval->getId();
+        $nom = $updatval->getName();
+        $prenom = $updatval->getFirst_name();
+        $telephone = $updatval->getPhone_number();
+        $modified = $updatval->getCreate_by();
+        $matricule = $updatval->getRegistration_number();
+        $mofdifiedDate = date('y-m-d');
+
+  
+        if($this->verifieUniqueEmail($id, $mail)){
+            return 2; 
+        }
+
+        $updatval1 = $this->_pdo->prepare("UPDATE Users 
+            SET   last_name = :last_name,
+                  first_name = :first_name, 
+                  mail = :mail, 
+                  phone_number = :phone_number, 
+                  registration_number = :registration_number, 
+                  modifie_by = :modifie_by, 
+                  modifie_date = :modifie_date,
+                  birth_date = :birth_date,
+                  birth_date = :birth_date,
+                  photo_user = :photo_user,
+                  role_id = :role_id
+              WHERE id = :id AND deleted=0");
+               $updatval1->bindParam(':id', $id, \PDO::PARAM_INT);
+               $updatval1->bindParam(':first_name', $prenom, \PDO::PARAM_STR);
+               $updatval1->bindParam(':last_name', $nom, \PDO::PARAM_STR);
+               $updatval1->bindParam(':mail', $mail, \PDO::PARAM_STR);
+               $updatval1->bindParam(':phone_number', $telephone, \PDO::PARAM_STR);
+               $updatval1->bindParam(':registration_number', $matricule, \PDO::PARAM_STR);
+               $updatval1->bindParam(':modifie_by', $modified, \PDO::PARAM_STR);
+               $updatval1->bindParam(':modifie_date', $mofdifiedDate, \PDO::PARAM_STR);
+               $updatval1->bindParam(':role_id', $roleId, \PDO::PARAM_INT);
+               $updatval1->bindParam(':birth_date', $tDate, \PDO::PARAM_STR);
+               $updatval1->bindParam(':photo_user', $tPhoto, \PDO::PARAM_STR);
+   
+            if ($updatval1->execute()) {
+                return 1;
+            } else {
+                return 0;
+            }
+
+  
+    }
     public function updateUser(array $userData): int
     {
         $updatval = new User($userData);
             $testPhoto=$updatval->getPhoto_user();
             $testDate=$updatval->getBirth_date();
+            $roleId=intval($updatval->getRole_id()); 
+            $mail1 = $updatval->getMail();
+            $id = $updatval->getId();
+        $request1 = "SELECT mail FROM users WHERE mail = :mail AND deleted=:deleted AND id!=:id";
+        $select_request1 = $this->_pdo->prepare($request1);
+
+        $select_request1->bindParam(':mail', $mail1);
+        $select_request1->bindValue(':deleted', 0);
+        $select_request1->bindParam(':id', $id);
+
+        $select_request1->execute();
+
+        /*Récupérer le nombre de lignes renvoyées par la requête*/
+        $rowCount = $select_request1->rowCount();
+        if ($rowCount >0) {
+
+            return 20;   /* un utilisateur a deja cette adresse email*/
+
+        } 
+
         if (($testPhoto=='') && ($testDate=='')) {
+        
             $updatval1 = $this->_pdo->prepare("UPDATE Users 
             SET   last_name = :last_name,
                   first_name = :first_name, 
@@ -392,109 +418,122 @@ class UsersServices
                   phone_number = :phone_number, 
                   registration_number = :registration_number, 
                   modifie_by = :modifie_by, 
-                  modifie_date = :modifie_date
+                  modifie_date = :modifie_date,
+                  role_id = :role_id
               WHERE id = :id");
-            $id = $updatval->getId();
-            $Fname = $updatval->getFirst_name();
-            $name = $updatval->getName();
-            $mail = $updatval->getMail();
-            $phone = $updatval->getPhone_number();
-            $matricule = $updatval->getRegistration_number();
-            $modifieBy = $updatval->getModified_by();
-            $modifiedDate = $updatval->getModified_date();
-            $updatval1->bindParam(':id', $id, \PDO::PARAM_STR);
-            $updatval1->bindParam(':first_name', $Fname, \PDO::PARAM_STR);
-            $updatval1->bindParam(':last_name', $name, \PDO::PARAM_STR);
-            $updatval1->bindParam(':mail', $mail, \PDO::PARAM_STR);
-            $updatval1->bindParam(':phone_number', $phone, \PDO::PARAM_STR);
-            $updatval1->bindParam(':registration_number', $matricule, \PDO::PARAM_STR);
-            $updatval1->bindParam(':modifie_by', $modifieBy, \PDO::PARAM_STR);
-            $updatval1->bindParam(':modifie_date', $modifiedDate, \PDO::PARAM_STR);
+               
+               $Fname = $updatval->getFirst_name();
+               $name = $updatval->getName();
+               $mail = $updatval->getMail();
+               $phone = $updatval->getPhone_number();
+               $matricule = $updatval->getRegistration_number();
+               $modifieBy = $updatval->getModified_by();
+               $modifiedDate = $updatval->getModified_date();
+               $updatval1->bindParam(':id', $id, \PDO::PARAM_STR);
+               $updatval1->bindParam(':first_name', $Fname, \PDO::PARAM_STR);$id = $updatval->getId();
+               $updatval1->bindParam(':last_name', $name, \PDO::PARAM_STR);
+               $updatval1->bindParam(':mail', $mail, \PDO::PARAM_STR);
+               $updatval1->bindParam(':phone_number', $phone, \PDO::PARAM_STR);
+               $updatval1->bindParam(':registration_number', $matricule, \PDO::PARAM_STR);
+               $updatval1->bindParam(':modifie_by', $modifieBy, \PDO::PARAM_STR);
+               $updatval1->bindParam(':modifie_date', $modifiedDate, \PDO::PARAM_STR);
+               $updatval1->bindParam(':role_id', $roleId, \PDO::PARAM_STR);
+   
             if ($updatval1->execute()) {
                 return 1;
             } else {
                 return 0;
             }
         } else if ($testPhoto!='') {
-            $updatval2 = $this->_pdo->prepare("UPDATE Users 
-            SET   last_name = :last_name,
-                  first_name = :first_name, 
-                  mail = :mail, 
-                  phone_number = :phone_number, 
-                  registration_number = :registration_number, 
-                  modifie_by = :modifie_by, 
-                  photo_user = :photo_user, 
-                  modifie_date = :modifie_date
-              WHERE id = :id");
-            $id = $updatval->getId();
-            $Fname = $updatval->getFirst_name();
-            $name = $updatval->getName();
-            $mail = $updatval->getMail();
-            $phone = $updatval->getPhone_number();
-            $matricule = $updatval->getRegistration_number();
-            $modifieBy = $updatval->getModified_by();
-            $modifiedDate = $updatval->getModified_date();
-            $phot = $updatval->getPhoto_user();
-            $updatval2->bindParam(':id', $id, \PDO::PARAM_STR);
-            $updatval2->bindParam(':first_name', $Fname, \PDO::PARAM_STR);
-            $updatval2->bindParam(':last_name', $name, \PDO::PARAM_STR);
-            $updatval2->bindParam(':mail', $mail, \PDO::PARAM_STR);
-            $updatval2->bindParam(':phone_number', $phone, \PDO::PARAM_STR);
-            $updatval2->bindParam(':registration_number', $matricule, \PDO::PARAM_STR);
-            $updatval2->bindParam(':modifie_by', $modifieBy, \PDO::PARAM_STR);
-            $updatval2->bindParam(':modifie_date', $modifiedDate, \PDO::PARAM_STR);
-            $updatval2->bindParam(':photo_user', $phot, \PDO::PARAM_STR);
+        
+                $updatval2 = $this->_pdo->prepare("UPDATE Users 
+                SET   last_name = :last_name,
+                      first_name = :first_name, 
+                      mail = :mail, 
+                      phone_number = :phone_number, 
+                      registration_number = :registration_number, 
+                      modifie_by = :modifie_by, 
+                      photo_user = :photo_user, 
+                      modifie_date = :modifie_date,
+                      role_id = :role_id
+                  WHERE id = :id");
+                    $id = $updatval->getId();
+                    $Fname = $updatval->getFirst_name();
+                    $name = $updatval->getName();
+                    $mail = $updatval->getMail();
+                    $phone = $updatval->getPhone_number();
+                    $matricule = $updatval->getRegistration_number();
+                    $modifieBy = $updatval->getModified_by();
+                    $modifiedDate = $updatval->getModified_date();
+                    $phot = $updatval->getPhoto_user();
+                    $updatval2->bindParam(':id', $id, \PDO::PARAM_STR);
+                    $updatval2->bindParam(':first_name', $Fname, \PDO::PARAM_STR);
+                    $updatval2->bindParam(':last_name', $name, \PDO::PARAM_STR);
+                    $updatval2->bindParam(':mail', $mail, \PDO::PARAM_STR);
+                    $updatval2->bindParam(':phone_number', $phone, \PDO::PARAM_STR);
+                    $updatval2->bindParam(':registration_number', $matricule, \PDO::PARAM_STR);
+                    $updatval2->bindParam(':modifie_by', $modifieBy, \PDO::PARAM_STR);
+                    $updatval2->bindParam(':modifie_date', $modifiedDate, \PDO::PARAM_STR);
+                    $updatval2->bindParam(':photo_user', $phot, \PDO::PARAM_STR);
+                    $updatval2->bindParam(':role_id', $roleId, \PDO::PARAM_STR);
+          
             if ($updatval2->execute()) {
                 return 1;
             } else {
                 return 0;
             }
         } else if ($testDate!='') {
-            $updatval3 = $this->_pdo->prepare("UPDATE Users 
-            SET   last_name = :last_name,
-                  first_name = :first_name, 
-                  mail = :mail, 
-                  phone_number = :phone_number, 
-                  registration_number = :registration_number, 
-                  modifie_by = :modifie_by, 
-                  birth_date = :birth_date, 
-                  modifie_date = :modifie_date
-              WHERE id = :id");
-            $id = $updatval->getId();
-            $Fname = $updatval->getFirst_name();
-            $name = $updatval->getName();
-            $mail = $updatval->getMail();
-            $phone = $updatval->getPhone_number();
-            $matricule = $updatval->getRegistration_number();
-            $modifieBy = $updatval->getModified_by();
-            $modifiedDate = $updatval->getModified_date();
-            $birthDate = $updatval->getBirth_date();
-            $updatval3->bindParam(':id', $id, \PDO::PARAM_STR);
-            $updatval3->bindParam(':first_name', $Fname, \PDO::PARAM_STR);
-            $updatval3->bindParam(':last_name', $name, \PDO::PARAM_STR);
-            $updatval3->bindParam(':mail', $mail, \PDO::PARAM_STR);
-            $updatval3->bindParam(':phone_number', $phone, \PDO::PARAM_STR);
-            $updatval3->bindParam(':registration_number', $matricule, \PDO::PARAM_STR);
-            $updatval3->bindParam(':modifie_by', $modifieBy, \PDO::PARAM_STR);
-            $updatval3->bindParam(':modifie_date', $modifiedDate, \PDO::PARAM_STR);
-            $updatval3->bindParam(':birth_date', $birthDate, \PDO::PARAM_STR);
+          
+                $updatval3 = $this->_pdo->prepare("UPDATE Users 
+                SET   last_name = :last_name,
+                      first_name = :first_name, 
+                      mail = :mail, 
+                      phone_number = :phone_number, 
+                      registration_number = :registration_number, 
+                      modifie_by = :modifie_by, 
+                      birth_date = :birth_date, 
+                      modifie_date = :modifie_date,
+                      role_id = :role_id
+                  WHERE id = :id");
+                    $id = $updatval->getId();
+                    $Fname = $updatval->getFirst_name();
+                    $name = $updatval->getName();
+                    $mail = $updatval->getMail();
+                    $phone = $updatval->getPhone_number();
+                    $matricule = $updatval->getRegistration_number();
+                    $modifieBy = $updatval->getModified_by();
+                    $modifiedDate = $updatval->getModified_date();
+                    $birthDate = $updatval->getBirth_date();
+                    $updatval3->bindParam(':id', $id, \PDO::PARAM_STR);
+                    $updatval3->bindParam(':first_name', $Fname, \PDO::PARAM_STR);
+                    $updatval3->bindParam(':last_name', $name, \PDO::PARAM_STR);
+                    $updatval3->bindParam(':mail', $mail, \PDO::PARAM_STR);
+                    $updatval3->bindParam(':phone_number', $phone, \PDO::PARAM_STR);
+                    $updatval3->bindParam(':registration_number', $matricule, \PDO::PARAM_STR);
+                    $updatval3->bindParam(':modifie_by', $modifieBy, \PDO::PARAM_STR);
+                    $updatval3->bindParam(':modifie_date', $modifiedDate, \PDO::PARAM_STR);
+                    $updatval3->bindParam(':birth_date', $birthDate, \PDO::PARAM_STR);
+                    $updatval3->bindParam(':role_id', $roleId, \PDO::PARAM_STR);
             if ($updatval3->execute()) {
                 return 1;
             } else {
                 return 0;
             }
         } else {
-            $updatval4 = $this->_pdo->prepare("UPDATE Users 
-            SET   last_name = :last_name,
-                  first_name = :first_name, 
-                  mail = :mail, 
-                  phone_number = :phone_number, 
-                  registration_number = :registration_number, 
-                  modifie_by = :modifie_by, 
-                  birth_date = :birth_date, 
-                  photo_user = :photo_user, 
-                  modifie_date = :modifie_date
-              WHERE id = :id");
+           
+                $updatval4 = $this->_pdo->prepare("UPDATE Users 
+                SET   last_name = :last_name,
+                      first_name = :first_name, 
+                      mail = :mail, 
+                      phone_number = :phone_number, 
+                      registration_number = :registration_number, 
+                      modifie_by = :modifie_by, 
+                      birth_date = :birth_date, 
+                      photo_user = :photo_user, 
+                      modifie_date = :modifie_date,
+                      role_id = :role_id
+                  WHERE id = :id");
+                   
             $id = $updatval->getId();
             $Fname = $updatval->getFirst_name();
             $name = $updatval->getName();
@@ -515,6 +554,8 @@ class UsersServices
             $updatval4->bindParam(':modifie_date', $modifiedDate, \PDO::PARAM_STR);
             $updatval4->bindParam(':birth_date', $birthDate, \PDO::PARAM_STR);
             $updatval4->bindParam(':photo_user', $phot, \PDO::PARAM_STR);
+        
+
             if ($updatval4->execute()) {
                 return 1;
             } else {

@@ -10,16 +10,20 @@ require_once dirname(dirname(__DIR__)) . DIRECTORY_SEPARATOR . 'autoload.php';
 use App\Service\UsersServices;
 use Core\Auth\Auth;
 use Core\FlashMessages\Flash;
+use App\Service\TrainingsServices;
 use App\Entity\User;
 use App\Service\RegistrationServices;
 class UsersController
 {
     private UsersServices $usersServices;
     private RegistrationServices $registrationServices;
+    
+  private TrainingsServices $trainingsServices;
 
     public function __construct(){
         $this->usersServices = new UsersServices();
         $this->registrationServices = new RegistrationServices();
+        $this->trainingsServices = new TrainingsServices();
     }
 
     function index()
@@ -37,6 +41,10 @@ class UsersController
               
                 $users = $this->usersServices->getAll(); 
                 $GLOBALS['users'] = $users;
+
+                  /* obtenir les roles */
+        $roles=$this->registrationServices->getAllRole();
+        $GLOBALS['roles'] = $roles;
   
             if (isset($_SESSION['auth_user'])){
                 $auth_user=($_SESSION['auth_user']);
@@ -62,24 +70,7 @@ class UsersController
                 $idNewRole =intval( $_POST['newId']);
                 $NewRoleModified = $_POST['modified'];
                 $sqlUpdateRole = new UsersServices() ;
-                $resquest = $sqlUpdateRole->setNewRole($idNewRole, $newRole, $NewRoleModified) ;
-                switch ($resquest) {
-                    case 1:
-                        echo '<script> alert("modification reuisssir");
-                         window.location.href = "./../Users/dashboard.php";
-                        </script>';
-                        exit;
-                    case 0:
-                        echo '<script> alert("echec de modification");
-                        window.location.href = "./../Users/dashboard.php";
-                        </script>';               
-                        exit;
-                    //autres cas
-                    default:
-                    echo '<script> alert("echec");
-                    window.location.href = "./../Users/dashboard.php";
-                    </script>';
-                } 
+            
             }
 
 
@@ -87,6 +78,10 @@ class UsersController
   
     }
     public function updateUser(){
+
+        $trainings = $this->registrationServices->getTrainingsOPen();
+        $GLOBALS['trainings'] = $trainings;
+
         if (isset($_POST['btnEditUser'])) {
             $name = htmlspecialchars($_POST['name']);
             $firstName = htmlspecialchars($_POST['firstName']);
@@ -96,6 +91,7 @@ class UsersController
             $idUser = htmlspecialchars($_POST['idUser']);
             $birthDate = $_POST['birthDate'];
             $photoUser = $_POST['photoUser'];
+            $_SESSION['idMOdifiedStudent']=$idUser;
             if(!$_POST['modifiedSessionUser']){
                 $SE1 = new SessionManager();
                 $SE1->set('flashMessage','connecter vous!');
@@ -104,14 +100,14 @@ class UsersController
                 exit;
             }
             $modifiedSessionUser = $_POST['modifiedSessionUser'];
-            if($name=='' || $firstName=='' || $mail=='' || $phoneNumber=='' || $matriculeUser==''){
+            if($name=='' || $firstName=='' || $mail=='' || $phoneNumber==''){
                 $SE1 = new SessionManager();
                 $SE1->set('flashMessage','champs vide ou non remplir');
                 $_SESSION['flashMessage'] = $SE1->get('flashMessage');
                 header("location: ./../Users/directorHead.php");
                 exit;
             }
-            
+           
             $currentDate = date('Y-m-d');/* pour stocker la date de modification */
             $userData = [
             '_id' => $idUser,
@@ -124,22 +120,34 @@ class UsersController
             '_phone_number' => $phoneNumber,
             '_birth_date' => $birthDate,
             '_photo_user' => $photoUser,
-        ];
-        $update = new UsersServices();
-        $updateSave = $update->updateUser($userData);
-        if($updateSave==1){
-            $SE1 = new SessionManager();
-            $SE1->set('flashMessage','mise a jour reuissir');
-            $_SESSION['flashMessage'] = $SE1->get('flashMessage');
-            header("location: ./../Users/directorHead.php");
-            exit;
-        }else{
-            $SE1 = new SessionManager();
-            $SE1->set('flashMessage','échec des mise a jour');
-            $_SESSION['flashMessage'] = $SE1->get('flashMessage');
-            header("location: ./../Users/directorHead.php");
-            exit;
-        }
+            '_role_id' => intval($_POST['idRole']),
+        ]; 
+       
+            $update = new UsersServices(); 
+            $updateSave = $update->updateUser($userData);
+            if($updateSave==1){
+                unset($_SESSION['idMOdifiedStudent']);
+                $SE1 = new SessionManager();
+                $SE1->set('flashMessage','mise a jour reuissir');
+                $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+                header("location: ./../Users/directorHead.php");
+                exit;
+            }
+            else if($updateSave==20){
+                $SE1 = new SessionManager();
+                $SE1->set('flashMessage','un utilisateur a déja cette adresse email.');
+                $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+                header("location: ./../Users/directorHead.php");
+                exit;
+            }
+            else{
+                $SE1 = new SessionManager();
+                $SE1->set('flashMessage','échec des mise a jour');
+                $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+                header("location: ./../Users/directorHead.php");
+                exit;
+            }
+          
          
         }
     }
@@ -158,7 +166,12 @@ class UsersController
             $created_by = ($_POST['modified']);
             $pwd = ($_POST['pwdUser']);
                 if(!$created_by){
-                    $_SESSION['flashMessage']='veuillez vous connecter!'; 
+                 
+                        $SE1 = new SessionManager();
+                        $SE1->set('flashMessage','connectrer vous!');
+                        $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+                        header("location: ./../Users/signin.php");
+ 
                 exit;
                 }
 
@@ -185,38 +198,21 @@ class UsersController
             switch ($utilisateur1) {
                 case 1: 
                     $SE1 = new SessionManager();
-                    $SE1->set('flashMessage','Ajout d\'utilisateur reuissir');
-                    $_SESSION['flashMessage'] = $SE1->get('flashMessage');
+                    $SE1->set('flasMessage',' succes: utilisateur ajouter');
+                    $_SESSION['flasMessage'] = $SE1->get('flasMessage');
                     header("location: ./../Users/directorHead.php");
                     exit;
-                case 2:
-                    $SE1 = new SessionManager();
-                    $SE1->set('flashMessage','echec matricul');
-                    $_SESSION['flashMessage'] = $SE1->get('flashMessage');
-                    header("location: ./../Users/directorHead.php");
-                    exit;
+            
                 case 20:
                     $SE1 = new SessionManager();
                     $SE1->set('flasMessage','cet utilisateur est deja ajouter');
                     $_SESSION['flasMessage'] = $SE1->get('flasMessage');
                     header("location: ./../Users/directorHead.php");
                     exit;
-                case 21:
-                    $SE1 = new SessionManager();
-                    $SE1->set('flasMessage','echec enregistrement premier champs');
-                    $_SESSION['flasMessage'] = $SE1->get('flasMessage');
-                    header("location: ./../Users/directorHead.php");
-                    exit;
-                case 22:
-                    $SE1 = new SessionManager();
-                    $SE1->set('flasMessage','echec recuperation id: impossible d\'attribuer un matricule');
-                    $_SESSION['flasMessage'] = $SE1->get('flasMessage');
-                    header("location: ./../Users/directorHead.php");
-                    exit;
-                /*autres cas*/
+             
                 default:
                 $SE1 = new SessionManager();
-                $SE1->set('flasMessage','echec!');
+                $SE1->set('flasMessage',$utilisateur1);
                 $_SESSION['flasMessage'] = $SE1->get('flasMessage');
                 header("location: ./../Users/directorHead.php");
             }
@@ -242,9 +238,9 @@ class UsersController
             switch ($deletedUser) {
                 case 1:
                     $SE1 = new SessionManager();
-                        $SE1->set('flashMessage','suppression reuissir!');
-                        $_SESSION['flashMessage'] = $SE1->get('flashMessage');
-                        header("location: ./../Users/directorHead.php");
+                    $SE1->set('flasMessage',' succes: utilisateur supprimer');
+                    $_SESSION['flasMessage'] = $SE1->get('flasMessage');
+                    header("location: ./../Users/directorHead.php");
                     exit;
                 case 0:
                     $SE1 = new SessionManager();
