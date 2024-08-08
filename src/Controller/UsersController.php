@@ -11,6 +11,7 @@ use App\Service\UsersServices;
 use Core\Auth\Auth;
 use Core\FlashMessages\Flash;
 use App\Service\TrainingsServices;
+use App\Service\SessionsServices;
 use App\Entity\User;
 use App\Service\RegistrationServices;
 class UsersController
@@ -19,11 +20,13 @@ class UsersController
     private RegistrationServices $registrationServices;
     
   private TrainingsServices $trainingsServices;
+  private SessionsServices $sessionsServices;
 
     public function __construct(){
         $this->usersServices = new UsersServices();
         $this->registrationServices = new RegistrationServices();
         $this->trainingsServices = new TrainingsServices();
+        $this->sessionsServices = new SessionsServices();
     }
 
     function index()
@@ -38,10 +41,14 @@ class UsersController
     }
 
     public function dashboard(){
-              
+        
+              /* obtenir les utilisateurs disponible */
                 $users = $this->usersServices->getAll(); 
                 $GLOBALS['users'] = $users;
 
+                /* obtenir les sessions disponible */
+                $sessionsProject = $this->sessionsServices->getSessions();
+                $GLOBALS['sessionsProject'] = $sessionsProject;
                   /* obtenir les roles */
         $roles=$this->registrationServices->getAllRole();
         $GLOBALS['roles'] = $roles;

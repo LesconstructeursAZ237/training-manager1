@@ -276,7 +276,7 @@ if(!($_SESSION['ArrayAuth'])){
                             <!-- id student -->
                             <div class="mb-4">
 
-                                <input type="number" id="idModifieStudent" name="idModifieStudent"
+                                <input type="hidden" id="idModifieStudent" name="idModifieStudent"
                                     value="<?php if (isset($_GET['iduser'])) {
                                         echo $_GET['iduser'];
                                     } ?>"

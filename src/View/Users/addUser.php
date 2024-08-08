@@ -226,7 +226,6 @@ if(!($_SESSION['ArrayAuth'])){
     <script src="./../../../assets/js/DirectorHead.js"></script>
     <script src="./../../../assets/js/controlFormaddUser.js" defer></script>
 
-
    
 </body>
 </html>

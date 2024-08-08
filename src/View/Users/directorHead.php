@@ -97,8 +97,8 @@ if(!($_SESSION['ArrayAuth'])){
     <div class="flex flex-col md:flex-row h-full ">
 
         <!-- Menu vertical à gauche -->
-        <div id="verticalMenu"
-            class="hidden md:block sm:w-1/3 md:w-1/5 hidden bg-white text-black opacity-90  p-4  overflow-auto top-2/12">
+        <div id="verticalMenu" 
+            class="hidden md:block sm:w-1/3 md:w-1/5 hidden bg-white text-black opacity-90 p-4  overflow-auto top-2/12">
             <ul>
                 <a href="Aindex.php">
                     <h1
@@ -166,6 +166,30 @@ if(!($_SESSION['ArrayAuth'])){
                         voir les
                         Évenements</a></li>
             </ul>
+            <hr>
+            <ul>
+                <h1 class="w-full rounded p-1 m-0 text-blue-700 font-bold "><i class="fas fa-calendar-alt"></i>
+                    Sessions</h1>
+                <li><a href="#" class="block p-2 hover:bg-blue-800 hover:text-white  rounded"><i
+                            class="fas fa-plus"></i> ajouter</a></li>
+                
+                     <?php if(isset($sessionsProject) && (!empty($sessionsProject))){?>
+                        <li><button onclick="openSessions()" class="block p-2 hover:bg-blue-800 hover:text-white rounded"><i class="fas fa-eye"></i>
+                        voir les
+                        Sessions </button></li>
+                    <select name="" id="sessionsDB"
+                                        class="block hidden w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline">
+                                      
+                                        <?php foreach ($sessionsProject as $sessionsP) { ?>
+                                            <option class="rounded" value="<?=$sessionsP->getId() ?>"><?=$sessionsP->getAccademic_year() ?>
+                                            </option>
+                                        <?php } ?>
+                                    </select>
+                               
+                            <?php } else{ ?>
+                                            <h1 class="text-red-400">aucune sessions disponible</h1>   <?php } ?>
+            </ul>
+            
         </div>
 
         <!--debut Contenu personnalisé -->
@@ -176,7 +200,7 @@ if(!($_SESSION['ArrayAuth'])){
 
             <!--menu profi user  -->
             <div id="profileUser"
-                class="menuProfil absolute right-0 hidden bg-white top-0 z-10 flex-1 rounded shadow-lg w-1/2 sm:w-1/2 md:w-1/3 lg:w-1/5 text-gray-700 ">
+                class="menuProfil ml-1 relative h-2/3 right-0 overflow-auto hidden bg-white top-0 z-10 flex-1 rounded shadow-lg w-1/2 sm:w-1/2 md:w-1/3 lg:w-1/5 text-gray-700 ">
                 <div class="">
                     <a class="m-0 block capitalize rounded hover:text-white p-2 w-full hover:bg-gray-400" href="#">mon
                         compte</a>
@@ -524,6 +548,22 @@ if(!($_SESSION['ArrayAuth'])){
             document.getElementById('idRole').classList.remove('hidden');
             document.getElementById('btnOpenChangeRole').classList.add('hidden');
         }
+    </script>
+    <script>
+        function openSessions(){
+document.getElementById('sessionsDB').classList.toggle('hidden');
+        }
+
+        function closeFlashConnexion(){
+    
+    const menuMobile = function(submenuId) {
+        const submenu = document.getElementById(submenuId);
+        submenu.classList.toggle('hidden');
+    };
+
+    menuMobile('flashConnxion');
+    
+}
     </script>
 
 </body>
